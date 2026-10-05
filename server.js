@@ -17,6 +17,10 @@ const MAX_IMAGE_BYTES = MAX_IMAGE_MB * 1024 * 1024;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX = 10;
 
+// Access control & token budget
+const EVENT_CODE = (process.env.EVENT_CODE || '').trim();
+const DAILY_LIMIT = parseInt(process.env.DAILY_LIMIT || '0', 10); // 0 = unlimited
+
 // ---------------------------------------------------------------------------
 // Styles
 // ---------------------------------------------------------------------------
@@ -88,6 +92,34 @@ setInterval(() => {
 }, CLEANUP_INTERVAL_MS).unref();
 
 // ---------------------------------------------------------------------------
+// Access control & daily token budget
+// ---------------------------------------------------------------------------
+
+function isValidCode(code) {
+  if (!EVENT_CODE) return true; // feature disabled when no code configured
+  return typeof code === 'string' && code.trim() === EVENT_CODE;
+}
+
+let dailyUsage = { date: '', count: 0 };
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// Returns false when the daily cap is reached; otherwise increments and returns true.
+function reserveDailyQuota() {
+  const today = todayStr();
+  if (dailyUsage.date !== today) {
+    dailyUsage = { date: today, count: 0 };
+  }
+  if (DAILY_LIMIT > 0 && dailyUsage.count >= DAILY_LIMIT) {
+    return false;
+  }
+  dailyUsage.count += 1;
+  return true;
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
@@ -127,6 +159,17 @@ const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+
+// Block search engines & crawlers (keep the app private, avoid token abuse)
+app.use((_req, res, next) => {
+  res.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet, noimageindex');
+  next();
+});
+
+app.get('/robots.txt', (_req, res) => {
+  res.type('text/plain').send('User-agent: *\nDisallow: /\n');
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(storage.LOCAL_PUBLIC_PATH, express.static(storage.LOCAL_DIR));
 
@@ -138,6 +181,17 @@ app.get('/api/styles', (_req, res) => {
   res.json(STYLES.map(sanitiseStyleForClient));
 });
 
+app.get('/api/config', (_req, res) => {
+  res.json({ requireCode: Boolean(EVENT_CODE) });
+});
+
+app.post('/api/verify-code', (req, res) => {
+  if (isValidCode(req.body && req.body.code)) {
+    return res.json({ ok: true });
+  }
+  return res.status(401).json({ error: 'M\u00e3 s\u1ef1 ki\u1ec7n kh\u00f4ng \u0111\u00fang.' });
+});
+
 app.post('/api/generate', async (req, res) => {
   try {
     const clientIp = req.ip || req.connection.remoteAddress;
@@ -145,7 +199,11 @@ app.post('/api/generate', async (req, res) => {
       return res.status(429).json({ error: 'Qu\u00e1 nhi\u1ec1u y\u00eau c\u1ea7u. Vui l\u00f2ng th\u1eed l\u1ea1i sau 1 ph\u00fat.' });
     }
 
-    const { image, styleId, prompt: customPrompt } = req.body;
+    const { image, styleId, prompt: customPrompt, code } = req.body;
+
+    if (!isValidCode(code)) {
+      return res.status(401).json({ error: 'M\u00e3 s\u1ef1 ki\u1ec7n kh\u00f4ng \u0111\u00fang ho\u1eb7c \u0111\u00e3 h\u1ebft hi\u1ec7u l\u1ef1c.' });
+    }
 
     if (!image) {
       return res.status(400).json({ error: 'Thi\u1ebfu \u1ea3nh \u0111\u1ea7u v\u00e0o.' });
@@ -166,6 +224,10 @@ app.post('/api/generate', async (req, res) => {
 
     if (estimateBase64Bytes(parsed.data) > MAX_IMAGE_BYTES) {
       return res.status(400).json({ error: `\u1ea2nh v\u01b0\u1ee3t qu\u00e1 ${MAX_IMAGE_MB}MB.` });
+    }
+
+    if (!reserveDailyQuota()) {
+      return res.status(429).json({ error: '\u0110\u00e3 \u0111\u1ea1t gi\u1edbi h\u1ea1n t\u1ea1o \u1ea3nh trong ng\u00e0y. Vui l\u00f2ng quay l\u1ea1i sau.' });
     }
 
     const response = await ai.models.generateContent({

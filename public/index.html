@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#001965">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="googlebot" content="noindex, nofollow">
   <title>Digital Week Photo Booth - Novo Nordisk Vietnam</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -256,6 +258,19 @@
     }
     .consent-box label { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; font-size: 12.5px; line-height: 1.55; color: var(--gray-600); }
     .consent-box input[type="checkbox"] { width: 22px; height: 22px; min-width: 22px; margin-top: 1px; accent-color: var(--navy); cursor: pointer; }
+
+    .code-box { margin-bottom: 14px; }
+    .code-box label { display: block; font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 7px; letter-spacing: -0.2px; }
+    .code-box input {
+      width: 100%; font-family: inherit; font-size: 15px; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--navy);
+      background: var(--white); border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius); padding: 13px 14px; box-shadow: var(--shadow-xs);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .code-box input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(0,25,101,0.12); }
+    .code-box input::placeholder { font-weight: 400; letter-spacing: normal; text-transform: none; color: var(--gray-400); }
+    .code-error { font-size: 12px; color: #D92D20; margin-top: 7px; min-height: 16px; }
 
     .welcome-actions { margin-top: auto; }
 
@@ -545,6 +560,12 @@
           </div>
         </div>
 
+        <div class="code-box" id="codeBox" style="display:none;">
+          <label for="eventCodeInput">Mã sự kiện</label>
+          <input type="text" id="eventCodeInput" autocomplete="off" autocapitalize="characters" placeholder="Nhập mã được cung cấp tại sự kiện">
+          <p class="code-error" id="codeError"></p>
+        </div>
+
         <div class="consent-box">
           <label>
             <input type="checkbox" id="consentCheckbox">
@@ -728,6 +749,9 @@
 
       const consentCheckbox = document.getElementById('consentCheckbox');
       const btnStart        = document.getElementById('btnStart');
+      const codeBox         = document.getElementById('codeBox');
+      const eventCodeInput  = document.getElementById('eventCodeInput');
+      const codeError       = document.getElementById('codeError');
       const videoElement    = document.getElementById('videoElement');
       const videoContainer  = document.getElementById('videoContainer');
       const cameraActions   = document.getElementById('cameraActions');
@@ -785,9 +809,49 @@
         if (typeof errorRetryCallback === 'function') { errorRetryCallback(); }
       });
 
+      var requireCode = false;
+      var eventCode = '';
+
+      (function loadConfig() {
+        fetch('/api/config')
+          .then(function (r) { return r.json(); })
+          .then(function (cfg) {
+            requireCode = Boolean(cfg && cfg.requireCode);
+            if (requireCode) { codeBox.style.display = ''; }
+          })
+          .catch(function () { /* non-blocking */ });
+      })();
+
       consentCheckbox.addEventListener('change', function () { btnStart.disabled = !consentCheckbox.checked; });
-      btnStart.addEventListener('click', function () {
+
+      btnStart.addEventListener('click', async function () {
         if (!consentCheckbox.checked) return;
+        codeError.textContent = '';
+
+        if (requireCode) {
+          var entered = (eventCodeInput.value || '').trim();
+          if (!entered) { codeError.textContent = 'Vui lòng nhập mã sự kiện.'; return; }
+          btnStart.disabled = true;
+          try {
+            var res = await fetch('/api/verify-code', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ code: entered }),
+            });
+            if (!res.ok) {
+              codeError.textContent = 'Mã sự kiện không đúng. Vui lòng kiểm tra lại.';
+              btnStart.disabled = false;
+              return;
+            }
+            eventCode = entered;
+          } catch (err) {
+            codeError.textContent = 'Lỗi kết nối. Vui lòng thử lại.';
+            btnStart.disabled = false;
+            return;
+          }
+          btnStart.disabled = false;
+        }
+
         showScreen('camera');
         startCamera();
         fetchStyles();
@@ -1009,7 +1073,7 @@
           var res = await fetch('/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: capturedImageBase64, styleId: selectedStyleId, prompt: promptEditor.value }),
+            body: JSON.stringify({ image: capturedImageBase64, styleId: selectedStyleId, prompt: promptEditor.value, code: eventCode }),
           });
           var data = await res.json();
           if (!res.ok) { throw new Error(data.error || 'Lỗi không xác định'); }
