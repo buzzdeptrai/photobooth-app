@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#001965">
+  <title>Digital Week Photo Booth - Novo Nordisk Vietnam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ================================================================
+       Design tokens — Novo Nordisk brand
+       ================================================================ */
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #001965;
+      --navy-800: #0A2472;
+      --navy-600: #1A3A8F;
+      --blue: #0057D9;
+      --blue-400: #3B82F6;
+      --blue-50: #EAF1FC;
+      --blue-100: #DBE7FA;
+      --tint: #F3F7FC;
+
+      --white: #FFFFFF;
+      --ink: #0B1437;
+      --gray-50: #F6F8FB;
+      --gray-100: #EEF2F7;
+      --gray-200: #E2E8F1;
+      --gray-300: #CDD7E4;
+      --gray-400: #97A6BC;
+      --gray-500: #647692;
+      --gray-600: #46566E;
+      --gray-700: #2C3A52;
+
+      --shadow-xs: 0 1px 2px rgba(0, 25, 101, 0.06);
+      --shadow-sm: 0 2px 10px rgba(0, 25, 101, 0.07);
+      --shadow-md: 0 10px 30px rgba(0, 25, 101, 0.10);
+      --shadow-lg: 0 24px 60px rgba(0, 25, 101, 0.18);
+      --shadow-navy: 0 10px 26px rgba(0, 25, 101, 0.28);
+
+      --radius-sm: 10px;
+      --radius: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 26px;
+
+      --transition: 0.24s cubic-bezier(0.2, 0.9, 0.3, 1);
+      --font: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    html, body { height: 100%; font-family: var(--font); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+    body {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(900px 500px at 50% -15%, #E7EEFA 0%, transparent 60%),
+        linear-gradient(180deg, #EEF3F9 0%, #E4EBF4 100%);
+    }
+
+    .ic { width: 20px; height: 20px; display: block; flex: none; }
+
+    /* ---- App shell ---- */
+
+    .app-container {
+      position: relative;
+      width: 100%;
+      max-width: 468px;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: var(--white);
+      overflow: hidden;
+    }
+
+    @media (min-width: 500px) {
+      body { padding: 24px; }
+      .app-container {
+        min-height: auto;
+        height: calc(100dvh - 48px);
+        max-height: 912px;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+      }
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      padding: 24px 22px 26px;
+      position: relative;
+      overflow-y: auto;
+      animation: screenIn 0.38s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+    .screen.active { display: flex; }
+    .screen::-webkit-scrollbar { width: 0; }
+
+    @keyframes screenIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---- Header (light, corporate) ---- */
+
+    .app-header {
+      position: relative;
+      z-index: 2;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .brand-logo svg { width: 26px; height: 26px; }
+
+    .brand-text h1 { font-size: 15px; font-weight: 800; color: var(--navy); letter-spacing: -0.2px; line-height: 1.1; }
+    .brand-text p {
+      font-size: 10.5px; color: var(--gray-500); margin-top: 3px;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 1.4px;
+    }
+    .header-badge {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue);
+      background: var(--blue-50);
+      border: 1px solid var(--blue-100);
+      padding: 5px 11px;
+      border-radius: 999px;
+    }
+
+    /* ---- Buttons ---- */
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 52px;
+      padding: 14px 22px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-size: 15.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition), color var(--transition);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn svg { width: 19px; height: 19px; }
+    .btn:active { transform: scale(0.975); }
+
+    .btn-primary { background: var(--navy); color: var(--white); box-shadow: var(--shadow-navy); }
+    .btn-primary:hover { background: var(--navy-800); transform: translateY(-1px); box-shadow: 0 14px 32px rgba(0,25,101,0.34); }
+    .btn-primary:disabled { background: var(--gray-200); color: var(--gray-400); box-shadow: none; cursor: not-allowed; }
+    .btn-primary:disabled:active { transform: none; }
+
+    .btn-secondary { background: var(--white); color: var(--navy); border: 1.5px solid var(--gray-300); }
+    .btn-secondary:hover { border-color: var(--navy); background: var(--tint); }
+
+    .btn-outline { background: var(--gray-50); color: var(--gray-600); border: 1px solid var(--gray-200); }
+    .btn-outline:hover { background: var(--gray-100); color: var(--navy); }
+
+    .btn-block { width: 100%; }
+    .btn-group { display: flex; gap: 12px; width: 100%; }
+    .btn-group .btn { flex: 1; }
+
+    /* ---- Shared screen heading ---- */
+
+    .screen-heading { margin-bottom: 18px; }
+    .screen-heading h2 { font-size: 22px; font-weight: 800; color: var(--navy); letter-spacing: -0.4px; }
+    .screen-heading p { font-size: 13.5px; color: var(--gray-500); margin-top: 5px; line-height: 1.5; }
+
+    /* ================================================================
+       Screen 1: Welcome
+       ================================================================ */
+
+    .welcome-content { flex: 1; display: flex; flex-direction: column; gap: 22px; }
+
+    .hero {
+      position: relative;
+      border-radius: var(--radius-xl);
+      padding: 30px 24px 26px;
+      overflow: hidden;
+      background: linear-gradient(150deg, var(--navy) 0%, var(--navy-600) 55%, var(--blue) 120%);
+      color: var(--white);
+      box-shadow: var(--shadow-navy);
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -70px; right: -60px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(59,130,246,0.55), transparent 70%);
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -90px; left: -50px;
+      width: 190px; height: 190px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.12), transparent 70%);
+    }
+    .hero-emblem {
+      position: relative;
+      width: 72px; height: 72px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 18px;
+    }
+    .hero-emblem svg { width: 42px; height: 42px; color: var(--white); }
+    .hero h2 { position: relative; font-size: 25px; font-weight: 800; line-height: 1.22; letter-spacing: -0.5px; }
+    .hero p { position: relative; margin-top: 10px; font-size: 13.5px; line-height: 1.55; color: rgba(255,255,255,0.86); }
+
+    /* how-it-works steps */
+    .steps { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; padding: 2px; }
+    .step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+    .step-ic {
+      width: 46px; height: 46px; border-radius: 14px;
+      background: var(--blue-50); color: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--blue-100);
+    }
+    .step-ic svg { width: 22px; height: 22px; }
+    .step span { font-size: 11.5px; font-weight: 600; color: var(--gray-600); line-height: 1.3; }
+    .step-arrow { align-self: center; margin-top: 16px; color: var(--gray-300); }
+    .step-arrow svg { width: 16px; height: 16px; }
+
+    .consent-box {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+    .consent-box label { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; font-size: 12.5px; line-height: 1.55; color: var(--gray-600); }
+    .consent-box input[type="checkbox"] { width: 22px; height: 22px; min-width: 22px; margin-top: 1px; accent-color: var(--navy); cursor: pointer; }
+
+    .welcome-actions { margin-top: auto; }
+
+    /* ================================================================
+       Screen 2: Camera
+       ================================================================ */
+
+    .camera-wrapper { flex: 1; display: flex; flex-direction: column; gap: 18px; }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      background: #091024;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+    .video-container video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+    .video-container::after {
+      content: '';
+      position: absolute; inset: 16px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      pointer-events: none;
+    }
+
+    .camera-actions { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .btn-capture {
+      width: 74px; height: 74px; border-radius: 50%;
+      background: var(--white); border: none; cursor: pointer;
+      position: relative; box-shadow: 0 6px 18px rgba(0,25,101,0.22);
+      transition: transform var(--transition);
+    }
+    .btn-capture::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; border: 3px solid var(--gray-200); }
+    .btn-capture::after { content: ''; position: absolute; inset: 9px; border-radius: 50%; background: var(--navy); transition: inset var(--transition); }
+    .btn-capture:active { transform: scale(0.94); }
+    .btn-capture:active::after { inset: 12px; }
+    .camera-hint { font-size: 13px; color: var(--gray-400); font-weight: 500; }
+
+    .camera-fallback {
+      display: none; flex-direction: column; align-items: center; text-align: center;
+      padding: 40px 20px; background: var(--gray-50);
+      border: 1px dashed var(--gray-300); border-radius: var(--radius-lg); gap: 12px;
+    }
+    .camera-fallback.visible { display: flex; }
+    .fallback-icon { width: 56px; height: 56px; border-radius: 16px; background: var(--blue-50); color: var(--navy); display: flex; align-items: center; justify-content: center; }
+    .fallback-icon svg { width: 28px; height: 28px; }
+    .camera-fallback p { font-size: 14px; color: var(--gray-600); line-height: 1.5; }
+
+    .file-input-label {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 50px; padding: 13px 24px;
+      background: var(--navy); color: var(--white);
+      border-radius: var(--radius); font-size: 15px; font-weight: 700; cursor: pointer;
+      box-shadow: var(--shadow-navy); transition: transform var(--transition);
+    }
+    .file-input-label svg { width: 18px; height: 18px; }
+    .file-input-label:active { transform: scale(0.97); }
+    #fileInput { display: none; }
+
+    /* ================================================================
+       Screen 3: Preview
+       ================================================================ */
+
+    .preview-wrapper { flex: 1; display: flex; flex-direction: column; gap: 18px; }
+    .preview-image-container {
+      width: 100%; aspect-ratio: 3 / 4; border-radius: var(--radius-lg);
+      overflow: hidden; box-shadow: var(--shadow-md); background: var(--gray-200);
+      margin: auto 0; border: 3px solid var(--white);
+    }
+    .preview-image-container img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-actions { display: flex; gap: 12px; }
+    .preview-actions .btn { flex: 1; }
+
+    /* ================================================================
+       Screen 4: Style Selection
+       ================================================================ */
+
+    .styles-wrapper { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+    .styles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .style-card {
+      position: relative; background: var(--white);
+      border: 1.5px solid var(--gray-200); border-radius: var(--radius-lg);
+      padding: 20px 14px; display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 12px; cursor: pointer; box-shadow: var(--shadow-xs);
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition), background var(--transition);
+    }
+    .style-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--gray-300); }
+    .style-card:active { transform: scale(0.98); }
+    .style-card.selected { border-color: var(--navy); background: var(--tint); box-shadow: 0 0 0 3px rgba(0,25,101,0.14), var(--shadow-md); }
+
+    .style-card-icon {
+      width: 58px; height: 58px; min-width: 58px; border-radius: 17px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white); box-shadow: var(--shadow-sm);
+    }
+    .style-card-icon svg { width: 30px; height: 30px; }
+    .style-card-icon.icon-cartoon { background: linear-gradient(135deg, #1A3A8F, #0057D9); }
+    .style-card-icon.icon-apis    { background: linear-gradient(135deg, #0057D9, #3B82F6); }
+    .style-card-icon.icon-poster  { background: linear-gradient(135deg, #001965, #1A3A8F); }
+
+    .style-card-label { font-size: 14px; font-weight: 700; color: var(--gray-700); line-height: 1.3; }
+    .style-card.selected .style-card-label { color: var(--navy); }
+
+    .style-card-check {
+      position: absolute; top: 10px; right: 10px;
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 2px solid var(--gray-200); background: var(--white);
+      display: flex; align-items: center; justify-content: center; transition: all var(--transition);
+    }
+    .style-card.selected .style-card-check { background: var(--navy); border-color: var(--navy); color: var(--white); }
+    .style-card.selected .style-card-check::after { content: '\2713'; font-size: 13px; font-weight: 800; }
+
+    .prompt-editor { margin-top: 16px; animation: screenIn 0.3s ease; }
+    .prompt-editor label {
+      display: block; font-size: 13px; font-weight: 700; color: var(--navy);
+      margin-bottom: 7px; letter-spacing: -0.2px;
+    }
+    .prompt-editor textarea {
+      width: 100%; resize: vertical; min-height: 92px;
+      font-family: inherit; font-size: 13.5px; line-height: 1.55; color: var(--gray-700);
+      background: var(--white); border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow-xs);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .prompt-editor textarea:focus {
+      outline: none; border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(0,25,101,0.12);
+    }
+    .prompt-hint { font-size: 11.5px; color: var(--gray-500); margin-top: 6px; line-height: 1.5; }
+
+    .styles-actions { margin-top: 16px; padding-top: 0; }
+
+    /* ================================================================
+       Screen 5: Processing
+       ================================================================ */
+
+    .processing-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; text-align: center; }
+
+    .ai-loader { position: relative; width: 118px; height: 118px; }
+    .ai-loader-ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--navy), var(--blue), var(--blue-400), rgba(0,87,217,0.05), var(--navy));
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 9px), #000 calc(100% - 8px));
+              mask: radial-gradient(farthest-side, transparent calc(100% - 9px), #000 calc(100% - 8px));
+      animation: spin 1.15s linear infinite;
+    }
+    .ai-loader-core {
+      position: absolute; inset: 24px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--navy), var(--blue));
+      display: flex; align-items: center; justify-content: center; color: var(--white);
+      box-shadow: 0 8px 22px rgba(0,25,101,0.35);
+      animation: corePulse 1.8s ease-in-out infinite;
+    }
+    .ai-loader-core svg { width: 34px; height: 34px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes corePulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 8px 22px rgba(0,25,101,0.30); }
+      50%      { transform: scale(1.08); box-shadow: 0 10px 30px rgba(0,87,217,0.50); }
+    }
+
+    .processing-text { font-size: 14px; color: var(--gray-500); line-height: 1.6; max-width: 300px; }
+    .processing-text strong { display: block; font-size: 19px; color: var(--navy); margin-bottom: 8px; font-weight: 800; }
+    .processing-message { display: inline-block; min-height: 22px; transition: opacity 0.4s ease; }
+    .processing-message.fading { opacity: 0; }
+    .processing-dots::after { content: ''; animation: dots 1.4s steps(4, end) infinite; }
+    @keyframes dots { 0%{content:'';} 25%{content:'.';} 50%{content:'..';} 75%{content:'...';} }
+
+    .progress-track {
+      width: 100%; max-width: 280px; height: 7px; border-radius: 99px;
+      background: var(--gray-200); overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; width: 0%; border-radius: 99px;
+      background: linear-gradient(90deg, var(--navy), var(--blue), var(--blue-400));
+      transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* ================================================================
+       Screen 6: Result
+       ================================================================ */
+
+    .result-wrapper { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+    .result-image-container {
+      width: 100%; border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow-md); background: var(--gray-200); border: 3px solid var(--white);
+    }
+    .result-image-container img { width: 100%; height: auto; display: block; }
+    .result-actions { display: flex; flex-direction: column; gap: 10px; }
+    .result-actions .btn-row { display: flex; gap: 10px; }
+    .result-actions .btn-row .btn { flex: 1; }
+
+    .qr-card {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--tint); border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg); padding: 14px; box-shadow: var(--shadow-xs);
+    }
+    .qr-card img { width: 86px; height: 86px; min-width: 86px; border-radius: 12px; background: var(--white); padding: 5px; box-shadow: var(--shadow-xs); }
+    .qr-card .qr-text strong { display: flex; align-items: center; gap: 7px; font-size: 14.5px; color: var(--navy); margin-bottom: 4px; font-weight: 700; }
+    .qr-card .qr-text strong svg { width: 17px; height: 17px; }
+    .qr-card .qr-text span { font-size: 12.5px; color: var(--gray-600); line-height: 1.45; }
+
+    /* ================================================================
+       Screen 7: Thank You
+       ================================================================ */
+
+    .thanks-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 24px; }
+    .thanks-check {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: var(--navy); color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 16px 40px rgba(0,25,101,0.32);
+      animation: pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1);
+    }
+    .thanks-check svg { width: 50px; height: 50px; }
+    @keyframes pop { 0%{transform:scale(0);} 70%{transform:scale(1.12);} 100%{transform:scale(1);} }
+    .thanks-text h2 { font-size: 25px; font-weight: 800; color: var(--navy); letter-spacing: -0.3px; }
+    .thanks-text p { font-size: 14px; color: var(--gray-500); margin-top: 8px; line-height: 1.55; }
+
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed; left: 50%; bottom: 34px;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--ink); color: var(--white);
+      padding: 13px 22px; border-radius: 999px; font-size: 14px; font-weight: 600;
+      box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none;
+      transition: all var(--transition); z-index: 200; white-space: nowrap;
+    }
+    .toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ---- Error overlay ---- */
+    .error-overlay {
+      display: none; position: fixed; inset: 0; z-index: 100;
+      background: rgba(11,20,55,0.55); backdrop-filter: blur(3px);
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    .error-overlay.visible { display: flex; animation: screenIn 0.25s ease; }
+    .error-card { background: var(--white); border-radius: var(--radius-lg); padding: 32px 26px; text-align: center; max-width: 360px; width: 100%; box-shadow: var(--shadow-lg); }
+    .error-ic { width: 60px; height: 60px; border-radius: 50%; background: #FDECEC; color: #D64545; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .error-ic svg { width: 30px; height: 30px; }
+    .error-card h3 { font-size: 19px; color: var(--navy); margin-bottom: 8px; font-weight: 800; }
+    .error-card p { font-size: 14px; color: var(--gray-500); margin-bottom: 22px; line-height: 1.5; }
+    .error-card .btn-group { justify-content: center; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-logo" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="currentColor"><path d="M7 11c.4 6.2 3.9 9.3 7.8 10.4A11.8 11.8 0 0 0 10 31a14 14 0 0 0 28 0 11.8 11.8 0 0 0-4.8-9.6C37.1 20.3 40.6 17.2 41 11c0 0-5.3 1.6-8.7 5.6-2-2.9-5-4.8-8.3-4.8s-6.3 1.9-8.3 4.8C12.3 12.6 7 11 7 11z"/><circle cx="18.5" cy="29" r="2.4" fill="#fff"/><circle cx="29.5" cy="29" r="2.4" fill="#fff"/></svg>
+      </div>
+      <div class="brand-text">
+        <h1>Photo Booth AI</h1>
+        <p>Novo Nordisk Vietnam</p>
+      </div>
+      <span class="header-badge">Digital Week</span>
+    </header>
+
+    <!-- Screen 1: Welcome -->
+    <div id="screen-welcome" class="screen active">
+      <div class="welcome-content">
+        <div class="hero">
+          <div class="hero-emblem" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l2.2 5.8L21 11l-5.8 2.2L13 19l-2.2-5.8L5 11l5.8-2.2z"/><path d="M19 15v4M21 17h-4M5 4v3M6.5 5.5h-3"/></svg>
+          </div>
+          <h2>Biến khoảnh khắc<br>thành ảnh AI đẳng cấp</h2>
+          <p>Chụp một tấm hình và để AI sáng tạo phong cách Digital Week dành riêng cho bạn.</p>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <span class="step-ic"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+            <span>Chụp ảnh</span>
+          </div>
+          <span class="step-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <div class="step">
+            <span class="step-ic"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5z"/></svg></span>
+            <span>Chọn phong cách</span>
+          </div>
+          <span class="step-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <div class="step">
+            <span class="step-ic"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></span>
+            <span>Nhận ảnh AI</span>
+          </div>
+        </div>
+
+        <div class="consent-box">
+          <label>
+            <input type="checkbox" id="consentCheckbox">
+            <span>Tôi đồng ý cho ứng dụng sử dụng camera để tạo ảnh vui Digital Week. Ảnh chỉ dùng cho mục đích tạo ảnh của sự kiện.</span>
+          </label>
+        </div>
+
+        <div class="welcome-actions">
+          <button id="btnStart" class="btn btn-primary btn-block" disabled>Bắt đầu ngay</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: Camera -->
+    <div id="screen-camera" class="screen">
+      <div class="screen-heading">
+        <h2>Chụp ảnh của bạn</h2>
+        <p>Căn khuôn mặt vào giữa khung và nhấn nút chụp</p>
+      </div>
+      <div class="camera-wrapper">
+        <div class="video-container" id="videoContainer">
+          <video id="videoElement" autoplay playsinline muted></video>
+        </div>
+        <div class="camera-actions" id="cameraActions">
+          <button class="btn-capture" id="btnCapture" aria-label="Chụp ảnh"></button>
+          <span class="camera-hint">Nhấn để chụp ảnh</span>
+        </div>
+        <div class="camera-fallback" id="cameraFallback">
+          <div class="fallback-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <p>Không thể truy cập camera.<br>Vui lòng chọn ảnh từ thư viện.</p>
+          <label class="file-input-label" for="fileInput">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+            Chọn ảnh
+          </label>
+          <input type="file" id="fileInput" accept="image/*" capture="user">
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: Preview -->
+    <div id="screen-preview" class="screen">
+      <div class="screen-heading">
+        <h2>Xem lại ảnh</h2>
+        <p>Bạn hài lòng với tấm ảnh này chứ?</p>
+      </div>
+      <div class="preview-wrapper">
+        <div class="preview-image-container">
+          <img id="previewImage" src="" alt="Ảnh đã chụp">
+        </div>
+        <div class="preview-actions">
+          <button id="btnRetake" class="btn btn-secondary">Chụp lại</button>
+          <button id="btnContinue" class="btn btn-primary">Tiếp tục</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: Styles -->
+    <div id="screen-styles" class="screen">
+      <div class="styles-wrapper">
+        <div class="screen-heading">
+          <h2>Chọn phong cách</h2>
+          <p>Mỗi phong cách cho ra một phiên bản khác nhau</p>
+        </div>
+        <div class="styles-grid" id="stylesGrid"></div>
+        <div class="prompt-editor" id="promptEditorWrap" style="display:none;">
+          <label for="promptEditor">Mô tả phong cách (có thể sửa hoặc thêm chi tiết)</label>
+          <textarea id="promptEditor" rows="4" maxlength="2000" placeholder="Nhập mô tả bạn muốn AI tạo ảnh..."></textarea>
+          <p class="prompt-hint">Mẹo: viết tiếng Anh cho kết quả tốt nhất. Luôn giữ dòng "keep the same face" để giống mặt thật.</p>
+        </div>
+        <div class="styles-actions">
+          <button id="btnGenerate" class="btn btn-primary btn-block" disabled>Tạo ảnh AI</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: Processing -->
+    <div id="screen-processing" class="screen">
+      <div class="processing-wrapper">
+        <div class="ai-loader">
+          <div class="ai-loader-ring"></div>
+          <div class="ai-loader-core">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5z"/></svg>
+          </div>
+        </div>
+        <div class="processing-text">
+          <strong>Đang tạo ảnh AI<span class="processing-dots"></span></strong>
+          <span id="processingMessage" class="processing-message">Đang chuẩn bị...</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </div>
+
+    <!-- Screen 6: Result -->
+    <div id="screen-result" class="screen">
+      <div class="result-wrapper">
+        <div class="screen-heading">
+          <h2>Ảnh của bạn đã sẵn sàng!</h2>
+          <p>Tải về hoặc quét QR để lưu vào điện thoại</p>
+        </div>
+        <div class="result-image-container">
+          <img id="resultImage" src="" alt="Ảnh AI đã tạo">
+        </div>
+        <div class="qr-card" id="qrCard" style="display: none;">
+          <img id="qrImage" src="" alt="Mã QR tải ảnh">
+          <div class="qr-text">
+            <strong><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v7M17 21h4M14 18v3"/></svg>Quét để lưu ảnh</strong>
+            <span>Dùng camera điện thoại quét mã QR để mở và lưu ảnh về máy.</span>
+          </div>
+        </div>
+        <div class="result-actions">
+          <div class="btn-row">
+            <button id="btnDownload" class="btn btn-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+              Tải về
+            </button>
+            <button id="btnShare" class="btn btn-secondary" style="display: none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+              Chia sẻ
+            </button>
+          </div>
+          <div class="btn-row">
+            <button id="btnRetry" class="btn btn-outline">Làm lại</button>
+            <button id="btnNewPhoto" class="btn btn-outline">Chụp ảnh mới</button>
+          </div>
+          <button id="btnDone" class="btn btn-primary btn-block">Hoàn tất</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 7: Thanks -->
+    <div id="screen-thanks" class="screen">
+      <div class="thanks-wrapper">
+        <div class="thanks-check" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="thanks-text">
+          <h2>Cảm ơn bạn!</h2>
+          <p>Chúc bạn có một Digital Week thật vui.<br>Hẹn gặp lại tại gian hàng Novo Nordisk.</p>
+        </div>
+        <div class="welcome-actions" style="width:100%;">
+          <button id="btnRestart" class="btn btn-primary btn-block">Tạo ảnh mới</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Error overlay -->
+    <div class="error-overlay" id="errorOverlay">
+      <div class="error-card">
+        <div class="error-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+        <h3 id="errorTitle">Đã xảy ra lỗi</h3>
+        <p id="errorMessage">Vui lòng thử lại.</p>
+        <div class="btn-group">
+          <button id="btnErrorRetry" class="btn btn-primary">Thử lại</button>
+          <button id="btnErrorClose" class="btn btn-outline">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      let capturedImageBase64 = null;
+      let selectedStyleId = null;
+      let styles = [];
+      let cameraStream = null;
+
+      const screens = {
+        welcome:    document.getElementById('screen-welcome'),
+        camera:     document.getElementById('screen-camera'),
+        preview:    document.getElementById('screen-preview'),
+        styles:     document.getElementById('screen-styles'),
+        processing: document.getElementById('screen-processing'),
+        result:     document.getElementById('screen-result'),
+        thanks:     document.getElementById('screen-thanks'),
+      };
+
+      const consentCheckbox = document.getElementById('consentCheckbox');
+      const btnStart        = document.getElementById('btnStart');
+      const videoElement    = document.getElementById('videoElement');
+      const videoContainer  = document.getElementById('videoContainer');
+      const cameraActions   = document.getElementById('cameraActions');
+      const cameraFallback  = document.getElementById('cameraFallback');
+      const btnCapture      = document.getElementById('btnCapture');
+      const fileInput       = document.getElementById('fileInput');
+      const previewImage    = document.getElementById('previewImage');
+      const btnRetake       = document.getElementById('btnRetake');
+      const btnContinue     = document.getElementById('btnContinue');
+      const stylesGrid      = document.getElementById('stylesGrid');
+      const promptEditorWrap = document.getElementById('promptEditorWrap');
+      const promptEditor    = document.getElementById('promptEditor');
+      const btnGenerate     = document.getElementById('btnGenerate');
+      const progressFill    = document.getElementById('progressFill');
+      const processingMessage = document.getElementById('processingMessage');
+      const resultImage     = document.getElementById('resultImage');
+      const qrCard          = document.getElementById('qrCard');
+      const qrImage         = document.getElementById('qrImage');
+      const btnDownload     = document.getElementById('btnDownload');
+      const btnShare        = document.getElementById('btnShare');
+      const btnRetry        = document.getElementById('btnRetry');
+      const btnNewPhoto     = document.getElementById('btnNewPhoto');
+      const btnDone         = document.getElementById('btnDone');
+      const btnRestart      = document.getElementById('btnRestart');
+      const toast           = document.getElementById('toast');
+      const errorOverlay    = document.getElementById('errorOverlay');
+      const errorTitle      = document.getElementById('errorTitle');
+      const errorMessage    = document.getElementById('errorMessage');
+      const btnErrorRetry   = document.getElementById('btnErrorRetry');
+      const btnErrorClose   = document.getElementById('btnErrorClose');
+
+      function showScreen(name) {
+        Object.values(screens).forEach(function (el) { el.classList.remove('active'); });
+        if (screens[name]) { screens[name].classList.add('active'); }
+      }
+
+      let errorRetryCallback = null;
+
+      function showError(title, message, retryFn) {
+        errorTitle.textContent = title;
+        errorMessage.textContent = message;
+        errorRetryCallback = retryFn || null;
+        btnErrorRetry.style.display = retryFn ? '' : 'none';
+        errorOverlay.classList.add('visible');
+      }
+
+      function hideError() {
+        errorOverlay.classList.remove('visible');
+        errorRetryCallback = null;
+      }
+
+      btnErrorClose.addEventListener('click', function () { hideError(); showScreen('styles'); });
+      btnErrorRetry.addEventListener('click', function () {
+        hideError();
+        if (typeof errorRetryCallback === 'function') { errorRetryCallback(); }
+      });
+
+      consentCheckbox.addEventListener('change', function () { btnStart.disabled = !consentCheckbox.checked; });
+      btnStart.addEventListener('click', function () {
+        if (!consentCheckbox.checked) return;
+        showScreen('camera');
+        startCamera();
+        fetchStyles();
+      });
+
+      async function startCamera() {
+        try {
+          var stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+            audio: false,
+          });
+          cameraStream = stream;
+          videoElement.srcObject = stream;
+          videoContainer.style.display = '';
+          cameraActions.style.display = '';
+          cameraFallback.classList.remove('visible');
+        } catch (err) {
+          showCameraFallback();
+        }
+      }
+
+      function stopCamera() {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach(function (t) { t.stop(); });
+          cameraStream = null;
+          videoElement.srcObject = null;
+        }
+      }
+
+      function showCameraFallback() {
+        videoContainer.style.display = 'none';
+        cameraActions.style.display = 'none';
+        cameraFallback.classList.add('visible');
+      }
+
+      btnCapture.addEventListener('click', function () { captureFromVideo(); });
+
+      function captureFromVideo() {
+        var canvas = document.createElement('canvas');
+        var maxSize = 1024;
+        var w = videoElement.videoWidth;
+        var h = videoElement.videoHeight;
+        if (!w || !h) return;
+        if (w > h) { if (w > maxSize) { h = h * maxSize / w; w = maxSize; } }
+        else { if (h > maxSize) { w = w * maxSize / h; h = maxSize; } }
+        w = Math.round(w); h = Math.round(h);
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(videoElement, 0, 0, w, h);
+        capturedImageBase64 = canvas.toDataURL('image/jpeg', 0.85);
+        stopCamera();
+        previewImage.src = capturedImageBase64;
+        showScreen('preview');
+      }
+
+      fileInput.addEventListener('change', function (e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        handleImageFile(file);
+      });
+
+      function handleImageFile(file) {
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          var img = new Image();
+          img.onload = function () {
+            var canvas = document.createElement('canvas');
+            var maxSize = 1024;
+            var w = img.width; var h = img.height;
+            if (w > h) { if (w > maxSize) { h = h * maxSize / w; w = maxSize; } }
+            else { if (h > maxSize) { w = w * maxSize / h; h = maxSize; } }
+            w = Math.round(w); h = Math.round(h);
+            canvas.width = w; canvas.height = h;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            capturedImageBase64 = canvas.toDataURL('image/jpeg', 0.85);
+            previewImage.src = capturedImageBase64;
+            showScreen('preview');
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      btnRetake.addEventListener('click', function () {
+        capturedImageBase64 = null;
+        fileInput.value = '';
+        showScreen('camera');
+        startCamera();
+      });
+
+      btnContinue.addEventListener('click', function () { showScreen('styles'); });
+
+      /* Professional line SVG icons per style */
+      var SVG_PERSON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
+      var SVG_BULL   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5c.3 3.4 2.2 5 4.3 5.6A6 6 0 0 0 6 15a6 6 0 0 0 12 0 6 6 0 0 0-2.3-4.4C17.8 10 19.7 8.4 20 5c0 0-3 .9-4.9 3.1C13.9 6.5 12.5 6 12 6s-1.9.5-3.1 2.1C7 5.9 4 5 4 5z"/><circle cx="9.5" cy="14.5" r="1"/><circle cx="14.5" cy="14.5" r="1"/></svg>';
+      var SVG_POSTER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+      var SVG_STAR   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5z"/></svg>';
+
+      var STYLE_ICON_MAP = {
+        'office-cartoon': { svg: SVG_PERSON, cssClass: 'icon-cartoon' },
+        'apis-buddy':     { svg: SVG_BULL,   cssClass: 'icon-apis' },
+        'digital-poster': { svg: SVG_POSTER, cssClass: 'icon-poster' },
+      };
+      var FALLBACK_ICONS = [
+        { svg: SVG_STAR,   cssClass: 'icon-cartoon' },
+        { svg: SVG_BULL,   cssClass: 'icon-apis' },
+        { svg: SVG_POSTER, cssClass: 'icon-poster' },
+      ];
+
+      async function fetchStyles() {
+        if (styles.length > 0) return;
+        try {
+          var res = await fetch('/api/styles');
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          styles = await res.json();
+          renderStyles();
+        } catch (err) {
+          showError('Lỗi kết nối', 'Không thể tải danh sách phong cách. Vui lòng thử lại.', fetchStyles);
+        }
+      }
+
+      function renderStyles() {
+        stylesGrid.innerHTML = '';
+        styles.forEach(function (style, index) {
+          var iconData = STYLE_ICON_MAP[style.id] || FALLBACK_ICONS[index % FALLBACK_ICONS.length];
+          var card = document.createElement('div');
+          card.className = 'style-card';
+          card.dataset.styleId = style.id;
+          card.innerHTML =
+            '<div class="style-card-icon ' + iconData.cssClass + '">' + iconData.svg + '</div>' +
+            '<span class="style-card-label">' + escapeHtml(style.label) + '</span>' +
+            '<div class="style-card-check"></div>';
+          card.addEventListener('click', function () { selectStyle(style.id); });
+          stylesGrid.appendChild(card);
+        });
+      }
+
+      function selectStyle(styleId) {
+        selectedStyleId = styleId;
+        btnGenerate.disabled = false;
+        var cards = stylesGrid.querySelectorAll('.style-card');
+        cards.forEach(function (card) {
+          card.classList.toggle('selected', card.dataset.styleId === styleId);
+        });
+        var style = styles.find(function (s) { return s.id === styleId; });
+        promptEditor.value = (style && style.prompt) ? style.prompt : '';
+        promptEditorWrap.style.display = '';
+      }
+
+      btnGenerate.addEventListener('click', function () { generateImage(); });
+
+      /* ---- Processing animation controller ---- */
+      var PROC_MESSAGES = [
+        'Đang phân tích khuôn mặt của bạn...',
+        'Đang dựng bố cục theo phong cách...',
+        'AI đang vẽ từng chi tiết...',
+        'Đang tinh chỉnh ánh sáng & màu sắc...',
+        'Sắp hoàn thành, chờ xíu nhé...',
+      ];
+      var PROC_MESSAGES_SLOW = [
+        'Ảnh chất lượng cao cần thêm chút thời gian...',
+        'Cảm ơn bạn đã kiên nhẫn, sắp xong rồi!',
+        'Đang hoàn thiện những nét cuối cùng...',
+      ];
+      var SLOW_THRESHOLD_MS = 18000;
+
+      var procState = { msgTimer: null, progTimer: null, startTs: 0, progress: 0, msgIndex: 0 };
+
+      function setProcMessage(text) {
+        processingMessage.classList.add('fading');
+        setTimeout(function () {
+          processingMessage.textContent = text;
+          processingMessage.classList.remove('fading');
+        }, 300);
+      }
+
+      function startProcessingAnimation() {
+        procState.startTs = Date.now();
+        procState.progress = 0;
+        procState.msgIndex = 0;
+        progressFill.style.width = '0%';
+        processingMessage.textContent = PROC_MESSAGES[0];
+
+        // Rotate messages every 3s; switch to reassurance set when slow
+        procState.msgTimer = setInterval(function () {
+          var elapsed = Date.now() - procState.startTs;
+          if (elapsed >= SLOW_THRESHOLD_MS) {
+            var i = Math.floor((elapsed - SLOW_THRESHOLD_MS) / 3000) % PROC_MESSAGES_SLOW.length;
+            setProcMessage(PROC_MESSAGES_SLOW[i]);
+          } else {
+            procState.msgIndex = (procState.msgIndex + 1) % PROC_MESSAGES.length;
+            setProcMessage(PROC_MESSAGES[procState.msgIndex]);
+          }
+        }, 3000);
+
+        // Fake progress: fast at first, easing toward 90% cap
+        procState.progTimer = setInterval(function () {
+          var remaining = 90 - procState.progress;
+          procState.progress += Math.max(0.4, remaining * 0.06);
+          if (procState.progress > 90) procState.progress = 90;
+          progressFill.style.width = procState.progress.toFixed(1) + '%';
+        }, 500);
+      }
+
+      function stopProcessingAnimation(success) {
+        clearInterval(procState.msgTimer);
+        clearInterval(procState.progTimer);
+        procState.msgTimer = null;
+        procState.progTimer = null;
+        if (success) { progressFill.style.width = '100%'; }
+      }
+
+      async function generateImage() {
+        if (!capturedImageBase64 || !selectedStyleId) return;
+        showScreen('processing');
+        startProcessingAnimation();
+        try {
+          var res = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: capturedImageBase64, styleId: selectedStyleId, prompt: promptEditor.value }),
+          });
+          var data = await res.json();
+          if (!res.ok) { throw new Error(data.error || 'Lỗi không xác định'); }
+          if (!data.image) { throw new Error('Không nhận được ảnh từ server.'); }
+
+          var branded = await addWatermark(data.image);
+          resultImage.src = branded;
+
+          stopProcessingAnimation(true);
+          await new Promise(function (r) { setTimeout(r, 450); });
+          showScreen('result');
+
+          if (navigator.canShare) { btnShare.style.display = ''; }
+          else { btnShare.style.display = 'none'; }
+
+          storeResult(branded);
+        } catch (err) {
+          stopProcessingAnimation(false);
+          var msg = err.message || 'Lỗi khi tạo ảnh. Vui lòng thử lại sau.';
+          if (err.message && err.message.indexOf('Failed to fetch') !== -1) { msg = 'Lỗi kết nối. Vui lòng thử lại.'; }
+          showError('Không thể tạo ảnh', msg, generateImage);
+        }
+      }
+
+      function addWatermark(dataUri) {
+        return new Promise(function (resolve) {
+          var img = new Image();
+          img.onload = function () {
+            var canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            var w = canvas.width, h = canvas.height;
+            var barHeight = Math.max(44, Math.round(h * 0.09));
+            var grad = ctx.createLinearGradient(0, h - barHeight, 0, h);
+            grad.addColorStop(0, 'rgba(0,0,0,0)');
+            grad.addColorStop(1, 'rgba(0,0,0,0.55)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, h - barHeight, w, barHeight);
+            var fontSize = Math.max(16, Math.round(h * 0.028));
+            var pad = Math.round(fontSize * 0.9);
+            ctx.textBaseline = 'bottom';
+            ctx.font = '700 ' + fontSize + 'px "Noto Sans", -apple-system, sans-serif';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillText('Novo Nordisk Vietnam', pad, h - pad);
+            ctx.textAlign = 'right';
+            ctx.font = '600 ' + Math.round(fontSize * 0.82) + 'px "Noto Sans", -apple-system, sans-serif';
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.fillText('Digital Week', w - pad, h - pad);
+            resolve(canvas.toDataURL('image/png'));
+          };
+          img.onerror = function () { resolve(dataUri); };
+          img.src = dataUri;
+        });
+      }
+
+      async function storeResult(dataUri) {
+        qrCard.style.display = 'none';
+        try {
+          var res = await fetch('/api/store', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: dataUri }),
+          });
+          if (!res.ok) return;
+          var data = await res.json();
+          if (data.qr) {
+            qrImage.src = data.qr;
+            qrCard.style.display = '';
+          }
+        } catch (err) { /* non-fatal */ }
+      }
+
+      var toastTimer = null;
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add('visible');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toast.classList.remove('visible'); }, 2500);
+      }
+
+      btnDownload.addEventListener('click', function () {
+        downloadImage(resultImage.src);
+        showToast('Đã tải ảnh về máy');
+      });
+
+      btnShare.addEventListener('click', function () { shareImage(resultImage.src); });
+
+      btnRetry.addEventListener('click', function () {
+        selectedStyleId = null;
+        btnGenerate.disabled = true;
+        promptEditorWrap.style.display = 'none';
+        promptEditor.value = '';
+        var cards = stylesGrid.querySelectorAll('.style-card');
+        cards.forEach(function (c) { c.classList.remove('selected'); });
+        showScreen('styles');
+      });
+
+      btnNewPhoto.addEventListener('click', function () {
+        resetForNewPhoto();
+        showScreen('camera');
+        startCamera();
+      });
+
+      btnDone.addEventListener('click', function () { showScreen('thanks'); });
+
+      btnRestart.addEventListener('click', function () {
+        resetForNewPhoto();
+        consentCheckbox.checked = false;
+        btnStart.disabled = true;
+        showScreen('welcome');
+      });
+
+      function resetForNewPhoto() {
+        capturedImageBase64 = null;
+        selectedStyleId = null;
+        btnGenerate.disabled = true;
+        promptEditorWrap.style.display = 'none';
+        promptEditor.value = '';
+        fileInput.value = '';
+        qrCard.style.display = 'none';
+        qrImage.src = '';
+        var cards = stylesGrid.querySelectorAll('.style-card');
+        cards.forEach(function (c) { c.classList.remove('selected'); });
+      }
+
+      function downloadImage(base64Src) {
+        var a = document.createElement('a');
+        a.href = base64Src;
+        a.download = 'digital-week-photo.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+
+      async function shareImage(base64Src) {
+        try {
+          var res = await fetch(base64Src);
+          var blob = await res.blob();
+          var file = new File([blob], 'digital-week-photo.png', { type: blob.type });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: 'Digital Week Photo', text: 'My Digital Week AI Photo - Novo Nordisk Vietnam' });
+          }
+        } catch (err) { /* cancelled */ }
+      }
+
+      function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+      }
+    })();
+  </script>
+</body>
+</html>

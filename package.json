@@ -1,0 +1,18 @@
+{
+  "name": "photo-booth-ai",
+  "version": "1.0.0",
+  "description": "Photo Booth AI - Generate styled photos with Gemini",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1146.0",
+    "@google/genai": "^1.0.0",
+    "cloudinary": "^2.11.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "qrcode": "^1.5.4"
+  }
+}
