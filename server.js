@@ -20,6 +20,7 @@ const RATE_LIMIT_MAX = 10;
 // Access control & token budget
 const EVENT_CODE = (process.env.EVENT_CODE || '').trim();
 const DAILY_LIMIT = parseInt(process.env.DAILY_LIMIT || '0', 10); // 0 = unlimited
+const ADMIN_TOKEN = (process.env.ADMIN_TOKEN || '').trim();
 
 // ---------------------------------------------------------------------------
 // Styles
@@ -27,31 +28,109 @@ const DAILY_LIMIT = parseInt(process.env.DAILY_LIMIT || '0', 10); // 0 = unlimit
 
 const STYLES = [
   {
-    id: 'office-cartoon',
-    label: 'Nh\u00e2n vi\u00ean ho\u1ea1t h\u00ecnh',
+    id: 'digital-leader',
+    label: 'Empowered Digital Leader',
     preview: '/img/s1.png',
     prompt:
-      'Transform this person into a friendly cartoon-style modern office worker. ' +
-      'Keep the same face and identity clearly recognizable. Clean modern office ' +
-      'background, Novo Nordisk blue color tone. Professional, cheerful, high quality illustration.'
+      'A high-end editorial corporate portrait of the person in this photo, strictly ' +
+      'maintaining 100% identical facial features, natural skin tone, eyes, and genuine ' +
+      'expression without distortion. The subject poses as an Empowered Digital Leader during ' +
+      'Novo Nordisk Digital Week, exuding confidence and intellect, looking directly at the ' +
+      'camera with a subtle, warm smile. Dressed in a bespoke tailored Novo Nordisk deep navy ' +
+      'blue blazer with a subtle metallic company pin on the lapel, layered over an elegant silk ' +
+      'white or light-cream inner blouse/shirt. Naturally holding a sleek digital tablet and an ' +
+      'executive leather portfolio notebook. Set in a grand, state-of-the-art corporate innovation ' +
+      'hub with high ceilings, vast glass architecture, and subtle blurred displays showing ' +
+      'holographic medical charts, DNA structures, and digital analytics. Prominent yet tasteful ' +
+      "event branding with 'DIGITAL WEEK' and 'EMPOWERING HEALTHCARE' standees, paired with refined " +
+      'navy, white, and silver balloons and corporate floral accents. Soft daylight through ' +
+      'expansive floor-to-ceiling glass blended with modern studio rim lighting. Shallow depth of ' +
+      'field, creamy bokeh, clean 8k photorealistic resolution, authentic 35mm photography aesthetic.'
   },
   {
-    id: 'apis-buddy',
-    label: 'Ch\u1ee5p c\u00f9ng b\u00f2 Apis',
+    id: 'nordic-grace',
+    label: 'Nordic Grace Celebration (20/10)',
     preview: '/img/s2.png',
     prompt:
-      "Keep this person's face and identity. Place a cute friendly cartoon Apis bull " +
-      'mascot standing next to them in a modern bright office. Warm, playful, Novo ' +
-      'Nordisk blue accents. High quality.'
+      'A natural-light corporate event portrait of the person in this photo, strictly preserving ' +
+      'their authentic facial identity, bone structure, and facial expression. The subject stands ' +
+      "in a vibrant corporate office lobby during Novo Nordisk's Vietnamese Women's Day (October 20) " +
+      'celebration. Wearing an elegant navy blue blazer over a soft pastel pink or cream dress shirt, ' +
+      'gracefully holding a delicate bouquet of fresh pastel roses, lisianthus, and lush greenery ' +
+      'tied with a neat navy blue ribbon. Looking at the camera with a warm, welcoming smile. The ' +
+      'modern glass-and-steel lobby is tastefully decorated for an office company party: branded ' +
+      "backdrops reading 'Chúc mừng Ngày Phụ nữ Việt Nam 20-10' and 'Happy Women's Day 20/10', " +
+      "standing 'Digital Week' roll-up banners, and clusters of corporate blue and white balloons. " +
+      'Blurred background shows corporate colleagues casually networking, completely free of any ' +
+      'wedding drapes, romantic arches, or wedding-like motifs. Bright, diffused daylight through ' +
+      'lobby windows, shallow depth of field, sharp subject focus, realistic photographic texture.'
   },
   {
-    id: 'digital-poster',
-    label: 'Poster Digital Week',
+    id: 'future-healthcare',
+    label: 'Future Healthcare & AI Innovation',
     preview: '/img/s3.png',
     prompt:
-      "Create an event poster style image from this photo. Keep the person's face " +
-      "recognizable. Add clean modern 'Digital Week' vibe: subtle tech icons, blue " +
-      'gradient, minimalist corporate design. Leave clear space at the top for a title.'
+      'A visionary future healthcare portrait of the person in this photo, accurately preserving ' +
+      'their identical facial features, eyes, and natural skin texture. Dressed in a sleek, ' +
+      'smart-casual corporate blazer in Novo Nordisk True Blue (#001965) over a clean white shirt, ' +
+      'featuring a discreet logo on the chest. Set inside a cutting-edge healthcare technology ' +
+      'laboratory and digital innovation center, strictly devoid of any party decorations or flowers. ' +
+      'The background features glowing medical data monitors, floating network connection nodes, ' +
+      "smart health visualization screens, and frosted glass partitions with faint 'FUTURE HEALTHCARE' " +
+      'typography. Controlled cool-toned interior illumination with soft blue and teal ambient rim ' +
+      'lights. Sharp focus on the subject, balanced studio depth of field, premium editorial look, ' +
+      'photorealistic 8k render.'
+  },
+  {
+    id: 'driving-change',
+    label: 'Driving Change & Dynamic Collaboration',
+    preview: '/img/s4.png',
+    prompt:
+      'An energetic, candid lifestyle corporate portrait of the person in this photo, preserving ' +
+      'authentic face shape, smile, and natural facial proportions. Wearing a casual corporate navy ' +
+      'blue polo shirt with a subtle chest logo. Positioned in a bustling, open-concept collaborative ' +
+      'workspace and innovation lounge. Warm daylight streams through expansive windows, illuminating ' +
+      'an interactive company culture atmosphere: blurred colleagues brainstorming at touchscreens, ' +
+      "event display boards with 'DRIVING CHANGE' and 'DIGITAL WEEK', and modest company-colored " +
+      'decorative balloons. Authentic documentary feel, dynamic yet professional, shallow depth of ' +
+      'field, sharp eye focus, crisp 35mm camera aesthetics.'
+  },
+  {
+    id: 'digital-toy',
+    label: 'The Digital Toy',
+    preview: '/img/s5.png',
+    prompt:
+      'A high-quality, professional 3D toy figure based on the person in this photo, strictly ' +
+      'maintaining 100% identical facial features, original skin tone, eyes, and friendly ' +
+      'expression, reimagined as an adorable chibi-style collectible art toy (blind box figure ' +
+      "style, similar to Pop Mart). The character is an 'AI & DIGITAL WEEK' champion, wearing a " +
+      'cute oversized deep navy blue hoodie with a tiny Novo Nordisk logo and futuristic ' +
+      'data/network motifs on the chest, paired with tiny stylish blue and white sneakers. The ' +
+      "figure is standing on a mini glossy plastic pedestal with 'SPECIAL EDITION 20/10' written " +
+      'on it, positioned inside or next to a transparent open-front toy packaging box (blind box ' +
+      "style) decorated with vibrant 'NOVO NORDISK DIGITAL WEEK' and 'HAPPY WOMEN'S DAY 20/10' " +
+      'branding, logos, and playful digital glitches. Soft, colorful volumetric lighting illuminates ' +
+      'the scene, highlighting shiny, smooth plastic/resin toy materials, vibrant pastel gradients, ' +
+      'and playful holographic micro-details on the box packaging. In the background, there is a ' +
+      'blurry, out-of-focus corporate office. Creative CGI/Clay 3D render, Octane render, pop-toy ' +
+      'art aesthetic with rich depth of field.'
+  },
+  {
+    id: 'webtoon-weekday',
+    label: 'Webtoon Weekday',
+    preview: '/img/s6.png',
+    prompt:
+      'A vibrant, high-quality 2D anime/manhwa Webtoon-style illustration of the person in this ' +
+      'photo, strictly maintaining 100% identical and recognizable facial features, hairstyle, and ' +
+      'friendly expression in an anime/manhwa aesthetic. The subject is depicted in a lively, candid ' +
+      "office scenario for 'Novo Nordisk Digital Week'. Wearing a stylish, relaxed-fit navy blue " +
+      'corporate-casual shirt with a tiny brand emblem on the chest, carrying a modern digital tablet ' +
+      'and a keycard lanyard. Naturally looking at the camera with a cheerful, energetic Gen-Z smile. ' +
+      "Set in a colorful, hand-drawn anime office lobby filled with digital screens, 'DIGITAL WEEK " +
+      "20/10' and 'HAPPY WOMEN'S DAY!' banner decorations, playful tech icons, balloons, confetti, and " +
+      'comic-style background staff. The artwork features crisp cel-shading, rich pastel and navy blue ' +
+      'palettes, expressive action lines, and soft overlay glows. A cinematic Webtoon/Manhwa panel ' +
+      'composition with colorful sparkles and digital particles.'
   }
 ];
 
@@ -95,9 +174,13 @@ setInterval(() => {
 // Access control & daily token budget
 // ---------------------------------------------------------------------------
 
+function normaliseCode(value) {
+  return String(value == null ? '' : value).replace(/\s+/g, '').toUpperCase();
+}
+
 function isValidCode(code) {
   if (!EVENT_CODE) return true; // feature disabled when no code configured
-  return typeof code === 'string' && code.trim() === EVENT_CODE;
+  return typeof code === 'string' && normaliseCode(code) === normaliseCode(EVENT_CODE);
 }
 
 let dailyUsage = { date: '', count: 0 };
@@ -260,6 +343,19 @@ app.post('/api/generate', async (req, res) => {
   } catch (err) {
     console.error('[generate] Error:', err.message || err);
     return res.status(502).json({ error: 'L\u1ed7i khi t\u1ea1o \u1ea3nh. Vui l\u00f2ng th\u1eed l\u1ea1i sau.' });
+  }
+});
+
+app.get('/api/gallery', async (req, res) => {
+  if (!ADMIN_TOKEN || (req.query.token || '').trim() !== ADMIN_TOKEN) {
+    return res.status(401).json({ error: 'Unauthorized.' });
+  }
+  try {
+    const items = await storage.listImages(getBaseUrl(req));
+    return res.json({ count: items.length, items });
+  } catch (err) {
+    console.error('[gallery] Error:', err.message || err);
+    return res.status(502).json({ error: 'Kh\u00f4ng th\u1ec3 t\u1ea3i danh s\u00e1ch \u1ea3nh.' });
   }
 });
 

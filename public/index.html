@@ -149,6 +149,20 @@
       padding: 5px 11px;
       border-radius: 999px;
     }
+    .lang-toggle {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--navy);
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      padding: 5px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .lang-toggle:hover { background: var(--gray-50); border-color: var(--gray-400); }
+    .lang-toggle:active { transform: scale(0.96); }
 
     /* ---- Buttons ---- */
 
@@ -370,9 +384,11 @@
       color: var(--white); box-shadow: var(--shadow-sm);
     }
     .style-card-icon svg { width: 30px; height: 30px; }
-    .style-card-icon.icon-cartoon { background: linear-gradient(135deg, #1A3A8F, #0057D9); }
-    .style-card-icon.icon-apis    { background: linear-gradient(135deg, #0057D9, #3B82F6); }
+    .style-card-icon.icon-pioneer { background: linear-gradient(135deg, #0A2472, #0057D9); }
+    .style-card-icon.icon-aodai   { background: linear-gradient(135deg, #1A3A8F, #3B82F6); }
+    .style-card-icon.icon-women   { background: linear-gradient(135deg, #C2185B, #E84393); }
     .style-card-icon.icon-poster  { background: linear-gradient(135deg, #001965, #1A3A8F); }
+    .style-card-icon.icon-health  { background: linear-gradient(135deg, #0057D9, #00A6A6); }
 
     .style-card-label { font-size: 14px; font-weight: 700; color: var(--gray-700); line-height: 1.3; }
     .style-card.selected .style-card-label { color: var(--navy); }
@@ -530,6 +546,7 @@
         <p>Novo Nordisk Vietnam</p>
       </div>
       <span class="header-badge">Digital Week</span>
+      <button class="lang-toggle" id="btnLang" type="button" aria-label="Switch language">EN</button>
     </header>
 
     <!-- Screen 1: Welcome -->
@@ -539,42 +556,42 @@
           <div class="hero-emblem" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l2.2 5.8L21 11l-5.8 2.2L13 19l-2.2-5.8L5 11l5.8-2.2z"/><path d="M19 15v4M21 17h-4M5 4v3M6.5 5.5h-3"/></svg>
           </div>
-          <h2>Biến khoảnh khắc<br>thành ảnh AI đẳng cấp</h2>
-          <p>Chụp một tấm hình và để AI sáng tạo phong cách Digital Week dành riêng cho bạn.</p>
+          <h2 data-i18n-html="welcome.title">Biến khoảnh khắc<br>thành ảnh AI đẳng cấp</h2>
+          <p data-i18n="welcome.subtitle">Chụp một tấm hình và để AI sáng tạo phong cách Digital Week dành riêng cho bạn.</p>
         </div>
 
         <div class="steps">
           <div class="step">
             <span class="step-ic"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
-            <span>Chụp ảnh</span>
+            <span data-i18n="step.capture">Chụp ảnh</span>
           </div>
           <span class="step-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
           <div class="step">
             <span class="step-ic"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5z"/></svg></span>
-            <span>Chọn phong cách</span>
+            <span data-i18n="step.style">Chọn phong cách</span>
           </div>
           <span class="step-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
           <div class="step">
             <span class="step-ic"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></span>
-            <span>Nhận ảnh AI</span>
+            <span data-i18n="step.result">Nhận ảnh AI</span>
           </div>
         </div>
 
         <div class="code-box" id="codeBox" style="display:none;">
-          <label for="eventCodeInput">Mã sự kiện</label>
-          <input type="text" id="eventCodeInput" autocomplete="off" autocapitalize="characters" placeholder="Nhập mã được cung cấp tại sự kiện">
+          <label for="eventCodeInput" data-i18n="code.label">Mã sự kiện</label>
+          <input type="text" id="eventCodeInput" autocomplete="off" autocapitalize="characters" data-i18n-ph="code.placeholder" placeholder="Nhập mã được cung cấp tại sự kiện">
           <p class="code-error" id="codeError"></p>
         </div>
 
         <div class="consent-box">
           <label>
             <input type="checkbox" id="consentCheckbox">
-            <span>Tôi đồng ý cho ứng dụng sử dụng camera để tạo ảnh vui Digital Week. Ảnh chỉ dùng cho mục đích tạo ảnh của sự kiện.</span>
+            <span data-i18n="consent">Tôi đồng ý cho ứng dụng sử dụng camera để tạo ảnh vui Digital Week. Ảnh chỉ dùng cho mục đích tạo ảnh của sự kiện.</span>
           </label>
         </div>
 
         <div class="welcome-actions">
-          <button id="btnStart" class="btn btn-primary btn-block" disabled>Bắt đầu ngay</button>
+          <button id="btnStart" class="btn btn-primary btn-block" data-i18n="btn.start" disabled>Bắt đầu ngay</button>
         </div>
       </div>
     </div>
@@ -582,23 +599,23 @@
     <!-- Screen 2: Camera -->
     <div id="screen-camera" class="screen">
       <div class="screen-heading">
-        <h2>Chụp ảnh của bạn</h2>
-        <p>Căn khuôn mặt vào giữa khung và nhấn nút chụp</p>
+        <h2 data-i18n="camera.title">Chụp ảnh của bạn</h2>
+        <p data-i18n="camera.subtitle">Căn khuôn mặt vào giữa khung và nhấn nút chụp</p>
       </div>
       <div class="camera-wrapper">
         <div class="video-container" id="videoContainer">
           <video id="videoElement" autoplay playsinline muted></video>
         </div>
         <div class="camera-actions" id="cameraActions">
-          <button class="btn-capture" id="btnCapture" aria-label="Chụp ảnh"></button>
-          <span class="camera-hint">Nhấn để chụp ảnh</span>
+          <button class="btn-capture" id="btnCapture" data-i18n-aria="camera.capture" aria-label="Chụp ảnh"></button>
+          <span class="camera-hint" data-i18n="camera.hint">Nhấn để chụp ảnh</span>
         </div>
         <div class="camera-fallback" id="cameraFallback">
           <div class="fallback-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
-          <p>Không thể truy cập camera.<br>Vui lòng chọn ảnh từ thư viện.</p>
+          <p data-i18n-html="camera.fallback">Không thể truy cập camera.<br>Vui lòng chọn ảnh từ thư viện.</p>
           <label class="file-input-label" for="fileInput">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
-            Chọn ảnh
+            <span data-i18n="camera.choose">Chọn ảnh</span>
           </label>
           <input type="file" id="fileInput" accept="image/*" capture="user">
         </div>
@@ -608,16 +625,16 @@
     <!-- Screen 3: Preview -->
     <div id="screen-preview" class="screen">
       <div class="screen-heading">
-        <h2>Xem lại ảnh</h2>
-        <p>Bạn hài lòng với tấm ảnh này chứ?</p>
+        <h2 data-i18n="preview.title">Xem lại ảnh</h2>
+        <p data-i18n="preview.subtitle">Bạn hài lòng với tấm ảnh này chứ?</p>
       </div>
       <div class="preview-wrapper">
         <div class="preview-image-container">
-          <img id="previewImage" src="" alt="Ảnh đã chụp">
+          <img id="previewImage" src="" data-i18n-alt="preview.alt" alt="Ảnh đã chụp">
         </div>
         <div class="preview-actions">
-          <button id="btnRetake" class="btn btn-secondary">Chụp lại</button>
-          <button id="btnContinue" class="btn btn-primary">Tiếp tục</button>
+          <button id="btnRetake" class="btn btn-secondary" data-i18n="btn.retake">Chụp lại</button>
+          <button id="btnContinue" class="btn btn-primary" data-i18n="btn.continue">Tiếp tục</button>
         </div>
       </div>
     </div>
@@ -626,17 +643,17 @@
     <div id="screen-styles" class="screen">
       <div class="styles-wrapper">
         <div class="screen-heading">
-          <h2>Chọn phong cách</h2>
-          <p>Mỗi phong cách cho ra một phiên bản khác nhau</p>
+          <h2 data-i18n="styles.title">Chọn phong cách</h2>
+          <p data-i18n="styles.subtitle">Mỗi phong cách cho ra một phiên bản khác nhau</p>
         </div>
         <div class="styles-grid" id="stylesGrid"></div>
         <div class="prompt-editor" id="promptEditorWrap" style="display:none;">
-          <label for="promptEditor">Mô tả phong cách (có thể sửa hoặc thêm chi tiết)</label>
-          <textarea id="promptEditor" rows="4" maxlength="2000" placeholder="Nhập mô tả bạn muốn AI tạo ảnh..."></textarea>
-          <p class="prompt-hint">Mẹo: viết tiếng Anh cho kết quả tốt nhất. Luôn giữ dòng "keep the same face" để giống mặt thật.</p>
+          <label for="promptEditor" data-i18n="styles.promptLabel">Mô tả phong cách (có thể sửa hoặc thêm chi tiết)</label>
+          <textarea id="promptEditor" rows="4" maxlength="2000" data-i18n-ph="styles.promptPlaceholder" placeholder="Nhập mô tả bạn muốn AI tạo ảnh..."></textarea>
+          <p class="prompt-hint" data-i18n="styles.promptHint">Mẹo: viết tiếng Anh cho kết quả tốt nhất. Luôn giữ dòng "keep the same face" để giống mặt thật.</p>
         </div>
         <div class="styles-actions">
-          <button id="btnGenerate" class="btn btn-primary btn-block" disabled>Tạo ảnh AI</button>
+          <button id="btnGenerate" class="btn btn-primary btn-block" data-i18n="btn.generate" disabled>Tạo ảnh AI</button>
         </div>
       </div>
     </div>
@@ -651,7 +668,7 @@
           </div>
         </div>
         <div class="processing-text">
-          <strong>Đang tạo ảnh AI<span class="processing-dots"></span></strong>
+          <strong><span data-i18n="processing.title">Đang tạo ảnh AI</span><span class="processing-dots"></span></strong>
           <span id="processingMessage" class="processing-message">Đang chuẩn bị...</span>
         </div>
         <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
@@ -662,35 +679,35 @@
     <div id="screen-result" class="screen">
       <div class="result-wrapper">
         <div class="screen-heading">
-          <h2>Ảnh của bạn đã sẵn sàng!</h2>
-          <p>Tải về hoặc quét QR để lưu vào điện thoại</p>
+          <h2 data-i18n="result.title">Ảnh của bạn đã sẵn sàng!</h2>
+          <p data-i18n="result.subtitle">Tải về hoặc quét QR để lưu vào điện thoại</p>
         </div>
         <div class="result-image-container">
-          <img id="resultImage" src="" alt="Ảnh AI đã tạo">
+          <img id="resultImage" src="" data-i18n-alt="result.alt" alt="Ảnh AI đã tạo">
         </div>
         <div class="qr-card" id="qrCard" style="display: none;">
-          <img id="qrImage" src="" alt="Mã QR tải ảnh">
+          <img id="qrImage" src="" data-i18n-alt="result.qrAlt" alt="Mã QR tải ảnh">
           <div class="qr-text">
-            <strong><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v7M17 21h4M14 18v3"/></svg>Quét để lưu ảnh</strong>
-            <span>Dùng camera điện thoại quét mã QR để mở và lưu ảnh về máy.</span>
+            <strong><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v7M17 21h4M14 18v3"/></svg><span data-i18n="result.qrTitle">Quét để lưu ảnh</span></strong>
+            <span data-i18n="result.qrDesc">Dùng camera điện thoại quét mã QR để mở và lưu ảnh về máy.</span>
           </div>
         </div>
         <div class="result-actions">
           <div class="btn-row">
             <button id="btnDownload" class="btn btn-primary">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-              Tải về
+              <span data-i18n="btn.download">Tải về</span>
             </button>
             <button id="btnShare" class="btn btn-secondary" style="display: none;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
-              Chia sẻ
+              <span data-i18n="btn.share">Chia sẻ</span>
             </button>
           </div>
           <div class="btn-row">
-            <button id="btnRetry" class="btn btn-outline">Làm lại</button>
-            <button id="btnNewPhoto" class="btn btn-outline">Chụp ảnh mới</button>
+            <button id="btnRetry" class="btn btn-outline" data-i18n="btn.retry">Làm lại</button>
+            <button id="btnNewPhoto" class="btn btn-outline" data-i18n="btn.newPhoto">Chụp ảnh mới</button>
           </div>
-          <button id="btnDone" class="btn btn-primary btn-block">Hoàn tất</button>
+          <button id="btnDone" class="btn btn-primary btn-block" data-i18n="btn.done">Hoàn tất</button>
         </div>
       </div>
     </div>
@@ -702,11 +719,11 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
         </div>
         <div class="thanks-text">
-          <h2>Cảm ơn bạn!</h2>
-          <p>Chúc bạn có một Digital Week thật vui.<br>Hẹn gặp lại tại gian hàng Novo Nordisk.</p>
+          <h2 data-i18n="thanks.title">Cảm ơn bạn!</h2>
+          <p data-i18n-html="thanks.subtitle">Chúc bạn có một Digital Week thật vui.<br>Hẹn gặp lại tại gian hàng Novo Nordisk.</p>
         </div>
         <div class="welcome-actions" style="width:100%;">
-          <button id="btnRestart" class="btn btn-primary btn-block">Tạo ảnh mới</button>
+          <button id="btnRestart" class="btn btn-primary btn-block" data-i18n="btn.restart">Tạo ảnh mới</button>
         </div>
       </div>
     </div>
@@ -721,8 +738,8 @@
         <h3 id="errorTitle">Đã xảy ra lỗi</h3>
         <p id="errorMessage">Vui lòng thử lại.</p>
         <div class="btn-group">
-          <button id="btnErrorRetry" class="btn btn-primary">Thử lại</button>
-          <button id="btnErrorClose" class="btn btn-outline">Đóng</button>
+          <button id="btnErrorRetry" class="btn btn-primary" data-i18n="btn.errorRetry">Thử lại</button>
+          <button id="btnErrorClose" class="btn btn-outline" data-i18n="btn.close">Đóng</button>
         </div>
       </div>
     </div>
@@ -736,6 +753,216 @@
       let selectedStyleId = null;
       let styles = [];
       let cameraStream = null;
+
+      /* ================================================================
+         i18n — Vietnamese / English
+         ================================================================ */
+      var I18N = {
+        vi: {
+          'welcome.title': 'Biến khoảnh khắc<br>thành ảnh AI đẳng cấp',
+          'welcome.subtitle': 'Chụp một tấm hình và để AI sáng tạo phong cách Digital Week dành riêng cho bạn.',
+          'step.capture': 'Chụp ảnh',
+          'step.style': 'Chọn phong cách',
+          'step.result': 'Nhận ảnh AI',
+          'code.label': 'Mã sự kiện',
+          'code.placeholder': 'Nhập mã được cung cấp tại sự kiện',
+          'consent': 'Tôi đồng ý cho ứng dụng sử dụng camera để tạo ảnh vui Digital Week. Ảnh chỉ dùng cho mục đích tạo ảnh của sự kiện.',
+          'btn.start': 'Bắt đầu ngay',
+          'camera.title': 'Chụp ảnh của bạn',
+          'camera.subtitle': 'Căn khuôn mặt vào giữa khung và nhấn nút chụp',
+          'camera.capture': 'Chụp ảnh',
+          'camera.hint': 'Nhấn để chụp ảnh',
+          'camera.fallback': 'Không thể truy cập camera.<br>Vui lòng chọn ảnh từ thư viện.',
+          'camera.choose': 'Chọn ảnh',
+          'preview.title': 'Xem lại ảnh',
+          'preview.subtitle': 'Bạn hài lòng với tấm ảnh này chứ?',
+          'preview.alt': 'Ảnh đã chụp',
+          'btn.retake': 'Chụp lại',
+          'btn.continue': 'Tiếp tục',
+          'styles.title': 'Chọn phong cách',
+          'styles.subtitle': 'Mỗi phong cách cho ra một phiên bản khác nhau',
+          'styles.promptLabel': 'Mô tả phong cách (có thể sửa hoặc thêm chi tiết)',
+          'styles.promptPlaceholder': 'Nhập mô tả bạn muốn AI tạo ảnh...',
+          'styles.promptHint': 'Mẹo: viết tiếng Anh cho kết quả tốt nhất. Luôn giữ dòng "keep the same face" để giống mặt thật.',
+          'btn.generate': 'Tạo ảnh AI',
+          'processing.title': 'Đang tạo ảnh AI',
+          'result.title': 'Ảnh của bạn đã sẵn sàng!',
+          'result.subtitle': 'Tải về hoặc quét QR để lưu vào điện thoại',
+          'result.alt': 'Ảnh AI đã tạo',
+          'result.qrAlt': 'Mã QR tải ảnh',
+          'result.qrTitle': 'Quét để lưu ảnh',
+          'result.qrDesc': 'Dùng camera điện thoại quét mã QR để mở và lưu ảnh về máy.',
+          'btn.download': 'Tải về',
+          'btn.share': 'Chia sẻ',
+          'btn.retry': 'Làm lại',
+          'btn.newPhoto': 'Chụp ảnh mới',
+          'btn.done': 'Hoàn tất',
+          'thanks.title': 'Cảm ơn bạn!',
+          'thanks.subtitle': 'Chúc bạn có một Digital Week thật vui.<br>Hẹn gặp lại tại gian hàng Novo Nordisk.',
+          'btn.restart': 'Tạo ảnh mới',
+          'btn.errorRetry': 'Thử lại',
+          'btn.close': 'Đóng',
+          'code.errEmpty': 'Vui lòng nhập mã sự kiện.',
+          'code.errWrong': 'Mã sự kiện không đúng. Vui lòng kiểm tra lại.',
+          'code.errConn': 'Lỗi kết nối. Vui lòng thử lại.',
+          'err.connTitle': 'Lỗi kết nối',
+          'err.stylesLoad': 'Không thể tải danh sách phong cách. Vui lòng thử lại.',
+          'err.genTitle': 'Không thể tạo ảnh',
+          'err.unknown': 'Lỗi không xác định',
+          'err.noImage': 'Không nhận được ảnh từ server.',
+          'err.genGeneric': 'Lỗi khi tạo ảnh. Vui lòng thử lại sau.',
+          'toast.downloaded': 'Đã tải ảnh về máy',
+          proc: [
+            'Đang phân tích khuôn mặt của bạn...',
+            'Đang dựng bố cục theo phong cách...',
+            'AI đang vẽ từng chi tiết...',
+            'Đang tinh chỉnh ánh sáng & màu sắc...',
+            'Sắp hoàn thành, chờ xíu nhé...',
+          ],
+          procSlow: [
+            'Ảnh chất lượng cao cần thêm chút thời gian...',
+            'Cảm ơn bạn đã kiên nhẫn, sắp xong rồi!',
+            'Đang hoàn thiện những nét cuối cùng...',
+          ],
+          stylesLabels: {
+            'digital-leader': 'Lãnh đạo số bản lĩnh',
+            'nordic-grace': 'Thanh lịch Bắc Âu (20/10)',
+            'future-healthcare': 'Y tế tương lai & AI',
+            'driving-change': 'Gắn kết & bứt phá',
+            'digital-toy': 'Mô hình Blind Box 3D',
+            'webtoon-weekday': 'Truyện tranh Webtoon',
+          },
+        },
+        en: {
+          'welcome.title': 'Turn your moment<br>into a stunning AI photo',
+          'welcome.subtitle': 'Snap a photo and let AI craft a Digital Week style just for you.',
+          'step.capture': 'Take photo',
+          'step.style': 'Pick a style',
+          'step.result': 'Get AI photo',
+          'code.label': 'Event code',
+          'code.placeholder': 'Enter the code provided at the event',
+          'consent': 'I agree to let this app use the camera to create fun Digital Week photos. Photos are used only for the event\'s photo creation purpose.',
+          'btn.start': 'Start now',
+          'camera.title': 'Take your photo',
+          'camera.subtitle': 'Center your face in the frame and tap the shutter',
+          'camera.capture': 'Take photo',
+          'camera.hint': 'Tap to take photo',
+          'camera.fallback': 'Cannot access the camera.<br>Please choose a photo from your gallery.',
+          'camera.choose': 'Choose photo',
+          'preview.title': 'Review photo',
+          'preview.subtitle': 'Are you happy with this photo?',
+          'preview.alt': 'Captured photo',
+          'btn.retake': 'Retake',
+          'btn.continue': 'Continue',
+          'styles.title': 'Pick a style',
+          'styles.subtitle': 'Each style produces a different version',
+          'styles.promptLabel': 'Style description (you can edit or add details)',
+          'styles.promptPlaceholder': 'Describe what you want the AI to create...',
+          'styles.promptHint': 'Tip: write in English for the best results. Always keep the line "keep the same face" to preserve the real face.',
+          'btn.generate': 'Create AI photo',
+          'processing.title': 'Creating AI photo',
+          'result.title': 'Your photo is ready!',
+          'result.subtitle': 'Download or scan the QR to save it to your phone',
+          'result.alt': 'Generated AI photo',
+          'result.qrAlt': 'QR code to download photo',
+          'result.qrTitle': 'Scan to save photo',
+          'result.qrDesc': 'Use your phone camera to scan the QR code to open and save the photo.',
+          'btn.download': 'Download',
+          'btn.share': 'Share',
+          'btn.retry': 'Try again',
+          'btn.newPhoto': 'New photo',
+          'btn.done': 'Done',
+          'thanks.title': 'Thank you!',
+          'thanks.subtitle': 'Have a wonderful Digital Week.<br>See you at the Novo Nordisk booth.',
+          'btn.restart': 'Create new photo',
+          'btn.errorRetry': 'Retry',
+          'btn.close': 'Close',
+          'code.errEmpty': 'Please enter the event code.',
+          'code.errWrong': 'Incorrect event code. Please check again.',
+          'code.errConn': 'Connection error. Please try again.',
+          'err.connTitle': 'Connection error',
+          'err.stylesLoad': 'Could not load the style list. Please try again.',
+          'err.genTitle': 'Could not create photo',
+          'err.unknown': 'Unknown error',
+          'err.noImage': 'No image received from the server.',
+          'err.genGeneric': 'Error creating photo. Please try again later.',
+          'toast.downloaded': 'Image saved to your device',
+          proc: [
+            'Analyzing your face...',
+            'Building the composition for your style...',
+            'AI is drawing every detail...',
+            'Fine-tuning lighting & colors...',
+            'Almost done, hang tight...',
+          ],
+          procSlow: [
+            'High-quality photos need a little more time...',
+            'Thanks for your patience, almost there!',
+            'Adding the final touches...',
+          ],
+          stylesLabels: {
+            'digital-leader': 'Empowered Digital Leader',
+            'nordic-grace': 'Nordic Grace (20/10)',
+            'future-healthcare': 'Future Healthcare & AI',
+            'driving-change': 'Driving Change',
+            'digital-toy': 'The Digital Toy',
+            'webtoon-weekday': 'Webtoon Weekday',
+          },
+        },
+      };
+
+      var lang = (localStorage.getItem('lang') === 'en') ? 'en' : 'vi';
+      var btnLang = document.getElementById('btnLang');
+
+      function t(key) {
+        var d = I18N[lang] || I18N.vi;
+        if (d[key] != null) return d[key];
+        if (I18N.vi[key] != null) return I18N.vi[key];
+        return key;
+      }
+
+      function styleLabel(style) {
+        var map = (I18N[lang] || I18N.vi).stylesLabels || {};
+        return map[style.id] || style.label;
+      }
+
+      function applyLang(nextLang) {
+        lang = (nextLang === 'en') ? 'en' : 'vi';
+        localStorage.setItem('lang', lang);
+        document.documentElement.lang = lang;
+
+        document.querySelectorAll('[data-i18n]').forEach(function (el) {
+          el.textContent = t(el.getAttribute('data-i18n'));
+        });
+        document.querySelectorAll('[data-i18n-html]').forEach(function (el) {
+          el.innerHTML = t(el.getAttribute('data-i18n-html'));
+        });
+        document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
+          el.placeholder = t(el.getAttribute('data-i18n-ph'));
+        });
+        document.querySelectorAll('[data-i18n-aria]').forEach(function (el) {
+          el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria')));
+        });
+        document.querySelectorAll('[data-i18n-alt]').forEach(function (el) {
+          el.alt = t(el.getAttribute('data-i18n-alt'));
+        });
+
+        if (btnLang) { btnLang.textContent = (lang === 'vi') ? 'EN' : 'VI'; }
+
+        if (styles.length > 0) {
+          renderStyles();
+          if (selectedStyleId) {
+            stylesGrid.querySelectorAll('.style-card').forEach(function (c) {
+              c.classList.toggle('selected', c.dataset.styleId === selectedStyleId);
+            });
+          }
+        }
+      }
+
+      if (btnLang) {
+        btnLang.addEventListener('click', function () {
+          applyLang(lang === 'vi' ? 'en' : 'vi');
+        });
+      }
 
       const screens = {
         welcome:    document.getElementById('screen-welcome'),
@@ -822,6 +1049,8 @@
           .catch(function () { /* non-blocking */ });
       })();
 
+      applyLang(lang);
+
       consentCheckbox.addEventListener('change', function () { btnStart.disabled = !consentCheckbox.checked; });
 
       btnStart.addEventListener('click', async function () {
@@ -830,7 +1059,7 @@
 
         if (requireCode) {
           var entered = (eventCodeInput.value || '').trim();
-          if (!entered) { codeError.textContent = 'Vui lòng nhập mã sự kiện.'; return; }
+          if (!entered) { codeError.textContent = t('code.errEmpty'); return; }
           btnStart.disabled = true;
           try {
             var res = await fetch('/api/verify-code', {
@@ -839,13 +1068,13 @@
               body: JSON.stringify({ code: entered }),
             });
             if (!res.ok) {
-              codeError.textContent = 'Mã sự kiện không đúng. Vui lòng kiểm tra lại.';
+              codeError.textContent = t('code.errWrong');
               btnStart.disabled = false;
               return;
             }
             eventCode = entered;
           } catch (err) {
-            codeError.textContent = 'Lỗi kết nối. Vui lòng thử lại.';
+            codeError.textContent = t('code.errConn');
             btnStart.disabled = false;
             return;
           }
@@ -946,20 +1175,26 @@
       btnContinue.addEventListener('click', function () { showScreen('styles'); });
 
       /* Professional line SVG icons per style */
-      var SVG_PERSON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
-      var SVG_BULL   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5c.3 3.4 2.2 5 4.3 5.6A6 6 0 0 0 6 15a6 6 0 0 0 12 0 6 6 0 0 0-2.3-4.4C17.8 10 19.7 8.4 20 5c0 0-3 .9-4.9 3.1C13.9 6.5 12.5 6 12 6s-1.9.5-3.1 2.1C7 5.9 4 5 4 5z"/><circle cx="9.5" cy="14.5" r="1"/><circle cx="14.5" cy="14.5" r="1"/></svg>';
-      var SVG_POSTER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+      var SVG_CHIP   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>';
       var SVG_STAR   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5z"/></svg>';
+      var SVG_HEART  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.3-9A5 5 0 0 1 12 6a5 5 0 0 1 9.3 6c-2.3 4.5-9.3 9-9.3 9z"/></svg>';
+      var SVG_POSTER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+      var SVG_PULSE  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3.5l2-6 4 12 2.5-7 1.5 3H21"/></svg>';
 
       var STYLE_ICON_MAP = {
-        'office-cartoon': { svg: SVG_PERSON, cssClass: 'icon-cartoon' },
-        'apis-buddy':     { svg: SVG_BULL,   cssClass: 'icon-apis' },
-        'digital-poster': { svg: SVG_POSTER, cssClass: 'icon-poster' },
+        'digital-leader':    { svg: SVG_CHIP,   cssClass: 'icon-pioneer' },
+        'nordic-grace':      { svg: SVG_HEART,  cssClass: 'icon-women' },
+        'future-healthcare': { svg: SVG_PULSE,  cssClass: 'icon-health' },
+        'driving-change':    { svg: SVG_STAR,   cssClass: 'icon-aodai' },
+        'digital-toy':       { svg: SVG_POSTER, cssClass: 'icon-poster' },
+        'webtoon-weekday':   { svg: SVG_STAR,   cssClass: 'icon-aodai' },
       };
       var FALLBACK_ICONS = [
-        { svg: SVG_STAR,   cssClass: 'icon-cartoon' },
-        { svg: SVG_BULL,   cssClass: 'icon-apis' },
+        { svg: SVG_CHIP,   cssClass: 'icon-pioneer' },
+        { svg: SVG_STAR,   cssClass: 'icon-aodai' },
+        { svg: SVG_HEART,  cssClass: 'icon-women' },
         { svg: SVG_POSTER, cssClass: 'icon-poster' },
+        { svg: SVG_PULSE,  cssClass: 'icon-health' },
       ];
 
       async function fetchStyles() {
@@ -970,7 +1205,7 @@
           styles = await res.json();
           renderStyles();
         } catch (err) {
-          showError('Lỗi kết nối', 'Không thể tải danh sách phong cách. Vui lòng thử lại.', fetchStyles);
+          showError(t('err.connTitle'), t('err.stylesLoad'), fetchStyles);
         }
       }
 
@@ -983,7 +1218,7 @@
           card.dataset.styleId = style.id;
           card.innerHTML =
             '<div class="style-card-icon ' + iconData.cssClass + '">' + iconData.svg + '</div>' +
-            '<span class="style-card-label">' + escapeHtml(style.label) + '</span>' +
+            '<span class="style-card-label">' + escapeHtml(styleLabel(style)) + '</span>' +
             '<div class="style-card-check"></div>';
           card.addEventListener('click', function () { selectStyle(style.id); });
           stylesGrid.appendChild(card);
@@ -1005,18 +1240,8 @@
       btnGenerate.addEventListener('click', function () { generateImage(); });
 
       /* ---- Processing animation controller ---- */
-      var PROC_MESSAGES = [
-        'Đang phân tích khuôn mặt của bạn...',
-        'Đang dựng bố cục theo phong cách...',
-        'AI đang vẽ từng chi tiết...',
-        'Đang tinh chỉnh ánh sáng & màu sắc...',
-        'Sắp hoàn thành, chờ xíu nhé...',
-      ];
-      var PROC_MESSAGES_SLOW = [
-        'Ảnh chất lượng cao cần thêm chút thời gian...',
-        'Cảm ơn bạn đã kiên nhẫn, sắp xong rồi!',
-        'Đang hoàn thiện những nét cuối cùng...',
-      ];
+      function procMessages() { return (I18N[lang] || I18N.vi).proc; }
+      function procMessagesSlow() { return (I18N[lang] || I18N.vi).procSlow; }
       var SLOW_THRESHOLD_MS = 18000;
 
       var procState = { msgTimer: null, progTimer: null, startTs: 0, progress: 0, msgIndex: 0 };
@@ -1034,17 +1259,19 @@
         procState.progress = 0;
         procState.msgIndex = 0;
         progressFill.style.width = '0%';
-        processingMessage.textContent = PROC_MESSAGES[0];
+        processingMessage.textContent = procMessages()[0];
 
         // Rotate messages every 3s; switch to reassurance set when slow
         procState.msgTimer = setInterval(function () {
           var elapsed = Date.now() - procState.startTs;
           if (elapsed >= SLOW_THRESHOLD_MS) {
-            var i = Math.floor((elapsed - SLOW_THRESHOLD_MS) / 3000) % PROC_MESSAGES_SLOW.length;
-            setProcMessage(PROC_MESSAGES_SLOW[i]);
+            var slow = procMessagesSlow();
+            var i = Math.floor((elapsed - SLOW_THRESHOLD_MS) / 3000) % slow.length;
+            setProcMessage(slow[i]);
           } else {
-            procState.msgIndex = (procState.msgIndex + 1) % PROC_MESSAGES.length;
-            setProcMessage(PROC_MESSAGES[procState.msgIndex]);
+            var msgs = procMessages();
+            procState.msgIndex = (procState.msgIndex + 1) % msgs.length;
+            setProcMessage(msgs[procState.msgIndex]);
           }
         }, 3000);
 
@@ -1076,8 +1303,8 @@
             body: JSON.stringify({ image: capturedImageBase64, styleId: selectedStyleId, prompt: promptEditor.value, code: eventCode }),
           });
           var data = await res.json();
-          if (!res.ok) { throw new Error(data.error || 'Lỗi không xác định'); }
-          if (!data.image) { throw new Error('Không nhận được ảnh từ server.'); }
+          if (!res.ok) { throw new Error(data.error || t('err.unknown')); }
+          if (!data.image) { throw new Error(t('err.noImage')); }
 
           var branded = await addWatermark(data.image);
           resultImage.src = branded;
@@ -1092,9 +1319,9 @@
           storeResult(branded);
         } catch (err) {
           stopProcessingAnimation(false);
-          var msg = err.message || 'Lỗi khi tạo ảnh. Vui lòng thử lại sau.';
-          if (err.message && err.message.indexOf('Failed to fetch') !== -1) { msg = 'Lỗi kết nối. Vui lòng thử lại.'; }
-          showError('Không thể tạo ảnh', msg, generateImage);
+          var msg = err.message || t('err.genGeneric');
+          if (err.message && err.message.indexOf('Failed to fetch') !== -1) { msg = t('code.errConn'); }
+          showError(t('err.genTitle'), msg, generateImage);
         }
       }
 
@@ -1158,7 +1385,7 @@
 
       btnDownload.addEventListener('click', function () {
         downloadImage(resultImage.src);
-        showToast('Đã tải ảnh về máy');
+        showToast(t('toast.downloaded'));
       });
 
       btnShare.addEventListener('click', function () { shareImage(resultImage.src); });
