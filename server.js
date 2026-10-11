@@ -6,6 +6,7 @@ const path = require('path');
 const QRCode = require('qrcode');
 const { GoogleGenAI } = require('@google/genai');
 const storage = require('./lib/storage');
+const discord = require('./lib/discord');
 
 // ---------------------------------------------------------------------------
 // Config
@@ -21,6 +22,9 @@ const RATE_LIMIT_MAX = 10;
 const EVENT_CODE = (process.env.EVENT_CODE || '').trim();
 const DAILY_LIMIT = parseInt(process.env.DAILY_LIMIT || '0', 10); // 0 = unlimited
 const ADMIN_TOKEN = (process.env.ADMIN_TOKEN || '').trim();
+// Temporarily hide the whole site (serve a maintenance page, block all APIs).
+// Toggle via env: MAINTENANCE_MODE=1 (admins can still enter with ADMIN_TOKEN).
+const MAINTENANCE_MODE = /^(1|true|on|yes)$/i.test((process.env.MAINTENANCE_MODE || '').trim());
 
 // ---------------------------------------------------------------------------
 // Styles
@@ -171,6 +175,55 @@ setInterval(() => {
 }, CLEANUP_INTERVAL_MS).unref();
 
 // ---------------------------------------------------------------------------
+// Concurrency limiter for Gemini calls
+//
+// A 2GB VPS cannot hold dozens of in-flight image requests at once: each one
+// keeps the input + generated image in memory while awaiting Gemini (10-30s).
+// We cap how many generate calls run concurrently and queue the rest. Requests
+// beyond the queue cap are rejected (503) so total memory stays bounded.
+// ---------------------------------------------------------------------------
+
+const MAX_CONCURRENT_GENERATE = parseInt(process.env.MAX_CONCURRENT_GENERATE || '5', 10);
+const MAX_GENERATE_QUEUE = parseInt(process.env.MAX_GENERATE_QUEUE || '25', 10);
+
+let activeGenerations = 0;
+const generationQueue = [];
+
+// Resolves true when a slot is free, false immediately when the queue is full.
+function acquireGenerateSlot() {
+  if (activeGenerations < MAX_CONCURRENT_GENERATE) {
+    activeGenerations += 1;
+    return Promise.resolve(true);
+  }
+  if (generationQueue.length >= MAX_GENERATE_QUEUE) {
+    discord.notify(
+      'generate-overload',
+      '\u26d4 QU\u00c1 T\u1ea2I: h\u00e0ng ch\u1edd \u0111\u1ea7y (' + generationQueue.length + '/' + MAX_GENERATE_QUEUE +
+        '), \u0111ang T\u1eea CH\u1ed0I request (HTTP 503). \u0110ang ch\u1ea1y ' + activeGenerations + '/' + MAX_CONCURRENT_GENERATE +
+        '. H\u00e0nh \u0111\u1ed9ng: ki\u1ec3m tra RAM/CPU server, c\u00e2n nh\u1eafc t\u0103ng MAX_CONCURRENT_GENERATE ho\u1eb7c n\u00e2ng VPS.'
+    );
+    return Promise.resolve(false);
+  }
+  // A request now has to wait for a free slot → the server is under load.
+  discord.notify(
+    'generate-queue',
+    '\u26a0\ufe0f \u0110ang d\u1ed3n t\u1ea3i: c\u00f3 request ph\u1ea3i x\u1ebfp h\u00e0ng ch\u1edd. \u0110ang ch\u1ea1y ' +
+      activeGenerations + '/' + MAX_CONCURRENT_GENERATE + ', trong h\u00e0ng ' +
+      (generationQueue.length + 1) + '/' + MAX_GENERATE_QUEUE + '.'
+  );
+  return new Promise((resolve) => generationQueue.push(() => resolve(true)));
+}
+
+function releaseGenerateSlot() {
+  const next = generationQueue.shift();
+  if (next) {
+    next(); // hand the slot straight to the next waiter; active count unchanged
+  } else {
+    activeGenerations -= 1;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Access control & daily token budget
 // ---------------------------------------------------------------------------
 
@@ -253,6 +306,33 @@ app.get('/robots.txt', (_req, res) => {
   res.type('text/plain').send('User-agent: *\nDisallow: /\n');
 });
 
+// Maintenance gate: when enabled, hide the site from everyone except admins
+// (admins pass ?token=ADMIN_TOKEN or header x-admin-token). Blocks all routes.
+function hasAdminToken(req) {
+  if (!ADMIN_TOKEN) return false;
+  const token = (req.query.token || req.get('x-admin-token') || '').trim();
+  return token === ADMIN_TOKEN;
+}
+
+const MAINTENANCE_HTML =
+  '<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8">' +
+  '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+  '<meta name="robots" content="noindex, nofollow"><title>Đang bảo trì</title>' +
+  '<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;' +
+  'font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:#001965;color:#fff;text-align:center;padding:24px}' +
+  '.box{max-width:420px}h1{font-size:22px;margin:0 0 12px}p{font-size:15px;line-height:1.6;opacity:.85;margin:0}' +
+  '</style></head><body><div class="box"><h1>Hệ thống đang bảo trì</h1>' +
+  '<p>Ứng dụng tạm thời tạm ngưng. Vui lòng quay lại sau. Cảm ơn bạn!</p></div></body></html>';
+
+app.use((req, res, next) => {
+  if (!MAINTENANCE_MODE || hasAdminToken(req)) return next();
+  res.set('Retry-After', '3600');
+  if (req.path.startsWith('/api/')) {
+    return res.status(503).json({ error: 'Hệ thống đang bảo trì. Vui lòng quay lại sau.' });
+  }
+  return res.status(503).type('html').send(MAINTENANCE_HTML);
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(storage.LOCAL_PUBLIC_PATH, express.static(storage.LOCAL_DIR));
 
@@ -309,37 +389,47 @@ app.post('/api/generate', async (req, res) => {
       return res.status(400).json({ error: `\u1ea2nh v\u01b0\u1ee3t qu\u00e1 ${MAX_IMAGE_MB}MB.` });
     }
 
-    if (!reserveDailyQuota()) {
-      return res.status(429).json({ error: '\u0110\u00e3 \u0111\u1ea1t gi\u1edbi h\u1ea1n t\u1ea1o \u1ea3nh trong ng\u00e0y. Vui l\u00f2ng quay l\u1ea1i sau.' });
+    // Protect VPS RAM: only a few Gemini calls run at once, the rest queue.
+    const gotSlot = await acquireGenerateSlot();
+    if (!gotSlot) {
+      return res.status(503).json({ error: 'H\u1ec7 th\u1ed1ng \u0111ang qu\u00e1 t\u1ea3i. Vui l\u00f2ng th\u1eed l\u1ea1i sau gi\u00e2y l\u00e1t.' });
     }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            { inlineData: { mimeType: parsed.mimeType, data: parsed.data } },
-            { text: resolvePrompt(style, customPrompt) }
-          ]
-        }
-      ],
-      config: {
-        responseModalities: ['Text', 'Image']
+    try {
+      if (!reserveDailyQuota()) {
+        return res.status(429).json({ error: '\u0110\u00e3 \u0111\u1ea1t gi\u1edbi h\u1ea1n t\u1ea1o \u1ea3nh trong ng\u00e0y. Vui l\u00f2ng quay l\u1ea1i sau.' });
       }
-    });
 
-    const parts = response.candidates[0].content.parts;
-    const imagePart = parts.find((p) => p.inlineData);
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-image',
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { inlineData: { mimeType: parsed.mimeType, data: parsed.data } },
+              { text: resolvePrompt(style, customPrompt) }
+            ]
+          }
+        ],
+        config: {
+          responseModalities: ['Text', 'Image']
+        }
+      });
 
-    if (!imagePart) {
-      return res.status(502).json({ error: 'Kh\u00f4ng th\u1ec3 t\u1ea1o \u1ea3nh. Vui l\u00f2ng th\u1eed l\u1ea1i.' });
+      const parts = response.candidates[0].content.parts;
+      const imagePart = parts.find((p) => p.inlineData);
+
+      if (!imagePart) {
+        return res.status(502).json({ error: 'Kh\u00f4ng th\u1ec3 t\u1ea1o \u1ea3nh. Vui l\u00f2ng th\u1eed l\u1ea1i.' });
+      }
+
+      const resultBase64 = imagePart.inlineData.data;
+      const resultMime = imagePart.inlineData.mimeType;
+
+      return res.json({ image: `data:${resultMime};base64,${resultBase64}` });
+    } finally {
+      releaseGenerateSlot();
     }
-
-    const resultBase64 = imagePart.inlineData.data;
-    const resultMime = imagePart.inlineData.mimeType;
-
-    return res.json({ image: `data:${resultMime};base64,${resultBase64}` });
   } catch (err) {
     console.error('[generate] Error:', err.message || err);
     return res.status(502).json({ error: 'L\u1ed7i khi t\u1ea1o \u1ea3nh. Vui l\u00f2ng th\u1eed l\u1ea1i sau.' });

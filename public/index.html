@@ -1297,11 +1297,24 @@
         showScreen('processing');
         startProcessingAnimation();
         try {
-          var res = await fetch('/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: capturedImageBase64, styleId: selectedStyleId, prompt: promptEditor.value, code: eventCode }),
-          });
+          // Auto-retry on 503 (server at capacity / request queued) so that a
+          // burst of users just experiences a slightly longer wait on the
+          // processing screen instead of a hard error.
+          var MAX_BUSY_RETRIES = 5;
+          var BUSY_RETRY_DELAY_MS = 5000;
+          var res;
+          for (var attempt = 0; ; attempt++) {
+            res = await fetch('/api/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ image: capturedImageBase64, styleId: selectedStyleId, prompt: promptEditor.value, code: eventCode }),
+            });
+            if (res.status === 503 && attempt < MAX_BUSY_RETRIES) {
+              await new Promise(function (r) { setTimeout(r, BUSY_RETRY_DELAY_MS); });
+              continue;
+            }
+            break;
+          }
           var data = await res.json();
           if (!res.ok) { throw new Error(data.error || t('err.unknown')); }
           if (!data.image) { throw new Error(t('err.noImage')); }
