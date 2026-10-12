@@ -14,6 +14,11 @@
     header h1 { font-size: 16px; margin: 0; font-weight: 700; letter-spacing: -0.2px; }
     header .count { font-size: 13px; opacity: 0.85; }
     .wrap { padding: 16px; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .toolbar input, .toolbar select { padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 14px; background: #fff; }
+    .toolbar input { flex: 1; min-width: 160px; }
+    .toolbar button { padding: 9px 16px; background: var(--navy); color: #fff; border: 0; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .toolbar .clear { background: #e5e7eb; color: #374151; }
     .auth { max-width: 360px; margin: 60px auto; background: #fff; padding: 24px; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
     .auth h2 { margin: 0 0 14px; font-size: 16px; color: var(--navy); }
     .auth input { width: 100%; padding: 11px 13px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 14px; margin-bottom: 12px; }
@@ -25,7 +30,11 @@
     .cell img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #e5e7eb; }
     .cell .name { padding: 7px 9px 0; font-size: 12px; font-weight: 700; color: var(--navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .cell .name.anon { color: var(--gray); font-weight: 500; font-style: italic; }
-    .cell .meta { padding: 5px 9px 7px; font-size: 11px; color: var(--gray); display: flex; justify-content: space-between; gap: 6px; }
+    .cell .meta { padding: 5px 9px 0; font-size: 11px; color: var(--gray); display: flex; justify-content: space-between; gap: 6px; }
+    .cell .actions { padding: 8px 9px 9px; }
+    .cell .actions button { width: 100%; padding: 7px 8px; font-size: 12px; font-weight: 600; border: 1px solid var(--navy); color: var(--navy); background: #fff; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: background .15s, color .15s; }
+    .cell .actions button:hover { background: var(--navy); color: #fff; }
+    .cell .actions button svg { width: 14px; height: 14px; }
     .empty { text-align: center; color: var(--gray); padding: 60px 20px; }
     .hidden { display: none !important; }
   </style>
@@ -43,6 +52,16 @@
     <span class="count" id="count"></span>
   </header>
   <div class="wrap hidden" id="galleryWrap">
+    <div class="toolbar">
+      <select id="filterInitial"><option value="">Tất cả INITIAL</option></select>
+      <input type="text" id="searchInput" placeholder="Tìm theo INITIAL..." autocomplete="off" />
+      <select id="sortSelect">
+        <option value="new">Mới nhất</option>
+        <option value="old">Cũ nhất</option>
+      </select>
+      <button id="btnPrintAll">In tất cả</button>
+      <button id="btnClear" class="clear">Xóa lọc</button>
+    </div>
     <div class="grid" id="grid"></div>
     <div class="empty hidden" id="empty">Chưa có ảnh nào.</div>
   </div>
@@ -58,6 +77,14 @@
       var grid = document.getElementById('grid');
       var empty = document.getElementById('empty');
       var countEl = document.getElementById('count');
+      var searchInput = document.getElementById('searchInput');
+      var sortSelect = document.getElementById('sortSelect');
+      var filterInitial = document.getElementById('filterInitial');
+      var btnPrintAll = document.getElementById('btnPrintAll');
+      var btnClear = document.getElementById('btnClear');
+
+      var allItems = [];   // full dataset, filtered client-side
+      var shownItems = []; // currently displayed (for print-all)
 
       function fmtSize(b) {
         if (!b) return '';
@@ -67,19 +94,19 @@
       function fmtDate(d) {
         try { return new Date(d).toLocaleString('vi-VN'); } catch (e) { return ''; }
       }
-      // Pull the user name/initial out of the stored file key (name slug precedes the UUID).
-      function nameFromKey(key) {
-        var base = String(key || '').split('/').pop().replace(/\.[a-z0-9]+$/i, '');
-        var slug = base.replace(/-?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, '');
-        return slug.replace(/-+/g, ' ').trim();
-      }
       function escHtml(s) {
         return String(s).replace(/[&<>"']/g, function (c) {
           return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
         });
       }
+      // Accent-free lowercase token for matching (mirrors the server slug).
+      function slug(s) {
+        return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase();
+      }
 
-      async function load(token) {
+      // Authenticate + load the full dataset once; filtering happens client-side.
+      async function login(token) {
         var res = await fetch('/api/gallery?token=' + encodeURIComponent(token));
         if (res.status === 401) { authErr.style.display = 'block'; return; }
         if (!res.ok) { authErr.textContent = 'Lỗi tải dữ liệu.'; authErr.style.display = 'block'; return; }
@@ -88,8 +115,36 @@
         authScreen.classList.add('hidden');
         topBar.classList.remove('hidden');
         galleryWrap.classList.remove('hidden');
-        countEl.textContent = data.count + ' ảnh';
-        render(data.items || []);
+        allItems = data.items || [];
+        populateInitials();
+        applyFilters();
+      }
+
+      // Build the INITIAL dropdown from distinct, named entries.
+      function populateInitials() {
+        var seen = {};
+        var names = [];
+        allItems.forEach(function (it) {
+          if (it.initial && !seen[it.initial]) { seen[it.initial] = true; names.push(it.initial); }
+        });
+        names.sort(function (a, b) { return a.localeCompare(b, 'vi'); });
+        filterInitial.innerHTML = '<option value="">Tất cả INITIAL</option>' +
+          names.map(function (n) { return '<option value="' + escHtml(n) + '">' + escHtml(n) + '</option>'; }).join('');
+      }
+
+      function applyFilters() {
+        var picked = filterInitial.value;
+        var q = slug(searchInput.value);
+        var items = allItems.filter(function (it) {
+          if (picked && it.initial !== picked) return false;
+          if (q && (it.initialSlug || '').indexOf(q) === -1) return false;
+          return true;
+        });
+        items.sort(function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); });
+        if (sortSelect.value === 'old') items.reverse();
+        shownItems = items;
+        countEl.textContent = items.length + ' ảnh';
+        render(items);
       }
 
       function render(items) {
@@ -99,34 +154,85 @@
         items.forEach(function (it) {
           var cell = document.createElement('div');
           cell.className = 'cell';
-          var name = nameFromKey(it.key);
-          var nameHtml = name
-            ? '<div class="name">' + escHtml(name) + '</div>'
+          var nameHtml = it.initial
+            ? '<div class="name">' + escHtml(it.initial) + '</div>'
             : '<div class="name anon">Ẩn danh</div>';
           cell.innerHTML =
             '<a href="' + it.url + '" target="_blank" rel="noopener">' +
             '<img loading="lazy" src="' + it.url + '" alt=""></a>' +
             nameHtml +
-            '<div class="meta"><span>' + fmtDate(it.lastModified) + '</span>' +
-            '<span>' + fmtSize(it.size) + '</span></div>';
+            '<div class="meta"><span>' + fmtDate(it.createdAt) + '</span>' +
+            '<span>' + fmtSize(it.size) + '</span></div>' +
+            '<div class="actions"><button type="button">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>In ảnh</button></div>';
+          cell.querySelector('.actions button').addEventListener('click', function () {
+            printImages([it]);
+          });
           grid.appendChild(cell);
         });
       }
 
+      // Open a clean, branded print sheet (one image per page) and trigger print.
+      function printImages(items) {
+        if (!items.length) return;
+        var win = window.open('', '_blank');
+        if (!win) { alert('Trình duyệt chặn cửa sổ in. Vui lòng cho phép pop-up.'); return; }
+        var pages = items.map(function (it) {
+          return '<section class="page">' +
+            '<img src="' + it.url + '" alt="">' +
+            '<div class="cap"><strong>' + escHtml(it.initial || 'Ẩn danh') + '</strong>' +
+            '<span>Novo Nordisk Vietnam · Digital Week</span></div>' +
+            '</section>';
+        }).join('');
+        var html =
+          '<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8">' +
+          '<title>In ảnh - Photo Booth</title><style>' +
+          '*{box-sizing:border-box;margin:0;padding:0}' +
+          'body{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:#f4f6fb;color:#001965}' +
+          '.page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;page-break-after:always}' +
+          '.page img{max-width:100%;max-height:82vh;object-fit:contain;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.18)}' +
+          '.cap{margin-top:18px;text-align:center}' +
+          '.cap strong{display:block;font-size:26px;letter-spacing:.3px}' +
+          '.cap span{display:block;margin-top:6px;font-size:13px;color:#46566e;font-weight:600;text-transform:uppercase;letter-spacing:1.5px}' +
+          '@media print{body{background:#fff}.page{padding:0}.page img{box-shadow:none}}' +
+          '</style></head><body>' + pages +
+          '<script>(function(){var imgs=document.images,n=imgs.length,c=0;' +
+          'function go(){window.focus();window.print();}' +
+          'function hit(){if(++c>=n)go();}' +
+          'if(!n){go();return;}' +
+          'for(var i=0;i<n;i++){var im=imgs[i];if(im.complete){hit();}' +
+          'else{im.addEventListener("load",hit);im.addEventListener("error",hit);}}})();<\/script>' +
+          '</body></html>';
+        win.document.open();
+        win.document.write(html);
+        win.document.close();
+      }
+
       btnEnter.addEventListener('click', function () {
         var t = (tokenInput.value || '').trim();
-        if (t) load(t);
+        if (t) login(t);
       });
       tokenInput.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') btnEnter.click();
+      });
+
+      filterInitial.addEventListener('change', applyFilters);
+      sortSelect.addEventListener('change', applyFilters);
+      searchInput.addEventListener('input', applyFilters);
+      btnPrintAll.addEventListener('click', function () { printImages(shownItems); });
+      btnClear.addEventListener('click', function () {
+        searchInput.value = '';
+        filterInitial.value = '';
+        sortSelect.value = 'new';
+        applyFilters();
       });
 
       // Auto-login via ?token= or saved token
       var urlToken = new URLSearchParams(location.search).get('token');
       var saved = null;
       try { saved = localStorage.getItem('galleryToken'); } catch (e) {}
-      if (urlToken) load(urlToken.trim());
-      else if (saved) load(saved);
+      if (urlToken) login(urlToken.trim());
+      else if (saved) login(saved);
     })();
   </script>
 </body>

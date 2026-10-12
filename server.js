@@ -269,6 +269,12 @@ function estimateBase64Bytes(base64Str) {
   return Math.ceil((base64Str.length * 3) / 4);
 }
 
+// Keep the user-entered initial readable but safe: strip control chars, cap length.
+function sanitizeInitial(initial) {
+  if (typeof initial !== 'string') return '';
+  return initial.replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 40);
+}
+
 function sanitiseStyleForClient(style) {
   return { id: style.id, label: style.label, preview: style.preview, prompt: style.prompt };
 }
@@ -446,7 +452,9 @@ app.get('/api/gallery', async (req, res) => {
     return res.status(401).json({ error: 'Unauthorized.' });
   }
   try {
-    const items = await storage.listImages(getBaseUrl(req));
+    const q = typeof req.query.q === 'string' ? req.query.q.slice(0, 40) : '';
+    const sort = req.query.sort === 'old' ? 'old' : 'new';
+    const items = await storage.listGallery({ baseUrl: getBaseUrl(req), q, sort });
     return res.json({ count: items.length, items });
   } catch (err) {
     console.error('[gallery] Error:', err.message || err);
@@ -456,7 +464,7 @@ app.get('/api/gallery', async (req, res) => {
 
 app.post('/api/store', async (req, res) => {
   try {
-    const { image, initial } = req.body;
+    const { image, initial, styleId } = req.body;
     if (!image) {
       return res.status(400).json({ error: 'Thi\u1ebfu \u1ea3nh \u0111\u1ec3 l\u01b0u.' });
     }
@@ -466,7 +474,23 @@ app.post('/api/store', async (req, res) => {
       return res.status(400).json({ error: '\u0110\u1ecbnh d\u1ea1ng \u1ea3nh kh\u00f4ng h\u1ee3p l\u1ec7.' });
     }
 
-    const saved = await storage.saveImage(parsed.data, parsed.mimeType, getBaseUrl(req), initial);
+    const saved = await storage.saveImage(parsed.data, parsed.mimeType, getBaseUrl(req));
+
+    // Record the initial + metadata in the index so the gallery can search /
+    // filter by it. Index failure must not break the user's download/QR flow.
+    try {
+      await storage.appendIndexEntry({
+        id: saved.id,
+        initial: sanitizeInitial(initial),
+        url: saved.url,
+        styleId: typeof styleId === 'string' ? styleId.slice(0, 64) : null,
+        size: saved.size,
+        createdAt: new Date().toISOString()
+      });
+    } catch (idxErr) {
+      console.error('[store] Index write failed:', idxErr.message || idxErr);
+    }
+
     const qr = await QRCode.toDataURL(saved.url, { margin: 1, width: 240 });
 
     return res.json({ url: saved.url, id: saved.id, qr });
