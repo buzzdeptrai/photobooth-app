@@ -134,23 +134,11 @@
     }
 
     .brand-logo {
-      width: 40px;
       height: 40px;
-      min-width: 40px;
-      border-radius: 50%;
-      background: var(--navy);
-      color: var(--white);
       display: flex;
       align-items: center;
-      justify-content: center;
     }
-    .brand-logo svg { width: 26px; height: 26px; }
-
-    .brand-text h1 { font-size: 15px; font-weight: 800; color: var(--navy); letter-spacing: -0.2px; line-height: 1.1; }
-    .brand-text p {
-      font-size: 10.5px; color: var(--gray-500); margin-top: 3px;
-      font-weight: 600; text-transform: uppercase; letter-spacing: 1.4px;
-    }
+    .brand-logo img { height: 28px; width: auto; display: block; }
     .header-badge {
       margin-left: auto;
       font-size: 11px;
@@ -161,6 +149,7 @@
       padding: 5px 11px;
       border-radius: 999px;
     }
+
     .lang-toggle {
       font-size: 11px;
       font-weight: 800;
@@ -564,14 +553,10 @@
   <div class="app-container">
     <!-- Header -->
     <header class="app-header">
-      <div class="brand-logo" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="currentColor"><path d="M7 11c.4 6.2 3.9 9.3 7.8 10.4A11.8 11.8 0 0 0 10 31a14 14 0 0 0 28 0 11.8 11.8 0 0 0-4.8-9.6C37.1 20.3 40.6 17.2 41 11c0 0-5.3 1.6-8.7 5.6-2-2.9-5-4.8-8.3-4.8s-6.3 1.9-8.3 4.8C12.3 12.6 7 11 7 11z"/><circle cx="18.5" cy="29" r="2.4" fill="#fff"/><circle cx="29.5" cy="29" r="2.4" fill="#fff"/></svg>
+      <div class="brand-logo">
+        <img src="/novo-logo.svg" alt="Novo Nordisk">
       </div>
-      <div class="brand-text">
-        <h1>Photo Booth AI</h1>
-        <p>Novo Nordisk Vietnam</p>
-      </div>
-      <span class="header-badge">Digital Week</span>
+      <span class="header-badge">Photo Booth AI</span>
       <button class="lang-toggle" id="btnLang" type="button" aria-label="Switch language">EN</button>
     </header>
 
