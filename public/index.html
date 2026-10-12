@@ -597,12 +597,6 @@
           <p class="code-error" id="nameError"></p>
         </div>
 
-        <div class="code-box" id="codeBox" style="display:none;">
-          <label for="eventCodeInput" data-i18n="code.label">Mã sự kiện</label>
-          <input type="text" id="eventCodeInput" autocomplete="off" autocapitalize="characters" data-i18n-ph="code.placeholder" placeholder="Nhập mã được cung cấp tại sự kiện">
-          <p class="code-error" id="codeError"></p>
-        </div>
-
         <div class="consent-box">
           <label>
             <input type="checkbox" id="consentCheckbox">
@@ -1031,9 +1025,6 @@
 
       const consentCheckbox = document.getElementById('consentCheckbox');
       const btnStart        = document.getElementById('btnStart');
-      const codeBox         = document.getElementById('codeBox');
-      const eventCodeInput  = document.getElementById('eventCodeInput');
-      const codeError       = document.getElementById('codeError');
       const userInitialInput = document.getElementById('userInitialInput');
       const nameError       = document.getElementById('nameError');
       const videoElement    = document.getElementById('videoElement');
@@ -1094,23 +1085,12 @@
         if (typeof errorRetryCallback === 'function') { errorRetryCallback(); }
       });
 
-      var requireCode = false;
       var eventCode = '';
       var userInitial = '';
 
       function updateStartState() {
         btnStart.disabled = !(consentCheckbox.checked && (userInitialInput.value || '').trim());
       }
-
-      (function loadConfig() {
-        fetch('/api/config')
-          .then(function (r) { return r.json(); })
-          .then(function (cfg) {
-            requireCode = Boolean(cfg && cfg.requireCode);
-            if (requireCode) { codeBox.style.display = ''; }
-          })
-          .catch(function () { /* non-blocking */ });
-      })();
 
       applyLang(lang);
 
@@ -1125,35 +1105,10 @@
 
       btnStart.addEventListener('click', async function () {
         if (!consentCheckbox.checked) return;
-        codeError.textContent = '';
         nameError.textContent = '';
 
         userInitial = (userInitialInput.value || '').trim();
         if (!userInitial) { nameError.textContent = t('name.errEmpty'); return; }
-
-        if (requireCode) {
-          var entered = (eventCodeInput.value || '').trim();
-          if (!entered) { codeError.textContent = t('code.errEmpty'); return; }
-          btnStart.disabled = true;
-          try {
-            var res = await fetch('/api/verify-code', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ code: entered }),
-            });
-            if (!res.ok) {
-              codeError.textContent = t('code.errWrong');
-              btnStart.disabled = false;
-              return;
-            }
-            eventCode = entered;
-          } catch (err) {
-            codeError.textContent = t('code.errConn');
-            btnStart.disabled = false;
-            return;
-          }
-          btnStart.disabled = false;
-        }
 
         showScreen('camera');
         startCamera();
