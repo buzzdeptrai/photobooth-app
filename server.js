@@ -49,7 +49,19 @@ const STYLES = [
       "event branding with 'DIGITAL WEEK' and 'EMPOWERING HEALTHCARE' standees, paired with refined " +
       'navy, white, and silver balloons and corporate floral accents. Soft daylight through ' +
       'expansive floor-to-ceiling glass blended with modern studio rim lighting. Shallow depth of ' +
-      'field, creamy bokeh, clean 8k photorealistic resolution, authentic 35mm photography aesthetic.'
+      'field, creamy bokeh, clean 8k photorealistic resolution, authentic 35mm photography aesthetic.',
+    promptVi:
+      'Chân dung doanh nhân cao cấp theo phong cách tạp chí của người trong ảnh, giữ nguyên 100% ' +
+      'đường nét khuôn mặt, tông da tự nhiên, ánh mắt và biểu cảm chân thật, không biến dạng. Nhân vật ' +
+      'xuất hiện như một Nhà lãnh đạo số bản lĩnh trong Tuần lễ Số Novo Nordisk, toát lên sự tự tin và ' +
+      'trí tuệ, nhìn thẳng vào ống kính với nụ cười ấm áp tinh tế. Mặc blazer may đo màu xanh navy đậm ' +
+      'của Novo Nordisk, đính huy hiệu kim loại nhỏ trên ve áo, bên trong là áo lụa trắng hoặc kem thanh ' +
+      'lịch. Tay cầm một chiếc máy tính bảng mỏng nhẹ và sổ da điều hành. Bối cảnh là trung tâm đổi mới ' +
+      'doanh nghiệp hiện đại với trần cao, kiến trúc kính rộng lớn, phía sau mờ ảo là các màn hình chiếu ' +
+      "biểu đồ y khoa ảnh ba chiều, cấu trúc DNA và phân tích dữ liệu số. Có standee sự kiện 'DIGITAL " +
+      "WEEK' và 'EMPOWERING HEALTHCARE' tinh tế, cùng bóng bay navy, trắng, bạc và hoa trang trí doanh " +
+      'nghiệp. Ánh sáng ban ngày dịu qua kính sàn-tới-trần kết hợp ánh viền studio hiện đại. Độ sâu ' +
+      'trường ảnh nông, bokeh mịn, độ phân giải 8k chân thực, thẩm mỹ nhiếp ảnh 35mm chuẩn mực.'
   },
   {
     id: 'nordic-grace',
@@ -67,7 +79,19 @@ const STYLES = [
       "standing 'Digital Week' roll-up banners, and clusters of corporate blue and white balloons. " +
       'Blurred background shows corporate colleagues casually networking, completely free of any ' +
       'wedding drapes, romantic arches, or wedding-like motifs. Bright, diffused daylight through ' +
-      'lobby windows, shallow depth of field, sharp subject focus, realistic photographic texture.'
+      'lobby windows, shallow depth of field, sharp subject focus, realistic photographic texture.',
+    promptVi:
+      'Chân dung sự kiện doanh nghiệp dưới ánh sáng tự nhiên của người trong ảnh, giữ nguyên tuyệt đối ' +
+      'bản sắc khuôn mặt, cấu trúc xương và biểu cảm thật. Nhân vật đứng trong sảnh văn phòng doanh ' +
+      'nghiệp rực rỡ trong dịp Novo Nordisk mừng Ngày Phụ nữ Việt Nam (20/10). Mặc blazer xanh navy ' +
+      'thanh lịch bên ngoài áo sơ mi hồng pastel hoặc kem nhẹ nhàng, tay nâng nhẹ một bó hoa tươi gồm ' +
+      'hồng pastel, cát tường và lá xanh, buộc nơ xanh navy gọn gàng. Nhìn vào ống kính với nụ cười ấm ' +
+      'áp, thân thiện. Sảnh kính-và-thép hiện đại được trang trí tinh tế cho một buổi tiệc công ty: phông ' +
+      "nền thương hiệu ghi 'Chúc mừng Ngày Phụ nữ Việt Nam 20-10' và 'Happy Women's Day 20/10', các " +
+      "standee cuộn 'Digital Week', cùng các chùm bóng bay xanh và trắng của công ty. Hậu cảnh mờ là các " +
+      'đồng nghiệp đang giao lưu, hoàn toàn không có rèm cưới, cổng hoa lãng mạn hay họa tiết kiểu đám ' +
+      'cưới. Ánh sáng ban ngày khuếch tán qua cửa sổ sảnh, độ sâu trường ảnh nông, chủ thể sắc nét, kết ' +
+      'cấu ảnh chân thực.'
   },
   {
     id: 'future-healthcare',
@@ -83,7 +107,17 @@ const STYLES = [
       "smart health visualization screens, and frosted glass partitions with faint 'FUTURE HEALTHCARE' " +
       'typography. Controlled cool-toned interior illumination with soft blue and teal ambient rim ' +
       'lights. Sharp focus on the subject, balanced studio depth of field, premium editorial look, ' +
-      'photorealistic 8k render.'
+      'photorealistic 8k render.',
+    promptVi:
+      'Chân dung y tế tương lai đầy tầm nhìn của người trong ảnh, giữ chính xác đường nét khuôn mặt, ' +
+      'ánh mắt và kết cấu da tự nhiên. Mặc blazer doanh nghiệp smart-casual màu True Blue của Novo ' +
+      'Nordisk (#001965) bên ngoài áo sơ mi trắng, có logo nhỏ kín đáo trên ngực. Bối cảnh bên trong một ' +
+      'phòng thí nghiệm công nghệ y tế tiên tiến và trung tâm đổi mới số, tuyệt đối không có trang trí ' +
+      'tiệc tùng hay hoa. Hậu cảnh là các màn hình dữ liệu y khoa phát sáng, các nút kết nối mạng lơ ' +
+      "lửng, màn hình trực quan hóa sức khỏe thông minh và vách kính mờ với dòng chữ 'FUTURE HEALTHCARE' " +
+      'thấp thoáng. Ánh sáng nội thất tông lạnh được kiểm soát với ánh viền xanh dương và xanh ngọc dịu. ' +
+      'Lấy nét sắc vào chủ thể, độ sâu trường ảnh cân đối, phong cách tạp chí cao cấp, kết xuất 8k chân ' +
+      'thực.'
   },
   {
     id: 'driving-change',
@@ -97,7 +131,15 @@ const STYLES = [
       'an interactive company culture atmosphere: blurred colleagues brainstorming at touchscreens, ' +
       "event display boards with 'DRIVING CHANGE' and 'DIGITAL WEEK', and modest company-colored " +
       'decorative balloons. Authentic documentary feel, dynamic yet professional, shallow depth of ' +
-      'field, sharp eye focus, crisp 35mm camera aesthetics.'
+      'field, sharp eye focus, crisp 35mm camera aesthetics.',
+    promptVi:
+      'Chân dung doanh nghiệp đời thường, tràn năng lượng và tự nhiên của người trong ảnh, giữ nguyên ' +
+      'dáng mặt, nụ cười và tỉ lệ khuôn mặt thật. Mặc áo polo doanh nghiệp xanh navy thường ngày với logo ' +
+      'nhỏ trên ngực. Đứng trong không gian làm việc mở sôi động và khu lounge đổi mới. Ánh sáng ban ngày ' +
+      'ấm áp tràn qua các khung cửa sổ rộng, làm bật không khí văn hóa công ty tương tác: phía sau mờ là ' +
+      "đồng nghiệp đang thảo luận bên màn hình cảm ứng, các bảng sự kiện ghi 'DRIVING CHANGE' và 'DIGITAL " +
+      "WEEK', cùng vài quả bóng bay trang trí màu thương hiệu. Cảm giác tư liệu chân thực, năng động nhưng " +
+      'chuyên nghiệp, độ sâu trường ảnh nông, lấy nét sắc vào ánh mắt, thẩm mỹ máy ảnh 35mm sắc nét.'
   },
   {
     id: 'digital-toy',
@@ -117,7 +159,19 @@ const STYLES = [
       'the scene, highlighting shiny, smooth plastic/resin toy materials, vibrant pastel gradients, ' +
       'and playful holographic micro-details on the box packaging. In the background, there is a ' +
       'blurry, out-of-focus corporate office. Creative CGI/Clay 3D render, Octane render, pop-toy ' +
-      'art aesthetic with rich depth of field.'
+      'art aesthetic with rich depth of field.',
+    promptVi:
+      'Một mô hình đồ chơi 3D chuyên nghiệp chất lượng cao dựa trên người trong ảnh, giữ nguyên 100% ' +
+      'đường nét khuôn mặt, tông da gốc, ánh mắt và biểu cảm thân thiện, được tái hiện thành nhân vật ' +
+      'chibi đáng yêu sưu tầm (phong cách blind box, tương tự Pop Mart). Nhân vật là nhà vô địch "AI & ' +
+      'DIGITAL WEEK", mặc áo hoodie xanh navy đậm quá khổ dễ thương với logo Novo Nordisk nhỏ và họa tiết ' +
+      'dữ liệu/mạng lưới tương lai trên ngực, đi giày sneaker xanh-trắng nhỏ xinh. Mô hình đứng trên bệ ' +
+      "nhựa bóng mini ghi 'SPECIAL EDITION 20/10', đặt bên trong hoặc cạnh hộp đồ chơi trong suốt mở mặt " +
+      "trước (kiểu blind box) trang trí rực rỡ bằng thương hiệu 'NOVO NORDISK DIGITAL WEEK' và 'HAPPY " +
+      "WOMEN'S DAY 20/10', logo và hiệu ứng glitch số vui nhộn. Ánh sáng thể tích mềm mại, nhiều màu sắc " +
+      'chiếu rọi khung cảnh, làm nổi bật chất liệu nhựa/resin bóng mượt, dải màu pastel rực rỡ và các chi ' +
+      'tiết ảnh ba chiều vui nhộn trên hộp. Hậu cảnh là một văn phòng doanh nghiệp mờ ngoài tiêu điểm. ' +
+      'Kết xuất 3D CGI/Clay sáng tạo, Octane render, thẩm mỹ pop-toy với độ sâu trường ảnh phong phú.'
   },
   {
     id: 'webtoon-weekday',
@@ -134,7 +188,80 @@ const STYLES = [
       "20/10' and 'HAPPY WOMEN'S DAY!' banner decorations, playful tech icons, balloons, confetti, and " +
       'comic-style background staff. The artwork features crisp cel-shading, rich pastel and navy blue ' +
       'palettes, expressive action lines, and soft overlay glows. A cinematic Webtoon/Manhwa panel ' +
-      'composition with colorful sparkles and digital particles.'
+      'composition with colorful sparkles and digital particles.',
+    promptVi:
+      'Một minh họa 2D phong cách anime/manhwa Webtoon sống động, chất lượng cao của người trong ảnh, ' +
+      'giữ nguyên 100% đường nét khuôn mặt, kiểu tóc và biểu cảm thân thiện dễ nhận ra theo thẩm mỹ ' +
+      'anime/manhwa. Nhân vật được khắc họa trong một khung cảnh văn phòng sống động, tự nhiên cho "Novo ' +
+      'Nordisk Digital Week". Mặc áo sơ mi doanh nghiệp xanh navy form rộng thời trang với biểu tượng ' +
+      'thương hiệu nhỏ trên ngực, cầm máy tính bảng hiện đại và dây đeo thẻ. Nhìn vào ống kính với nụ ' +
+      'cười Gen-Z vui tươi, năng động. Bối cảnh là sảnh văn phòng anime nhiều màu vẽ tay đầy màn hình số, ' +
+      "trang trí banner 'DIGITAL WEEK 20/10' và 'HAPPY WOMEN'S DAY!', các biểu tượng công nghệ vui nhộn, " +
+      'bóng bay, confetti và nhân vật nền phong cách truyện tranh. Tác phẩm có cel-shading sắc nét, bảng ' +
+      'màu pastel và xanh navy phong phú, các đường chuyển động biểu cảm và lớp ánh sáng phủ dịu. Bố cục ' +
+      'khung Webtoon/Manhwa điện ảnh với tia lấp lánh nhiều màu và hạt số.'
+  },
+  {
+    id: 'arcade-hero',
+    label: 'Retro Arcade Hero',
+    preview: '/img/s7.png',
+    prompt:
+      'A playful retro arcade-style portrait of the person in this photo, strictly preserving their ' +
+      'authentic facial identity, bone structure, and expression. Reimagined as a cheerful 80s-90s ' +
+      'video-game champion inside a glowing neon arcade. Wearing a navy blue bomber jacket with a tiny ' +
+      'Novo Nordisk emblem. Surrounded by a retro arcade cabinet, pixel-art power-ups, floating coins, ' +
+      "and a glowing scoreboard reading 'DIGITAL WEEK - HIGH SCORE'. Vibrant neon blue, magenta, and " +
+      'cyan lighting, subtle CRT scanlines, playful pixel particles, fun energetic mood, crisp ' +
+      'high-quality render blending the photoreal face with a stylized arcade background.',
+    promptVi:
+      'Chân dung phong cách arcade cổ điển vui nhộn của người trong ảnh, giữ nguyên tuyệt đối bản sắc ' +
+      'khuôn mặt, cấu trúc xương và biểu cảm. Được tái hiện thành nhà vô địch game những năm 80-90 vui ' +
+      'tươi bên trong một phòng arcade đèn neon rực sáng. Mặc áo bomber xanh navy với biểu tượng Novo ' +
+      'Nordisk nhỏ. Xung quanh là máy arcade cổ điển, các vật phẩm pixel-art, đồng xu lơ lửng và bảng ' +
+      "điểm phát sáng ghi 'DIGITAL WEEK - HIGH SCORE'. Ánh đèn neon xanh dương, hồng magenta và xanh " +
+      'cyan rực rỡ, các đường scanline CRT nhẹ, hạt pixel vui nhộn, không khí vui tươi tràn năng lượng, ' +
+      'kết xuất chất lượng cao sắc nét hòa quyện khuôn mặt chân thực với hậu cảnh arcade cách điệu.'
+  },
+  {
+    id: 'super-digital',
+    label: 'Digital Superhero',
+    preview: '/img/s8.png',
+    prompt:
+      'A fun, uplifting comic-book superhero portrait of the person in this photo, strictly keeping ' +
+      'their identical facial features, eyes, and confident friendly smile. Dressed as a modern ' +
+      'digital health guardian in a sleek navy blue and white hero suit with a glowing emblem on the ' +
+      'chest and a light cape, striking a cheerful heroic pose. Behind them, a bright futuristic city ' +
+      "skyline with floating holographic health shields and a banner reading 'DIGITAL WEEK HERO'. " +
+      'Dynamic comic action lines, vivid colors, soft heroic rim light, playful energetic atmosphere, ' +
+      'high-quality semi-realistic comic render.',
+    promptVi:
+      'Chân dung siêu anh hùng phong cách truyện tranh vui tươi, tràn cảm hứng của người trong ảnh, giữ ' +
+      'nguyên tuyệt đối đường nét khuôn mặt, ánh mắt và nụ cười tự tin thân thiện. Hóa thân thành người ' +
+      'bảo vệ sức khỏe số hiện đại trong bộ giáp anh hùng xanh navy và trắng mượt mà với biểu tượng phát ' +
+      'sáng trên ngực và áo choàng nhẹ, tạo dáng anh hùng vui tươi. Phía sau là đường chân trời thành ' +
+      "phố tương lai rực sáng với các khiên sức khỏe ảnh ba chiều lơ lửng và banner ghi 'DIGITAL WEEK " +
+      "HERO'. Các đường chuyển động truyện tranh năng động, màu sắc rực rỡ, ánh viền anh hùng dịu, không " +
+      'khí vui tươi tràn năng lượng, kết xuất truyện tranh bán chân thực chất lượng cao.'
+  },
+  {
+    id: 'party-photobooth',
+    label: 'Party Photobooth',
+    preview: '/img/s9.png',
+    prompt:
+      'A joyful party photo-booth portrait of the person in this photo, strictly preserving their ' +
+      'authentic face, skin tone, and happy expression. Laughing cheerfully at a festive corporate ' +
+      'celebration, wearing a smart-casual navy outfit with a fun paper party hat and playful ' +
+      'oversized props. Colorful confetti, balloons, and streamers fill the air; a bright backdrop ' +
+      "reads 'NOVO NORDISK DIGITAL WEEK' with sparkling bokeh lights. Warm, lively party lighting, " +
+      'candid spontaneous mood, shallow depth of field, vibrant friendly colors, crisp photorealistic ' +
+      '35mm look.',
+    promptVi:
+      'Chân dung photo-booth tiệc tùng vui nhộn của người trong ảnh, giữ nguyên tuyệt đối khuôn mặt, ' +
+      'tông da và biểu cảm hạnh phúc. Đang cười sảng khoái trong một buổi tiệc công ty rộn ràng, mặc ' +
+      'trang phục navy smart-casual với mũ giấy tiệc vui nhộn và các đạo cụ quá khổ ngộ nghĩnh. Confetti ' +
+      "nhiều màu, bóng bay và dải kim tuyến bay đầy không gian; phông nền sáng ghi 'NOVO NORDISK DIGITAL " +
+      "WEEK' với ánh bokeh lấp lánh. Ánh sáng tiệc ấm áp, sống động, không khí tự nhiên ngẫu hứng, độ sâu " +
+      'trường ảnh nông, màu sắc thân thiện rực rỡ, phong cách 35mm chân thực sắc nét.'
   }
 ];
 
@@ -276,7 +403,7 @@ function sanitizeInitial(initial) {
 }
 
 function sanitiseStyleForClient(style) {
-  return { id: style.id, label: style.label, preview: style.preview, prompt: style.prompt };
+  return { id: style.id, label: style.label, preview: style.preview, prompt: style.prompt, promptVi: style.promptVi || style.prompt };
 }
 
 const MAX_PROMPT_LENGTH = 2000;
