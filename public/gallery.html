@@ -59,6 +59,7 @@
         <option value="new">Mới nhất</option>
         <option value="old">Cũ nhất</option>
       </select>
+      <button id="btnRefresh">Làm mới</button>
       <button id="btnClear" class="clear">Xóa lọc</button>
     </div>
     <div class="grid" id="grid"></div>
@@ -80,8 +81,12 @@
       var sortSelect = document.getElementById('sortSelect');
       var filterInitial = document.getElementById('filterInitial');
       var btnClear = document.getElementById('btnClear');
+      var btnRefresh = document.getElementById('btnRefresh');
 
       var allItems = [];   // full dataset, filtered client-side
+      var activeToken = null;
+      var refreshTimer = null;
+      var REFRESH_MS = 30000;   // auto-refresh every 30s
 
       function fmtSize(b) {
         if (!b) return '';
@@ -109,16 +114,39 @@
         if (!res.ok) { authErr.textContent = 'Lỗi tải dữ liệu.'; authErr.style.display = 'block'; return; }
         var data = await res.json();
         try { localStorage.setItem('galleryToken', token); } catch (e) {}
+        activeToken = token;
         authScreen.classList.add('hidden');
         topBar.classList.remove('hidden');
         galleryWrap.classList.remove('hidden');
         allItems = data.items || [];
         populateInitials();
         applyFilters();
+        startAutoRefresh();
+      }
+
+      // Silently re-fetch the dataset, preserving current filters/selection.
+      async function refreshData() {
+        if (!activeToken) return;
+        try {
+          var res = await fetch('/api/gallery?token=' + encodeURIComponent(activeToken));
+          if (!res.ok) return;
+          var data = await res.json();
+          allItems = data.items || [];
+          populateInitials();
+          applyFilters();
+        } catch (e) { /* keep existing data on failure */ }
+      }
+
+      function startAutoRefresh() {
+        if (refreshTimer) return;
+        refreshTimer = setInterval(function () {
+          if (!document.hidden) refreshData();
+        }, REFRESH_MS);
       }
 
       // Build the INITIAL dropdown from distinct, named entries.
       function populateInitials() {
+        var current = filterInitial.value;
         var seen = {};
         var names = [];
         allItems.forEach(function (it) {
@@ -127,6 +155,7 @@
         names.sort(function (a, b) { return a.localeCompare(b, 'vi'); });
         filterInitial.innerHTML = '<option value="">Tất cả INITIAL</option>' +
           names.map(function (n) { return '<option value="' + escHtml(n) + '">' + escHtml(n) + '</option>'; }).join('');
+        if (current && names.indexOf(current) !== -1) filterInitial.value = current;
       }
 
       function applyFilters() {
@@ -176,8 +205,6 @@
         var pages = items.map(function (it) {
           return '<section class="page">' +
             '<img src="' + it.url + '" alt="">' +
-            '<div class="cap"><strong>' + escHtml(it.initial || 'Ẩn danh') + '</strong>' +
-            '<span>Novo Nordisk Vietnam · Digital Week</span></div>' +
             '</section>';
         }).join('');
         var html =
@@ -186,11 +213,8 @@
           '*{box-sizing:border-box;margin:0;padding:0}' +
           'body{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:#f4f6fb;color:#001965}' +
           '.page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;page-break-after:always}' +
-          '.page img{max-width:100%;max-height:82vh;object-fit:contain;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.18)}' +
-          '.cap{margin-top:18px;text-align:center}' +
-          '.cap strong{display:block;font-size:26px;letter-spacing:.3px}' +
-          '.cap span{display:block;margin-top:6px;font-size:13px;color:#46566e;font-weight:600;text-transform:uppercase;letter-spacing:1.5px}' +
-          '@media print{body{background:#fff}.page{padding:0}.page img{box-shadow:none}}' +
+          '.page img{max-width:100%;max-height:96vh;object-fit:contain;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.18)}' +
+          '@media print{body{background:#fff}.page{padding:0}.page img{box-shadow:none;max-height:100vh}}' +
           '</style></head><body>' + pages +
           '<script>(function(){var imgs=document.images,n=imgs.length,c=0;' +
           'function go(){window.focus();window.print();}' +
@@ -220,6 +244,10 @@
         filterInitial.value = '';
         sortSelect.value = 'new';
         applyFilters();
+      });
+      btnRefresh.addEventListener('click', refreshData);
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) refreshData();
       });
 
       // Auto-login via ?token= or saved token
