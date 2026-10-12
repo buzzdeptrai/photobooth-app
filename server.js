@@ -53,7 +53,7 @@ const STYLES = [
   },
   {
     id: 'nordic-grace',
-    label: 'Nordic Grace Celebration (20/10)',
+    label: "Vietnamese Women's Day Celebration (20/10)",
     preview: '/img/s2.png',
     prompt:
       'A natural-light corporate event portrait of the person in this photo, strictly preserving ' +
