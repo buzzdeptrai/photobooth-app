@@ -358,7 +358,19 @@
     }
     .file-input-label svg { width: 18px; height: 18px; }
     .file-input-label:active { transform: scale(0.97); }
-    #fileInput { display: none; }
+    #fileInput, #uploadInput { display: none; }
+
+    .btn-upload {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 44px; padding: 10px 20px; margin-top: 2px;
+      background: var(--white); color: var(--navy);
+      border: 1.5px solid var(--gray-300); border-radius: var(--radius);
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: transform var(--transition), border-color var(--transition);
+    }
+    .btn-upload svg { width: 18px; height: 18px; }
+    .btn-upload:hover { border-color: var(--navy); }
+    .btn-upload:active { transform: scale(0.97); }
 
     /* ================================================================
        Screen 3: Preview
@@ -629,6 +641,11 @@
         <div class="camera-actions" id="cameraActions">
           <button class="btn-capture" id="btnCapture" data-i18n-aria="camera.capture" aria-label="Chụp ảnh"></button>
           <span class="camera-hint" data-i18n="camera.hint">Nhấn để chụp ảnh</span>
+          <label class="btn-upload" for="uploadInput">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+            <span data-i18n="camera.upload">Tải ảnh lên</span>
+          </label>
+          <input type="file" id="uploadInput" accept="image/*">
         </div>
         <div class="camera-fallback" id="cameraFallback">
           <div class="fallback-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
@@ -797,6 +814,7 @@
           'camera.hint': 'Nhấn để chụp ảnh',
           'camera.fallback': 'Không thể truy cập camera.<br>Vui lòng chọn ảnh từ thư viện.',
           'camera.choose': 'Chọn ảnh',
+          'camera.upload': 'Tải ảnh lên',
           'preview.title': 'Xem lại ảnh',
           'preview.subtitle': 'Bạn hài lòng với tấm ảnh này chứ?',
           'preview.alt': 'Ảnh đã chụp',
@@ -875,6 +893,7 @@
           'camera.hint': 'Tap to take photo',
           'camera.fallback': 'Cannot access the camera.<br>Please choose a photo from your gallery.',
           'camera.choose': 'Choose photo',
+          'camera.upload': 'Upload photo',
           'preview.title': 'Review photo',
           'preview.subtitle': 'Are you happy with this photo?',
           'preview.alt': 'Captured photo',
@@ -1013,6 +1032,7 @@
       const cameraFallback  = document.getElementById('cameraFallback');
       const btnCapture      = document.getElementById('btnCapture');
       const fileInput       = document.getElementById('fileInput');
+      const uploadInput     = document.getElementById('uploadInput');
       const previewImage    = document.getElementById('previewImage');
       const btnRetake       = document.getElementById('btnRetake');
       const btnContinue     = document.getElementById('btnContinue');
@@ -1186,6 +1206,13 @@
         handleImageFile(file);
       });
 
+      uploadInput.addEventListener('change', function (e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        stopCamera();
+        handleImageFile(file);
+      });
+
       function handleImageFile(file) {
         var reader = new FileReader();
         reader.onload = function (ev) {
@@ -1212,6 +1239,7 @@
       btnRetake.addEventListener('click', function () {
         capturedImageBase64 = null;
         fileInput.value = '';
+        uploadInput.value = '';
         showScreen('camera');
         startCamera();
       });

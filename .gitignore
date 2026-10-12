@@ -3,3 +3,5 @@ node_modules/
 storage/
 .DS_Store
 .claude/
+server.log
+*.log
