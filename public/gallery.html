@@ -59,7 +59,6 @@
         <option value="new">Mới nhất</option>
         <option value="old">Cũ nhất</option>
       </select>
-      <button id="btnPrintAll">In tất cả</button>
       <button id="btnClear" class="clear">Xóa lọc</button>
     </div>
     <div class="grid" id="grid"></div>
@@ -80,11 +79,9 @@
       var searchInput = document.getElementById('searchInput');
       var sortSelect = document.getElementById('sortSelect');
       var filterInitial = document.getElementById('filterInitial');
-      var btnPrintAll = document.getElementById('btnPrintAll');
       var btnClear = document.getElementById('btnClear');
 
       var allItems = [];   // full dataset, filtered client-side
-      var shownItems = []; // currently displayed (for print-all)
 
       function fmtSize(b) {
         if (!b) return '';
@@ -142,7 +139,6 @@
         });
         items.sort(function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); });
         if (sortSelect.value === 'old') items.reverse();
-        shownItems = items;
         countEl.textContent = items.length + ' ảnh';
         render(items);
       }
@@ -219,7 +215,6 @@
       filterInitial.addEventListener('change', applyFilters);
       sortSelect.addEventListener('change', applyFilters);
       searchInput.addEventListener('input', applyFilters);
-      btnPrintAll.addEventListener('click', function () { printImages(shownItems); });
       btnClear.addEventListener('click', function () {
         searchInput.value = '';
         filterInitial.value = '';
