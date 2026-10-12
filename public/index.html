@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#001965">
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <meta name="googlebot" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <title>Digital Week Photo Booth - Novo Nordisk Vietnam</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -89,6 +90,17 @@
         border-radius: var(--radius-xl);
         box-shadow: var(--shadow-lg);
       }
+    }
+
+    /* Larger desktop screens: give the card more presence and breathing room. */
+    @media (min-width: 1024px) {
+      body { padding: 40px; }
+      .app-container {
+        max-width: 512px;
+        height: calc(100dvh - 80px);
+        max-height: 960px;
+      }
+      .screen { padding: 30px 30px 32px; }
     }
 
     .screen {
@@ -285,6 +297,8 @@
     .code-box input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(0,25,101,0.12); }
     .code-box input::placeholder { font-weight: 400; letter-spacing: normal; text-transform: none; color: var(--gray-400); }
     .code-error { font-size: 12px; color: #D92D20; margin-top: 7px; min-height: 16px; }
+    #userInitialInput { text-transform: none; letter-spacing: normal; }
+    #nameError:empty { display: none; }
 
     .welcome-actions { margin-top: auto; }
 
@@ -577,6 +591,12 @@
           </div>
         </div>
 
+        <div class="code-box" id="nameBox">
+          <label for="userInitialInput" data-i18n="name.label">Tên / Initial của bạn</label>
+          <input type="text" id="userInitialInput" autocomplete="off" maxlength="24" data-i18n-ph="name.placeholder" placeholder="VD: An, MinhNN, HR Team">
+          <p class="code-error" id="nameError"></p>
+        </div>
+
         <div class="code-box" id="codeBox" style="display:none;">
           <label for="eventCodeInput" data-i18n="code.label">Mã sự kiện</label>
           <input type="text" id="eventCodeInput" autocomplete="off" autocapitalize="characters" data-i18n-ph="code.placeholder" placeholder="Nhập mã được cung cấp tại sự kiện">
@@ -764,6 +784,9 @@
           'step.capture': 'Chụp ảnh',
           'step.style': 'Chọn phong cách',
           'step.result': 'Nhận ảnh AI',
+          'name.label': 'Tên / Initial của bạn',
+          'name.placeholder': 'VD: An, MinhNN, HR Team',
+          'name.errEmpty': 'Vui lòng nhập tên hoặc initial của bạn.',
           'code.label': 'Mã sự kiện',
           'code.placeholder': 'Nhập mã được cung cấp tại sự kiện',
           'consent': 'Tôi đồng ý cho ứng dụng sử dụng camera để tạo ảnh vui Digital Week. Ảnh chỉ dùng cho mục đích tạo ảnh của sự kiện.',
@@ -839,6 +862,9 @@
           'step.capture': 'Take photo',
           'step.style': 'Pick a style',
           'step.result': 'Get AI photo',
+          'name.label': 'Your name / initial',
+          'name.placeholder': 'e.g. An, MinhNN, HR Team',
+          'name.errEmpty': 'Please enter your name or initial.',
           'code.label': 'Event code',
           'code.placeholder': 'Enter the code provided at the event',
           'consent': 'I agree to let this app use the camera to create fun Digital Week photos. Photos are used only for the event\'s photo creation purpose.',
@@ -979,6 +1005,8 @@
       const codeBox         = document.getElementById('codeBox');
       const eventCodeInput  = document.getElementById('eventCodeInput');
       const codeError       = document.getElementById('codeError');
+      const userInitialInput = document.getElementById('userInitialInput');
+      const nameError       = document.getElementById('nameError');
       const videoElement    = document.getElementById('videoElement');
       const videoContainer  = document.getElementById('videoContainer');
       const cameraActions   = document.getElementById('cameraActions');
@@ -1038,6 +1066,11 @@
 
       var requireCode = false;
       var eventCode = '';
+      var userInitial = '';
+
+      function updateStartState() {
+        btnStart.disabled = !(consentCheckbox.checked && (userInitialInput.value || '').trim());
+      }
 
       (function loadConfig() {
         fetch('/api/config')
@@ -1051,11 +1084,19 @@
 
       applyLang(lang);
 
-      consentCheckbox.addEventListener('change', function () { btnStart.disabled = !consentCheckbox.checked; });
+      consentCheckbox.addEventListener('change', updateStartState);
+      userInitialInput.addEventListener('input', function () {
+        nameError.textContent = '';
+        updateStartState();
+      });
 
       btnStart.addEventListener('click', async function () {
         if (!consentCheckbox.checked) return;
         codeError.textContent = '';
+        nameError.textContent = '';
+
+        userInitial = (userInitialInput.value || '').trim();
+        if (!userInitial) { nameError.textContent = t('name.errEmpty'); return; }
 
         if (requireCode) {
           var entered = (eventCodeInput.value || '').trim();
@@ -1364,11 +1405,42 @@
             ctx.font = '600 ' + Math.round(fontSize * 0.82) + 'px "Noto Sans", -apple-system, sans-serif';
             ctx.fillStyle = 'rgba(255,255,255,0.9)';
             ctx.fillText('Digital Week', w - pad, h - pad);
+            drawInitialBadge(ctx, w, h);
             resolve(canvas.toDataURL('image/png'));
           };
           img.onerror = function () { resolve(dataUri); };
           img.src = dataUri;
         });
+      }
+
+      // Draw a small pill badge (top-right) showing who created the photo.
+      function drawInitialBadge(ctx, w, h) {
+        var label = (userInitial || '').trim();
+        if (!label) return;
+        var fontSize = Math.max(14, Math.round(h * 0.024));
+        var padX = Math.round(fontSize * 0.7);
+        var padY = Math.round(fontSize * 0.42);
+        var margin = Math.round(h * 0.018);
+        ctx.font = '700 ' + fontSize + 'px "Noto Sans", -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        var textW = ctx.measureText(label).width;
+        var boxW = textW + padX * 2;
+        var boxH = fontSize + padY * 2;
+        var x = w - margin - boxW;
+        var y = margin;
+        var r = boxH / 2;
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + boxW, y, x + boxW, y + boxH, r);
+        ctx.arcTo(x + boxW, y + boxH, x, y + boxH, r);
+        ctx.arcTo(x, y + boxH, x, y, r);
+        ctx.arcTo(x, y, x + boxW, y, r);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(0, 25, 101, 0.82)';
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(label, x + padX, y + padY);
       }
 
       async function storeResult(dataUri) {
@@ -1377,7 +1449,7 @@
           var res = await fetch('/api/store', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: dataUri }),
+            body: JSON.stringify({ image: dataUri, initial: userInitial }),
           });
           if (!res.ok) return;
           var data = await res.json();

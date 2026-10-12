@@ -306,6 +306,11 @@ app.get('/robots.txt', (_req, res) => {
   res.type('text/plain').send('User-agent: *\nDisallow: /\n');
 });
 
+// Browsers auto-request /favicon.ico; serve the SVG icon so it doesn't 404.
+app.get('/favicon.ico', (_req, res) => {
+  res.type('image/svg+xml').sendFile(path.join(__dirname, 'public', 'favicon.svg'));
+});
+
 // Maintenance gate: when enabled, hide the site from everyone except admins
 // (admins pass ?token=ADMIN_TOKEN or header x-admin-token). Blocks all routes.
 function hasAdminToken(req) {
@@ -451,7 +456,7 @@ app.get('/api/gallery', async (req, res) => {
 
 app.post('/api/store', async (req, res) => {
   try {
-    const { image } = req.body;
+    const { image, initial } = req.body;
     if (!image) {
       return res.status(400).json({ error: 'Thi\u1ebfu \u1ea3nh \u0111\u1ec3 l\u01b0u.' });
     }
@@ -461,7 +466,7 @@ app.post('/api/store', async (req, res) => {
       return res.status(400).json({ error: '\u0110\u1ecbnh d\u1ea1ng \u1ea3nh kh\u00f4ng h\u1ee3p l\u1ec7.' });
     }
 
-    const saved = await storage.saveImage(parsed.data, parsed.mimeType, getBaseUrl(req));
+    const saved = await storage.saveImage(parsed.data, parsed.mimeType, getBaseUrl(req), initial);
     const qr = await QRCode.toDataURL(saved.url, { margin: 1, width: 240 });
 
     return res.json({ url: saved.url, id: saved.id, qr });
