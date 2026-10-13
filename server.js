@@ -34,7 +34,7 @@ const STYLES = [
   {
     id: 'digital-leader',
     label: 'Empowered Digital Leader',
-    preview: '/img/s1.png',
+    preview: '/img/s1.jpg',
     prompt:
       'A high-end editorial corporate portrait of the person in this photo, strictly ' +
       'maintaining 100% identical facial features, natural skin tone, eyes, and genuine ' +
@@ -66,7 +66,7 @@ const STYLES = [
   {
     id: 'nordic-grace',
     label: "Vietnamese Women's Day Celebration (20/10)",
-    preview: '/img/s2.png',
+    preview: '/img/s2.jpg',
     prompt:
       'A natural-light corporate event portrait of the person in this photo, strictly preserving ' +
       'their authentic facial identity, bone structure, and facial expression. The subject stands ' +
@@ -96,7 +96,7 @@ const STYLES = [
   {
     id: 'future-healthcare',
     label: 'Future Healthcare & AI Innovation',
-    preview: '/img/s3.png',
+    preview: '/img/s3.jpg',
     prompt:
       'A visionary future healthcare portrait of the person in this photo, accurately preserving ' +
       'their identical facial features, eyes, and natural skin texture. Dressed in a sleek, ' +
@@ -122,7 +122,7 @@ const STYLES = [
   {
     id: 'driving-change',
     label: 'Driving Change & Dynamic Collaboration',
-    preview: '/img/s4.png',
+    preview: '/img/s4.jpg',
     prompt:
       'An energetic, candid lifestyle corporate portrait of the person in this photo, preserving ' +
       'authentic face shape, smile, and natural facial proportions. Wearing a casual corporate navy ' +
@@ -144,7 +144,7 @@ const STYLES = [
   {
     id: 'digital-toy',
     label: 'The Digital Toy',
-    preview: '/img/s5.png',
+    preview: '/img/s5.jpg',
     prompt:
       'A high-quality, professional 3D toy figure based on the person in this photo, strictly ' +
       'maintaining 100% identical facial features, original skin tone, eyes, and friendly ' +
@@ -176,7 +176,7 @@ const STYLES = [
   {
     id: 'webtoon-weekday',
     label: 'Webtoon Weekday',
-    preview: '/img/s6.png',
+    preview: '/img/s6.jpg',
     prompt:
       'A vibrant, high-quality 2D anime/manhwa Webtoon-style illustration of the person in this ' +
       'photo, strictly maintaining 100% identical and recognizable facial features, hairstyle, and ' +
@@ -204,7 +204,7 @@ const STYLES = [
   {
     id: 'arcade-hero',
     label: 'Retro Arcade Hero',
-    preview: '/img/s7.png',
+    preview: '/img/s7.jpg',
     prompt:
       'A playful retro arcade-style portrait of the person in this photo, strictly preserving their ' +
       'authentic facial identity, bone structure, and expression. Reimagined as a cheerful 80s-90s ' +
@@ -225,7 +225,7 @@ const STYLES = [
   {
     id: 'super-digital',
     label: 'Digital Superhero',
-    preview: '/img/s8.png',
+    preview: '/img/s8.jpg',
     prompt:
       'A fun, uplifting comic-book superhero portrait of the person in this photo, strictly keeping ' +
       'their identical facial features, eyes, and confident friendly smile. Dressed as a modern ' +
@@ -246,7 +246,7 @@ const STYLES = [
   {
     id: 'party-photobooth',
     label: 'Party Photobooth',
-    preview: '/img/s9.png',
+    preview: '/img/s9.jpg',
     prompt:
       'A joyful party photo-booth portrait of the person in this photo, strictly preserving their ' +
       'authentic face, skin tone, and happy expression. Laughing cheerfully at a festive corporate ' +
