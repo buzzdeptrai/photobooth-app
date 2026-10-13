@@ -90,6 +90,17 @@
         border-radius: var(--radius-xl);
         box-shadow: var(--shadow-lg);
       }
+
+      /* Desktop: keep each step within the card height (no scrolling).
+         The camera fills the leftover vertical space and derives its width
+         from the 3:4 ratio, so the capture button is always visible. */
+      .camera-wrapper { min-height: 0; gap: 14px; }
+      .video-container {
+        flex: 1 1 auto; min-height: 0;
+        width: auto; height: auto; max-width: 100%;
+        margin: 0 auto;
+      }
+      .welcome-content { gap: 16px; }
     }
 
     /* Larger desktop screens: render the card wider for more breathing room. */
@@ -137,7 +148,11 @@
       height: 40px;
       display: flex;
       align-items: center;
+      background: none; border: none; padding: 0; cursor: pointer;
+      border-radius: 8px; transition: opacity var(--transition);
     }
+    .brand-logo:hover { opacity: 0.7; }
+    .brand-logo:focus-visible { outline: 2px solid var(--navy); outline-offset: 3px; }
     .brand-logo img { height: 28px; width: auto; display: block; }
     .header-badge {
       margin-left: auto;
@@ -637,9 +652,9 @@
   <div class="app-container">
     <!-- Header -->
     <header class="app-header">
-      <div class="brand-logo">
+      <button class="brand-logo" id="btnHome" type="button" aria-label="Về trang chủ">
         <img src="/novo-logo.svg" alt="Novo Nordisk">
-      </div>
+      </button>
       <span class="header-badge">Photo Booth AI</span>
       <button class="lang-toggle" id="btnLang" type="button" aria-label="Switch language">EN</button>
     </header>
@@ -1310,19 +1325,25 @@
 
       btnCapture.addEventListener('click', function () { captureFromVideo(); });
 
-      function captureFromVideo() {
+      // Normalise every input photo to a fixed 3:4 portrait (cover-crop,
+      // centred). The AI output aspect ratio follows the INPUT image, so this
+      // guarantees all results come back in the same orientation/size.
+      function toPortraitDataUrl(source, sw, sh) {
+        var targetW = 768, targetH = 1024; // 3:4 portrait
         var canvas = document.createElement('canvas');
-        var maxSize = 1024;
+        canvas.width = targetW; canvas.height = targetH;
+        var ctx = canvas.getContext('2d');
+        var scale = Math.max(targetW / sw, targetH / sh);
+        var dw = sw * scale, dh = sh * scale;
+        ctx.drawImage(source, (targetW - dw) / 2, (targetH - dh) / 2, dw, dh);
+        return canvas.toDataURL('image/jpeg', 0.85);
+      }
+
+      function captureFromVideo() {
         var w = videoElement.videoWidth;
         var h = videoElement.videoHeight;
         if (!w || !h) return;
-        if (w > h) { if (w > maxSize) { h = h * maxSize / w; w = maxSize; } }
-        else { if (h > maxSize) { w = w * maxSize / h; h = maxSize; } }
-        w = Math.round(w); h = Math.round(h);
-        canvas.width = w; canvas.height = h;
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(videoElement, 0, 0, w, h);
-        capturedImageBase64 = canvas.toDataURL('image/jpeg', 0.85);
+        capturedImageBase64 = toPortraitDataUrl(videoElement, w, h);
         stopCamera();
         previewImage.src = capturedImageBase64;
         showScreen('preview');
@@ -1346,16 +1367,7 @@
         reader.onload = function (ev) {
           var img = new Image();
           img.onload = function () {
-            var canvas = document.createElement('canvas');
-            var maxSize = 1024;
-            var w = img.width; var h = img.height;
-            if (w > h) { if (w > maxSize) { h = h * maxSize / w; w = maxSize; } }
-            else { if (h > maxSize) { w = w * maxSize / h; h = maxSize; } }
-            w = Math.round(w); h = Math.round(h);
-            canvas.width = w; canvas.height = h;
-            var ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-            capturedImageBase64 = canvas.toDataURL('image/jpeg', 0.85);
+            capturedImageBase64 = toPortraitDataUrl(img, img.width, img.height);
             previewImage.src = capturedImageBase64;
             showScreen('preview');
           };
@@ -1652,12 +1664,25 @@
 
       btnDone.addEventListener('click', function () { showScreen('thanks'); });
 
+      // "Create new photo": the user already entered their INITIAL + consent,
+      // so skip the welcome screen and go straight to the camera.
       btnRestart.addEventListener('click', function () {
+        resetForNewPhoto();
+        showScreen('camera');
+        startCamera();
+      });
+
+      // Logo acts as a Home link back to step 1 (welcome).
+      function goHome() {
+        stopCamera();
         resetForNewPhoto();
         updateStartState();
         renderMyGallery();
         showScreen('welcome');
-      });
+      }
+
+      var btnHome = document.getElementById('btnHome');
+      if (btnHome) { btnHome.addEventListener('click', goHome); }
 
       function resetForNewPhoto() {
         capturedImageBase64 = null;
