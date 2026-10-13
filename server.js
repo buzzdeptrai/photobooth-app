@@ -32,6 +32,15 @@ const MAINTENANCE_MODE = /^(1|true|on|yes)$/i.test((process.env.MAINTENANCE_MODE
 
 const STYLES = [
   {
+    // Manual style: no preset prompt. The user types their own description and
+    // the server appends a face-preservation clause (see resolvePrompt).
+    id: 'custom-manual',
+    label: 'Your Own Prompt',
+    preview: '/img/s10.jpg',
+    prompt: '',
+    promptVi: ''
+  },
+  {
     id: 'digital-leader',
     label: 'Empowered Digital Leader',
     preview: '/img/s1.jpg',
@@ -262,6 +271,48 @@ const STYLES = [
       "nhiều màu, bóng bay và dải kim tuyến bay đầy không gian; phông nền sáng ghi 'NOVO NORDISK DIGITAL " +
       "WEEK' với ánh bokeh lấp lánh. Ánh sáng tiệc ấm áp, sống động, không khí tự nhiên ngẫu hứng, độ sâu " +
       'trường ảnh nông, màu sắc thân thiện rực rỡ, phong cách 35mm chân thực sắc nét.'
+  },
+  {
+    id: 'chibi-cutie',
+    label: 'Chibi Cutie',
+    preview: '/img/s11.jpg',
+    prompt:
+      'A cute hand-drawn chibi character version of the person in this photo, strictly keeping ' +
+      'their recognizable facial features, hairstyle, and friendly expression in an adorable chibi ' +
+      'art style with a big head, small rounded body, and large sparkling eyes. Wearing a cozy deep ' +
+      'navy blue Novo Nordisk hoodie with a tiny logo on the chest, giving a cheerful peace sign. Set ' +
+      'against a soft pastel background decorated with playful "DIGITAL WEEK" and "20/10" stickers, ' +
+      'tiny hearts, stars, and confetti. Clean kawaii illustration, smooth cel-shading, bright pastel ' +
+      'colors, crisp outlines, high-quality 2D cartoon render. Keep the same face.',
+    promptVi:
+      'Phiên bản nhân vật chibi vẽ tay dễ thương của người trong ảnh, giữ nguyên đường nét khuôn mặt, ' +
+      'kiểu tóc và biểu cảm thân thiện dễ nhận ra theo phong cách chibi đáng yêu với đầu to, thân nhỏ ' +
+      'tròn trịa và đôi mắt to long lanh. Mặc áo hoodie xanh navy đậm Novo Nordisk ấm áp với logo nhỏ ' +
+      'trên ngực, tạo dáng giơ tay chữ V vui tươi. Bối cảnh nền pastel nhẹ nhàng trang trí sticker ' +
+      '"DIGITAL WEEK" và "20/10" vui nhộn, trái tim nhỏ, ngôi sao và confetti. Minh họa kawaii sạch sẽ, ' +
+      'cel-shading mượt, màu pastel tươi sáng, nét vẽ sắc gọn, kết xuất hoạt hình 2D chất lượng cao. ' +
+      'Giữ nguyên khuôn mặt.'
+  },
+  {
+    id: 'ao-dai-heritage',
+    label: 'Vietnamese Áo Dài Elegance',
+    preview: '/img/s12.jpg',
+    prompt:
+      'An elegant studio portrait of the person in this photo, strictly preserving their exact facial ' +
+      'features, skin tone, and genuine expression. Gracefully wearing a refined traditional Vietnamese ' +
+      'áo dài in deep navy blue with subtle white-and-silver floral embroidery echoing the Novo Nordisk ' +
+      'palette, standing with poise and a warm gentle smile. Set in a tasteful scene with soft blossoms ' +
+      '(white lotus or peach/apricot flowers), warm creamy bokeh, and a discreet "DIGITAL WEEK 20/10" ' +
+      'accent in the background. Soft natural window light, shallow depth of field, premium editorial ' +
+      'fashion photography, photorealistic 8k resolution, authentic 35mm look. Keep the same face.',
+    promptVi:
+      'Chân dung studio thanh lịch của người trong ảnh, giữ nguyên tuyệt đối đường nét khuôn mặt, tông ' +
+      'da và biểu cảm chân thật. Duyên dáng trong tà áo dài truyền thống Việt Nam màu xanh navy đậm với ' +
+      'họa tiết hoa thêu trắng-bạc tinh tế hòa cùng tông màu Novo Nordisk, dáng đứng thanh thoát và nụ ' +
+      'cười ấm áp dịu dàng. Bối cảnh trang nhã với hoa nhẹ nhàng (sen trắng hoặc hoa đào/mai), ánh bokeh ' +
+      'ấm mịn và điểm nhấn "DIGITAL WEEK 20/10" kín đáo phía sau. Ánh sáng cửa sổ tự nhiên dịu, độ sâu ' +
+      'trường ảnh nông, nhiếp ảnh thời trang tạp chí cao cấp, độ phân giải 8k chân thực, phong cách 35mm. ' +
+      'Giữ nguyên khuôn mặt.'
   }
 ];
 
@@ -408,9 +459,18 @@ function sanitiseStyleForClient(style) {
 
 const MAX_PROMPT_LENGTH = 2000;
 
+const FACE_GUARD =
+  " Strictly preserve the person's exact facial features, identity, bone structure, " +
+  'and natural skin tone from the provided photo — keep the same face, no distortion.';
+
 function resolvePrompt(style, customPrompt) {
-  if (typeof customPrompt !== 'string') return style.prompt;
-  const trimmed = customPrompt.trim();
+  const trimmed = (typeof customPrompt === 'string') ? customPrompt.trim() : '';
+  // Manual style has no preset prompt: rely on the user's text and always append
+  // a face-preservation clause so the generated image keeps the real face.
+  if (!style.prompt) {
+    if (!trimmed) return '';
+    return (trimmed + FACE_GUARD).slice(0, MAX_PROMPT_LENGTH);
+  }
   if (!trimmed) return style.prompt;
   return trimmed.slice(0, MAX_PROMPT_LENGTH);
 }
@@ -518,6 +578,11 @@ app.post('/api/generate', async (req, res) => {
       return res.status(400).json({ error: 'Phong c\u00e1ch kh\u00f4ng h\u1ee3p l\u1ec7.' });
     }
 
+    const finalPrompt = resolvePrompt(style, customPrompt);
+    if (!finalPrompt) {
+      return res.status(400).json({ error: 'Vui l\u00f2ng nh\u1eadp m\u00f4 t\u1ea3 phong c\u00e1ch.' });
+    }
+
     const parsed = parseDataUri(image);
     if (!parsed) {
       return res.status(400).json({ error: '\u0110\u1ecbnh d\u1ea1ng \u1ea3nh kh\u00f4ng h\u1ee3p l\u1ec7.' });
@@ -545,7 +610,7 @@ app.post('/api/generate', async (req, res) => {
             role: 'user',
             parts: [
               { inlineData: { mimeType: parsed.mimeType, data: parsed.data } },
-              { text: resolvePrompt(style, customPrompt) }
+              { text: finalPrompt }
             ]
           }
         ],

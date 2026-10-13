@@ -74,7 +74,7 @@
       position: relative;
       width: 100%;
       max-width: 468px;
-      min-height: 100dvh;
+      height: 100dvh;
       display: flex;
       flex-direction: column;
       background: var(--white);
@@ -118,6 +118,7 @@
       display: none;
       flex-direction: column;
       flex: 1;
+      min-height: 0;
       padding: 24px 22px 26px;
       position: relative;
       overflow-y: auto;
@@ -955,6 +956,9 @@
             'Đang hoàn thiện những nét cuối cùng...',
           ],
           stylesLabels: {
+            'custom-manual': 'Tự nhập mô tả',
+            'chibi-cutie': 'Chibi dễ thương',
+            'ao-dai-heritage': 'Áo dài Việt Nam',
             'digital-leader': 'Lãnh đạo số bản lĩnh',
             'nordic-grace': 'Mừng Ngày Phụ nữ VN (20/10)',
             'future-healthcare': 'Y tế tương lai & AI',
@@ -1039,6 +1043,9 @@
             'Adding the final touches...',
           ],
           stylesLabels: {
+            'custom-manual': 'Your Own Prompt',
+            'chibi-cutie': 'Chibi Cutie',
+            'ao-dai-heritage': 'Áo Dài Elegance',
             'digital-leader': 'Empowered Digital Leader',
             'nordic-grace': "Vietnamese Women's Day (20/10)",
             'future-healthcare': 'Future Healthcare & AI',
@@ -1207,9 +1214,18 @@
         btnStart.disabled = !(consentCheckbox.checked && (userInitialInput.value || '').trim());
       }
 
+      // Hide the name + consent inputs once a returning visitor has both saved,
+      // so the welcome screen looks the same whether reached via page refresh
+      // or the Home logo. Shared by both entry points to keep them in sync.
+      function applyIdentityVisibility() {
+        var savedInitial = (localStorage.getItem('userInitial') || '').trim();
+        var known = !!(savedInitial && localStorage.getItem('consent') === '1');
+        if (nameBox) { nameBox.style.display = known ? 'none' : ''; }
+        if (consentBox) { consentBox.style.display = known ? 'none' : ''; }
+      }
+
       // Restore the INITIAL + consent from a previous visit so a page refresh
-      // doesn't lose them. Once both are saved we hide the name + consent
-      // inputs so returning users only ever fill them in once.
+      // doesn't lose them.
       function loadSavedIdentity() {
         var savedInitial = (localStorage.getItem('userInitial') || '').trim();
         var consented = localStorage.getItem('consent') === '1';
@@ -1218,10 +1234,7 @@
           userInitialInput.value = savedInitial;
         }
         if (consented) { consentCheckbox.checked = true; }
-        if (savedInitial && consented) {
-          if (nameBox) { nameBox.style.display = 'none'; }
-          if (consentBox) { consentBox.style.display = 'none'; }
-        }
+        applyIdentityVisibility();
         updateStartState();
         renderMyGallery();
       }
@@ -1395,8 +1408,14 @@
       var SVG_GAMEPAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 8h6a5 5 0 0 1 5 5l.5 3.3a2.1 2.1 0 0 1-3.9 1.3L15 15H9l-1.6 2.6a2.1 2.1 0 0 1-3.9-1.3L4 13a5 5 0 0 1 5-5z"/><path d="M7 11v2M6 12h2"/><circle cx="15.5" cy="11" r=".7" fill="currentColor"/><circle cx="17.5" cy="13" r=".7" fill="currentColor"/></svg>';
       var SVG_SHIELD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.6-3 7.6-7 9-4-1.4-7-4.4-7-9V6z"/><path d="M12.5 8l-2.3 4.3H13l-1.8 3.7"/></svg>';
       var SVG_PARTY  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l5.5-13 7.5 7.5z"/><path d="M14 4.5l1 2M18.5 6l2-1M19 10.5l2 .8"/><circle cx="12" cy="12.5" r=".6" fill="currentColor"/><circle cx="9" cy="16" r=".6" fill="currentColor"/></svg>';
+      var SVG_PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+      var SVG_SMILE  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg>';
+      var SVG_FLOWER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1.8 1.6 1.8 4.4 0 6-1.8-1.6-1.8-4.4 0-6z"/><path d="M12 9c2.4 0 4 1.6 4 4 0 2.2-1.8 4-4 4s-4-1.8-4-4c0-2.4 1.6-4 4-4z"/><path d="M8 11c-1.8-.6-3.6.2-4.4 2 1.8.6 3.6-.2 4.4-2z"/><path d="M16 11c1.8-.6 3.6.2 4.4 2-1.8.6-3.6-.2-4.4-2z"/></svg>';
 
       var STYLE_ICON_MAP = {
+        'custom-manual':     { svg: SVG_PENCIL,  cssClass: 'icon-health' },
+        'chibi-cutie':       { svg: SVG_SMILE,   cssClass: 'icon-party' },
+        'ao-dai-heritage':   { svg: SVG_FLOWER,  cssClass: 'icon-women' },
         'digital-leader':    { svg: SVG_CHIP,    cssClass: 'icon-pioneer' },
         'nordic-grace':      { svg: SVG_HEART,   cssClass: 'icon-women' },
         'future-healthcare': { svg: SVG_PULSE,   cssClass: 'icon-health' },
@@ -1453,9 +1472,14 @@
         });
       }
 
+      // Enable "Generate" only when a style is chosen and the prompt is non-empty.
+      // This also gates the manual style, whose prompt starts blank.
+      function updateGenerateState() {
+        btnGenerate.disabled = !selectedStyleId || !promptEditor.value.trim();
+      }
+
       function selectStyle(styleId) {
         selectedStyleId = styleId;
-        btnGenerate.disabled = false;
         var cards = stylesGrid.querySelectorAll('.style-card');
         cards.forEach(function (card) {
           card.classList.toggle('selected', card.dataset.styleId === styleId);
@@ -1464,12 +1488,15 @@
         promptAutoValue = stylePrompt(style);
         promptEditor.value = promptAutoValue;
         promptEditorWrap.style.display = '';
+        updateGenerateState();
 
         // Collapse the grid to just the chosen style so the prompt + button
         // take focus; the user can reopen the full list via "change style".
         stylesGrid.classList.add('collapsed');
         btnChangeStyle.style.display = '';
       }
+
+      promptEditor.addEventListener('input', updateGenerateState);
 
       function expandStyles() {
         stylesGrid.classList.remove('collapsed');
@@ -1676,6 +1703,7 @@
       function goHome() {
         stopCamera();
         resetForNewPhoto();
+        applyIdentityVisibility();
         updateStartState();
         renderMyGallery();
         showScreen('welcome');
