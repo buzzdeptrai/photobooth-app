@@ -291,6 +291,26 @@
 
     .welcome-actions { margin-top: auto; }
 
+    .my-gallery { margin-top: 22px; }
+    .my-gallery h3 {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; font-weight: 700; color: var(--navy);
+      margin: 0 0 12px; letter-spacing: -0.2px;
+    }
+    .my-gallery h3::before {
+      content: ''; width: 4px; height: 15px; border-radius: 2px;
+      background: linear-gradient(180deg, var(--navy), #3B82F6);
+    }
+    .my-gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .my-photo {
+      position: relative; display: block; aspect-ratio: 3 / 4; overflow: hidden;
+      border-radius: 12px; background: var(--gray-200);
+      border: 1.5px solid var(--gray-200); box-shadow: var(--shadow-xs);
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    }
+    .my-photo:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--navy); }
+    .my-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
     /* ================================================================
        Screen 2: Camera
        ================================================================ */
@@ -385,13 +405,38 @@
     .style-card {
       position: relative; background: var(--white);
       border: 1.5px solid var(--gray-200); border-radius: var(--radius-lg);
-      padding: 16px 8px; display: flex; flex-direction: column; align-items: center;
-      text-align: center; gap: 10px; cursor: pointer; box-shadow: var(--shadow-xs);
+      padding: 7px 7px 9px; display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 7px; cursor: pointer; box-shadow: var(--shadow-xs);
       transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition), background var(--transition);
     }
     .style-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--gray-300); }
     .style-card:active { transform: scale(0.98); }
     .style-card.selected { border-color: var(--navy); background: var(--tint); box-shadow: 0 0 0 3px rgba(0,25,101,0.14), var(--shadow-md); }
+
+    .style-card-thumb {
+      position: relative; width: 100%; aspect-ratio: 3 / 4;
+      border-radius: 12px; overflow: hidden; background: var(--gray-200);
+      box-shadow: var(--shadow-sm);
+    }
+    .style-card-thumb img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      position: relative; z-index: 1;
+    }
+    /* Gradient placeholder shown only if the sample image fails to load */
+    .style-card-fallback {
+      position: absolute; inset: 0; z-index: 0;
+      display: flex; align-items: center; justify-content: center; color: var(--white);
+    }
+    .style-card-fallback svg { width: 32px; height: 32px; }
+    .style-card-thumb.no-image img { display: none; }
+    .style-card-fallback.icon-pioneer { background: linear-gradient(135deg, #0A2472, #0057D9); }
+    .style-card-fallback.icon-aodai   { background: linear-gradient(135deg, #1A3A8F, #3B82F6); }
+    .style-card-fallback.icon-women   { background: linear-gradient(135deg, #C2185B, #E84393); }
+    .style-card-fallback.icon-poster  { background: linear-gradient(135deg, #001965, #1A3A8F); }
+    .style-card-fallback.icon-health  { background: linear-gradient(135deg, #0057D9, #00A6A6); }
+    .style-card-fallback.icon-arcade  { background: linear-gradient(135deg, #6D28D9, #06B6D4); }
+    .style-card-fallback.icon-hero    { background: linear-gradient(135deg, #0A2472, #DC2626); }
+    .style-card-fallback.icon-party   { background: linear-gradient(135deg, #F59E0B, #EC4899); }
 
     .style-card-icon {
       width: 50px; height: 50px; min-width: 50px; border-radius: 15px;
@@ -420,25 +465,61 @@
     .style-card.selected .style-card-check { background: var(--navy); border-color: var(--navy); color: var(--white); }
     .style-card.selected .style-card-check::after { content: '\2713'; font-size: 13px; font-weight: 800; }
 
-    .prompt-editor { margin-top: 16px; animation: screenIn 0.3s ease; }
+    .prompt-editor {
+      margin-top: 16px; animation: screenIn 0.3s ease;
+      background: var(--white); border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm);
+    }
     .prompt-editor label {
-      display: block; font-size: 13px; font-weight: 700; color: var(--navy);
-      margin-bottom: 7px; letter-spacing: -0.2px;
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; font-weight: 700; color: var(--navy);
+      margin-bottom: 10px; letter-spacing: -0.2px;
+    }
+    .prompt-editor label::before {
+      content: ''; width: 4px; height: 16px; border-radius: 2px;
+      background: linear-gradient(180deg, var(--navy), #3B82F6);
     }
     .prompt-editor textarea {
-      width: 100%; resize: vertical; min-height: 92px;
-      font-family: inherit; font-size: 13.5px; line-height: 1.55; color: var(--gray-700);
-      background: var(--white); border: 1.5px solid var(--gray-200);
-      border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow-xs);
-      transition: border-color var(--transition), box-shadow var(--transition);
+      width: 100%; resize: vertical; min-height: 150px;
+      font-family: inherit; font-size: 14px; line-height: 1.6; color: var(--gray-700);
+      background: var(--gray-50); border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius); padding: 14px 16px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
     }
+    .prompt-editor textarea::placeholder { color: var(--gray-400); }
     .prompt-editor textarea:focus {
-      outline: none; border-color: var(--navy);
+      outline: none; border-color: var(--navy); background: var(--white);
       box-shadow: 0 0 0 3px rgba(0,25,101,0.12);
     }
-    .prompt-hint { font-size: 11.5px; color: var(--gray-500); margin-top: 6px; line-height: 1.5; }
+    .prompt-hint {
+      display: flex; align-items: flex-start; gap: 6px;
+      font-size: 11.5px; color: var(--gray-500); margin-top: 10px; line-height: 1.5;
+    }
 
     .styles-actions { margin-top: 16px; padding-top: 0; }
+
+    /* Collapsed grid: once a style is picked, hide the rest and show the
+       chosen one as a compact banner so the prompt + button come up front. */
+    .styles-grid.collapsed { grid-template-columns: 1fr; }
+    .styles-grid.collapsed .style-card { display: none; }
+    .styles-grid.collapsed .style-card.selected {
+      display: flex; flex-direction: row; align-items: center;
+      text-align: left; gap: 14px; padding: 12px 14px;
+    }
+    .styles-grid.collapsed .style-card.selected:hover { transform: none; }
+    .styles-grid.collapsed .style-card.selected .style-card-thumb {
+      width: 56px; min-width: 56px;
+    }
+    .styles-grid.collapsed .style-card.selected .style-card-icon { width: 44px; height: 44px; min-width: 44px; }
+    .styles-grid.collapsed .style-card.selected .style-card-label { font-size: 14px; }
+
+    .btn-change-style {
+      align-self: flex-start; background: none; border: none; cursor: pointer;
+      color: var(--navy); font-weight: 700; font-size: 13px; font-family: inherit;
+      padding: 2px 0; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-change-style svg { width: 15px; height: 15px; }
+    .btn-change-style:hover { text-decoration: underline; }
 
     /* ================================================================
        Screen 5: Processing
@@ -607,6 +688,11 @@
         <div class="welcome-actions">
           <button id="btnStart" class="btn btn-primary btn-block" data-i18n="btn.start" disabled>Bắt đầu ngay</button>
         </div>
+
+        <div class="my-gallery" id="myGallery" style="display:none;">
+          <h3 data-i18n="gallery.mine">Ảnh gần đây của bạn</h3>
+          <div class="my-gallery-grid" id="myGalleryGrid"></div>
+        </div>
       </div>
     </div>
 
@@ -666,6 +752,10 @@
           <p data-i18n="styles.subtitle">Mỗi phong cách cho ra một phiên bản khác nhau</p>
         </div>
         <div class="styles-grid" id="stylesGrid"></div>
+        <button type="button" id="btnChangeStyle" class="btn-change-style" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          <span data-i18n="styles.change">Chọn phong cách khác</span>
+        </button>
         <div class="prompt-editor" id="promptEditorWrap" style="display:none;">
           <label for="promptEditor" data-i18n="styles.promptLabel">Mô tả phong cách (có thể sửa hoặc thêm chi tiết)</label>
           <textarea id="promptEditor" rows="4" maxlength="2000" data-i18n-ph="styles.promptPlaceholder" placeholder="Nhập mô tả bạn muốn AI tạo ảnh..."></textarea>
@@ -807,6 +897,8 @@
           'styles.promptLabel': 'Mô tả phong cách (có thể sửa hoặc thêm chi tiết)',
           'styles.promptPlaceholder': 'Nhập mô tả bạn muốn AI tạo ảnh...',
           'styles.promptHint': 'Mẹo: viết tiếng Anh cho kết quả tốt nhất. Luôn giữ dòng "keep the same face" để giống mặt thật.',
+          'styles.change': 'Chọn phong cách khác',
+          'gallery.mine': 'Ảnh gần đây của bạn',
           'btn.generate': 'Tạo ảnh AI',
           'processing.title': 'Đang tạo ảnh AI',
           'result.title': 'Ảnh của bạn đã sẵn sàng!',
@@ -889,6 +981,8 @@
           'styles.promptLabel': 'Style description (you can edit or add details)',
           'styles.promptPlaceholder': 'Describe what you want the AI to create...',
           'styles.promptHint': 'Tip: write in English for the best results. Always keep the line "keep the same face" to preserve the real face.',
+          'styles.change': 'Choose a different style',
+          'gallery.mine': 'Your recent photos',
           'btn.generate': 'Create AI photo',
           'processing.title': 'Creating AI photo',
           'result.title': 'Your photo is ready!',
@@ -1038,6 +1132,9 @@
       const btnRetake       = document.getElementById('btnRetake');
       const btnContinue     = document.getElementById('btnContinue');
       const stylesGrid      = document.getElementById('stylesGrid');
+      const btnChangeStyle  = document.getElementById('btnChangeStyle');
+      const myGallery       = document.getElementById('myGallery');
+      const myGalleryGrid   = document.getElementById('myGalleryGrid');
       const promptEditorWrap = document.getElementById('promptEditorWrap');
       const promptEditor    = document.getElementById('promptEditor');
       const btnGenerate     = document.getElementById('btnGenerate');
@@ -1088,11 +1185,74 @@
       var eventCode = '';
       var userInitial = '';
 
+      var nameBox   = document.getElementById('nameBox');
+      var consentBox = document.querySelector('.consent-box');
+
       function updateStartState() {
         btnStart.disabled = !(consentCheckbox.checked && (userInitialInput.value || '').trim());
       }
 
+      // Restore the INITIAL + consent from a previous visit so a page refresh
+      // doesn't lose them. Once both are saved we hide the name + consent
+      // inputs so returning users only ever fill them in once.
+      function loadSavedIdentity() {
+        var savedInitial = (localStorage.getItem('userInitial') || '').trim();
+        var consented = localStorage.getItem('consent') === '1';
+        if (savedInitial) {
+          userInitial = savedInitial;
+          userInitialInput.value = savedInitial;
+        }
+        if (consented) { consentCheckbox.checked = true; }
+        if (savedInitial && consented) {
+          if (nameBox) { nameBox.style.display = 'none'; }
+          if (consentBox) { consentBox.style.display = 'none'; }
+        }
+        updateStartState();
+        renderMyGallery();
+      }
+
+      // Per-user local gallery: we store only the hosted image URL (returned by
+      // /api/store) keyed by INITIAL, so it stays tiny and never hits the
+      // localStorage quota the way base64 images would.
+      function photosKey() { return 'myPhotos:' + (userInitial || '').toUpperCase(); }
+
+      function loadMyPhotos() {
+        try { return JSON.parse(localStorage.getItem(photosKey()) || '[]'); }
+        catch (e) { return []; }
+      }
+
+      function saveMyPhoto(url, styleId) {
+        if (!url) return;
+        var list = loadMyPhotos();
+        list.unshift({ url: url, styleId: styleId || null, createdAt: Date.now() });
+        list = list.slice(0, 12);
+        try { localStorage.setItem(photosKey(), JSON.stringify(list)); } catch (e) {}
+        renderMyGallery();
+      }
+
+      function renderMyGallery() {
+        if (!myGallery || !myGalleryGrid) return;
+        var list = loadMyPhotos();
+        if (!list.length) { myGallery.style.display = 'none'; return; }
+        myGallery.style.display = '';
+        myGalleryGrid.innerHTML = '';
+        list.forEach(function (item) {
+          var a = document.createElement('a');
+          a.className = 'my-photo';
+          a.href = item.url;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          var img = document.createElement('img');
+          img.src = item.url;
+          img.loading = 'lazy';
+          img.alt = '';
+          a.appendChild(img);
+          myGalleryGrid.appendChild(a);
+        });
+      }
+
       applyLang(lang);
+      loadSavedIdentity();
 
       consentCheckbox.addEventListener('change', updateStartState);
       userInitialInput.addEventListener('input', function () {
@@ -1109,6 +1269,9 @@
 
         userInitial = (userInitialInput.value || '').trim();
         if (!userInitial) { nameError.textContent = t('name.errEmpty'); return; }
+
+        localStorage.setItem('userInitial', userInitial);
+        localStorage.setItem('consent', '1');
 
         showScreen('camera');
         startCamera();
@@ -1259,10 +1422,20 @@
           var card = document.createElement('div');
           card.className = 'style-card';
           card.dataset.styleId = style.id;
+          var thumb = style.preview
+            ? '<div class="style-card-thumb"><img src="' + escapeHtml(style.preview) + '" alt="" loading="lazy">' +
+              '<span class="style-card-fallback ' + iconData.cssClass + '">' + iconData.svg + '</span></div>'
+            : '<div class="style-card-icon ' + iconData.cssClass + '">' + iconData.svg + '</div>';
           card.innerHTML =
-            '<div class="style-card-icon ' + iconData.cssClass + '">' + iconData.svg + '</div>' +
+            thumb +
             '<span class="style-card-label">' + escapeHtml(styleLabel(style)) + '</span>' +
             '<div class="style-card-check"></div>';
+          var img = card.querySelector('.style-card-thumb img');
+          if (img) {
+            img.addEventListener('error', function () {
+              card.querySelector('.style-card-thumb').classList.add('no-image');
+            });
+          }
           card.addEventListener('click', function () { selectStyle(style.id); });
           stylesGrid.appendChild(card);
         });
@@ -1279,7 +1452,19 @@
         promptAutoValue = stylePrompt(style);
         promptEditor.value = promptAutoValue;
         promptEditorWrap.style.display = '';
+
+        // Collapse the grid to just the chosen style so the prompt + button
+        // take focus; the user can reopen the full list via "change style".
+        stylesGrid.classList.add('collapsed');
+        btnChangeStyle.style.display = '';
       }
+
+      function expandStyles() {
+        stylesGrid.classList.remove('collapsed');
+        btnChangeStyle.style.display = 'none';
+      }
+
+      btnChangeStyle.addEventListener('click', expandStyles);
 
       btnGenerate.addEventListener('click', function () { generateImage(); });
 
@@ -1429,6 +1614,7 @@
             qrImage.src = data.qr;
             qrCard.style.display = '';
           }
+          if (data.url) { saveMyPhoto(data.url, selectedStyleId); }
         } catch (err) { /* non-fatal */ }
       }
 
@@ -1452,6 +1638,7 @@
         btnGenerate.disabled = true;
         promptEditorWrap.style.display = 'none';
         promptEditor.value = '';
+        expandStyles();
         var cards = stylesGrid.querySelectorAll('.style-card');
         cards.forEach(function (c) { c.classList.remove('selected'); });
         showScreen('styles');
@@ -1467,8 +1654,8 @@
 
       btnRestart.addEventListener('click', function () {
         resetForNewPhoto();
-        consentCheckbox.checked = false;
-        btnStart.disabled = true;
+        updateStartState();
+        renderMyGallery();
         showScreen('welcome');
       });
 
@@ -1481,6 +1668,7 @@
         fileInput.value = '';
         qrCard.style.display = 'none';
         qrImage.src = '';
+        expandStyles();
         var cards = stylesGrid.querySelectorAll('.style-card');
         cards.forEach(function (c) { c.classList.remove('selected'); });
       }
