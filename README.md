@@ -1,4 +1,4 @@
-# Photo Booth AI — Digital Week Novo Nordisk
+# Photo Booth AI — Digital Week Novo
 
 Nhân viên mở camera → chụp ảnh → chọn style → nhận ảnh AI → tải về.
 

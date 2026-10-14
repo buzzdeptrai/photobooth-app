@@ -7,13 +7,13 @@
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <meta name="googlebot" content="noindex, nofollow">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <title>Digital Week Photo Booth - Novo Nordisk Vietnam</title>
+  <title>Digital Week Photo Booth - Novo Vietnam</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     /* ================================================================
-       Design tokens — Novo Nordisk brand
+       Design tokens — Novo brand
        ================================================================ */
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -654,7 +654,7 @@
     <!-- Header -->
     <header class="app-header">
       <button class="brand-logo" id="btnHome" type="button" aria-label="Về trang chủ">
-        <img src="/novo-logo.svg" alt="Novo Nordisk">
+        <img src="/novo-logo.svg" alt="Novo">
       </button>
       <span class="header-badge">Photo Booth AI</span>
       <button class="lang-toggle" id="btnLang" type="button" aria-label="Switch language">EN</button>
@@ -845,7 +845,7 @@
         </div>
         <div class="thanks-text">
           <h2 data-i18n="thanks.title">Cảm ơn bạn!</h2>
-          <p data-i18n-html="thanks.subtitle">Chúc bạn có một Digital Week thật vui.<br>Hẹn gặp lại tại gian hàng Novo Nordisk.</p>
+          <p data-i18n-html="thanks.subtitle">Chúc bạn có một Digital Week thật vui.<br>Hẹn gặp lại tại gian hàng Novo.</p>
         </div>
         <div class="welcome-actions" style="width:100%;">
           <button id="btnRestart" class="btn btn-primary btn-block" data-i18n="btn.restart">Tạo ảnh mới</button>
@@ -929,7 +929,7 @@
           'btn.newPhoto': 'Chụp ảnh mới',
           'btn.done': 'Hoàn tất',
           'thanks.title': 'Cảm ơn bạn!',
-          'thanks.subtitle': 'Chúc bạn có một Digital Week thật vui.<br>Hẹn gặp lại tại gian hàng Novo Nordisk.',
+          'thanks.subtitle': 'Chúc bạn có một Digital Week thật vui.<br>Hẹn gặp lại tại gian hàng Novo.',
           'btn.restart': 'Tạo ảnh mới',
           'btn.errorRetry': 'Thử lại',
           'btn.close': 'Đóng',
@@ -1016,7 +1016,7 @@
           'btn.newPhoto': 'New photo',
           'btn.done': 'Done',
           'thanks.title': 'Thank you!',
-          'thanks.subtitle': 'Have a wonderful Digital Week.<br>See you at the Novo Nordisk booth.',
+          'thanks.subtitle': 'Have a wonderful Digital Week.<br>See you at the Novo booth.',
           'btn.restart': 'Create new photo',
           'btn.errorRetry': 'Retry',
           'btn.close': 'Close',
@@ -1627,7 +1627,7 @@
             ctx.textBaseline = 'bottom';
             ctx.font = '700 ' + fontSize + 'px "Noto Sans", -apple-system, sans-serif';
             ctx.fillStyle = '#FFFFFF';
-            ctx.fillText('Novo Nordisk Vietnam', pad, h - pad);
+            ctx.fillText('Novo Vietnam', pad, h - pad);
             ctx.textAlign = 'right';
             ctx.font = '600 ' + Math.round(fontSize * 0.82) + 'px "Noto Sans", -apple-system, sans-serif';
             ctx.fillStyle = 'rgba(255,255,255,0.9)';
@@ -1741,7 +1741,7 @@
           var blob = await res.blob();
           var file = new File([blob], 'digital-week-photo.png', { type: blob.type });
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: 'Digital Week Photo', text: 'My Digital Week AI Photo - Novo Nordisk Vietnam' });
+            await navigator.share({ files: [file], title: 'Digital Week Photo', text: 'My Digital Week AI Photo - Novo Vietnam' });
           }
         } catch (err) { /* cancelled */ }
       }

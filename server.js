@@ -41,6 +41,38 @@ const STYLES = [
     promptVi: ''
   },
   {
+    id: 'digital-toy',
+    label: 'The Digital Toy',
+    preview: '/img/s5.jpg',
+    prompt:
+      'A high-quality, professional 3D toy figure based on the person in this photo, strictly ' +
+      'maintaining 100% identical facial features, original skin tone, eyes, and friendly ' +
+      'expression, reimagined as an adorable chibi-style collectible art toy (blind box figure ' +
+      "style, similar to Pop Mart). The character is an 'AI & DIGITAL WEEK' champion, wearing a " +
+      'cute oversized deep navy blue hoodie with a tiny Novo logo and futuristic ' +
+      'data/network motifs on the chest, paired with tiny stylish blue and white sneakers. The ' +
+      "figure is standing on a mini glossy plastic pedestal with 'SPECIAL EDITION 20/10' written " +
+      'on it, positioned inside or next to a transparent open-front toy packaging box (blind box ' +
+      "style) decorated with vibrant 'NOVO DIGITAL WEEK' and 'HAPPY WOMEN'S DAY 20/10' " +
+      'branding, logos, and playful digital glitches. Soft, colorful volumetric lighting illuminates ' +
+      'the scene, highlighting shiny, smooth plastic/resin toy materials, vibrant pastel gradients, ' +
+      'and playful holographic micro-details on the box packaging. In the background, there is a ' +
+      'blurry, out-of-focus corporate office. Creative CGI/Clay 3D render, Octane render, pop-toy ' +
+      'art aesthetic with rich depth of field.',
+    promptVi:
+      'Một mô hình đồ chơi 3D chuyên nghiệp chất lượng cao dựa trên người trong ảnh, giữ nguyên 100% ' +
+      'đường nét khuôn mặt, tông da gốc, ánh mắt và biểu cảm thân thiện, được tái hiện thành nhân vật ' +
+      'chibi đáng yêu sưu tầm (phong cách blind box, tương tự Pop Mart). Nhân vật là nhà vô địch "AI & ' +
+      'DIGITAL WEEK", mặc áo hoodie xanh navy đậm quá khổ dễ thương với logo Novo nhỏ và họa tiết ' +
+      'dữ liệu/mạng lưới tương lai trên ngực, đi giày sneaker xanh-trắng nhỏ xinh. Mô hình đứng trên bệ ' +
+      "nhựa bóng mini ghi 'SPECIAL EDITION 20/10', đặt bên trong hoặc cạnh hộp đồ chơi trong suốt mở mặt " +
+      "trước (kiểu blind box) trang trí rực rỡ bằng thương hiệu 'NOVO DIGITAL WEEK' và 'HAPPY " +
+      "WOMEN'S DAY 20/10', logo và hiệu ứng glitch số vui nhộn. Ánh sáng thể tích mềm mại, nhiều màu sắc " +
+      'chiếu rọi khung cảnh, làm nổi bật chất liệu nhựa/resin bóng mượt, dải màu pastel rực rỡ và các chi ' +
+      'tiết ảnh ba chiều vui nhộn trên hộp. Hậu cảnh là một văn phòng doanh nghiệp mờ ngoài tiêu điểm. ' +
+      'Kết xuất 3D CGI/Clay sáng tạo, Octane render, thẩm mỹ pop-toy với độ sâu trường ảnh phong phú.'
+  },
+  {
     id: 'digital-leader',
     label: 'Empowered Digital Leader',
     preview: '/img/s1.jpg',
@@ -48,8 +80,8 @@ const STYLES = [
       'A high-end editorial corporate portrait of the person in this photo, strictly ' +
       'maintaining 100% identical facial features, natural skin tone, eyes, and genuine ' +
       'expression without distortion. The subject poses as an Empowered Digital Leader during ' +
-      'Novo Nordisk Digital Week, exuding confidence and intellect, looking directly at the ' +
-      'camera with a subtle, warm smile. Dressed in a bespoke tailored Novo Nordisk deep navy ' +
+      'Novo Digital Week, exuding confidence and intellect, looking directly at the ' +
+      'camera with a subtle, warm smile. Dressed in a bespoke tailored Novo deep navy ' +
       'blue blazer with a subtle metallic company pin on the lapel, layered over an elegant silk ' +
       'white or light-cream inner blouse/shirt. Naturally holding a sleek digital tablet and an ' +
       'executive leather portfolio notebook. Set in a grand, state-of-the-art corporate innovation ' +
@@ -62,9 +94,9 @@ const STYLES = [
     promptVi:
       'Chân dung doanh nhân cao cấp theo phong cách tạp chí của người trong ảnh, giữ nguyên 100% ' +
       'đường nét khuôn mặt, tông da tự nhiên, ánh mắt và biểu cảm chân thật, không biến dạng. Nhân vật ' +
-      'xuất hiện như một Nhà lãnh đạo số bản lĩnh trong Tuần lễ Số Novo Nordisk, toát lên sự tự tin và ' +
+      'xuất hiện như một Nhà lãnh đạo số bản lĩnh trong Tuần lễ Số Novo, toát lên sự tự tin và ' +
       'trí tuệ, nhìn thẳng vào ống kính với nụ cười ấm áp tinh tế. Mặc blazer may đo màu xanh navy đậm ' +
-      'của Novo Nordisk, đính huy hiệu kim loại nhỏ trên ve áo, bên trong là áo lụa trắng hoặc kem thanh ' +
+      'của Novo, đính huy hiệu kim loại nhỏ trên ve áo, bên trong là áo lụa trắng hoặc kem thanh ' +
       'lịch. Tay cầm một chiếc máy tính bảng mỏng nhẹ và sổ da điều hành. Bối cảnh là trung tâm đổi mới ' +
       'doanh nghiệp hiện đại với trần cao, kiến trúc kính rộng lớn, phía sau mờ ảo là các màn hình chiếu ' +
       "biểu đồ y khoa ảnh ba chiều, cấu trúc DNA và phân tích dữ liệu số. Có standee sự kiện 'DIGITAL " +
@@ -79,7 +111,7 @@ const STYLES = [
     prompt:
       'A natural-light corporate event portrait of the person in this photo, strictly preserving ' +
       'their authentic facial identity, bone structure, and facial expression. The subject stands ' +
-      "in a vibrant corporate office lobby during Novo Nordisk's Vietnamese Women's Day (October 20) " +
+      "in a vibrant corporate office lobby during Novo's Vietnamese Women's Day (October 20) " +
       'celebration. Wearing an elegant navy blue blazer over a soft pastel pink or cream dress shirt, ' +
       'gracefully holding a delicate bouquet of fresh pastel roses, lisianthus, and lush greenery ' +
       'tied with a neat navy blue ribbon. Looking at the camera with a warm, welcoming smile. The ' +
@@ -92,7 +124,7 @@ const STYLES = [
     promptVi:
       'Chân dung sự kiện doanh nghiệp dưới ánh sáng tự nhiên của người trong ảnh, giữ nguyên tuyệt đối ' +
       'bản sắc khuôn mặt, cấu trúc xương và biểu cảm thật. Nhân vật đứng trong sảnh văn phòng doanh ' +
-      'nghiệp rực rỡ trong dịp Novo Nordisk mừng Ngày Phụ nữ Việt Nam (20/10). Mặc blazer xanh navy ' +
+      'nghiệp rực rỡ trong dịp Novo mừng Ngày Phụ nữ Việt Nam (20/10). Mặc blazer xanh navy ' +
       'thanh lịch bên ngoài áo sơ mi hồng pastel hoặc kem nhẹ nhàng, tay nâng nhẹ một bó hoa tươi gồm ' +
       'hồng pastel, cát tường và lá xanh, buộc nơ xanh navy gọn gàng. Nhìn vào ống kính với nụ cười ấm ' +
       'áp, thân thiện. Sảnh kính-và-thép hiện đại được trang trí tinh tế cho một buổi tiệc công ty: phông ' +
@@ -109,7 +141,7 @@ const STYLES = [
     prompt:
       'A visionary future healthcare portrait of the person in this photo, accurately preserving ' +
       'their identical facial features, eyes, and natural skin texture. Dressed in a sleek, ' +
-      'smart-casual corporate blazer in Novo Nordisk True Blue (#001965) over a clean white shirt, ' +
+      'smart-casual corporate blazer in Novo True Blue (#001965) over a clean white shirt, ' +
       'featuring a discreet logo on the chest. Set inside a cutting-edge healthcare technology ' +
       'laboratory and digital innovation center, strictly devoid of any party decorations or flowers. ' +
       'The background features glowing medical data monitors, floating network connection nodes, ' +
@@ -120,7 +152,7 @@ const STYLES = [
     promptVi:
       'Chân dung y tế tương lai đầy tầm nhìn của người trong ảnh, giữ chính xác đường nét khuôn mặt, ' +
       'ánh mắt và kết cấu da tự nhiên. Mặc blazer doanh nghiệp smart-casual màu True Blue của Novo ' +
-      'Nordisk (#001965) bên ngoài áo sơ mi trắng, có logo nhỏ kín đáo trên ngực. Bối cảnh bên trong một ' +
+      '(#001965) bên ngoài áo sơ mi trắng, có logo nhỏ kín đáo trên ngực. Bối cảnh bên trong một ' +
       'phòng thí nghiệm công nghệ y tế tiên tiến và trung tâm đổi mới số, tuyệt đối không có trang trí ' +
       'tiệc tùng hay hoa. Hậu cảnh là các màn hình dữ liệu y khoa phát sáng, các nút kết nối mạng lơ ' +
       "lửng, màn hình trực quan hóa sức khỏe thông minh và vách kính mờ với dòng chữ 'FUTURE HEALTHCARE' " +
@@ -151,38 +183,6 @@ const STYLES = [
       'chuyên nghiệp, độ sâu trường ảnh nông, lấy nét sắc vào ánh mắt, thẩm mỹ máy ảnh 35mm sắc nét.'
   },
   {
-    id: 'digital-toy',
-    label: 'The Digital Toy',
-    preview: '/img/s5.jpg',
-    prompt:
-      'A high-quality, professional 3D toy figure based on the person in this photo, strictly ' +
-      'maintaining 100% identical facial features, original skin tone, eyes, and friendly ' +
-      'expression, reimagined as an adorable chibi-style collectible art toy (blind box figure ' +
-      "style, similar to Pop Mart). The character is an 'AI & DIGITAL WEEK' champion, wearing a " +
-      'cute oversized deep navy blue hoodie with a tiny Novo Nordisk logo and futuristic ' +
-      'data/network motifs on the chest, paired with tiny stylish blue and white sneakers. The ' +
-      "figure is standing on a mini glossy plastic pedestal with 'SPECIAL EDITION 20/10' written " +
-      'on it, positioned inside or next to a transparent open-front toy packaging box (blind box ' +
-      "style) decorated with vibrant 'NOVO NORDISK DIGITAL WEEK' and 'HAPPY WOMEN'S DAY 20/10' " +
-      'branding, logos, and playful digital glitches. Soft, colorful volumetric lighting illuminates ' +
-      'the scene, highlighting shiny, smooth plastic/resin toy materials, vibrant pastel gradients, ' +
-      'and playful holographic micro-details on the box packaging. In the background, there is a ' +
-      'blurry, out-of-focus corporate office. Creative CGI/Clay 3D render, Octane render, pop-toy ' +
-      'art aesthetic with rich depth of field.',
-    promptVi:
-      'Một mô hình đồ chơi 3D chuyên nghiệp chất lượng cao dựa trên người trong ảnh, giữ nguyên 100% ' +
-      'đường nét khuôn mặt, tông da gốc, ánh mắt và biểu cảm thân thiện, được tái hiện thành nhân vật ' +
-      'chibi đáng yêu sưu tầm (phong cách blind box, tương tự Pop Mart). Nhân vật là nhà vô địch "AI & ' +
-      'DIGITAL WEEK", mặc áo hoodie xanh navy đậm quá khổ dễ thương với logo Novo Nordisk nhỏ và họa tiết ' +
-      'dữ liệu/mạng lưới tương lai trên ngực, đi giày sneaker xanh-trắng nhỏ xinh. Mô hình đứng trên bệ ' +
-      "nhựa bóng mini ghi 'SPECIAL EDITION 20/10', đặt bên trong hoặc cạnh hộp đồ chơi trong suốt mở mặt " +
-      "trước (kiểu blind box) trang trí rực rỡ bằng thương hiệu 'NOVO NORDISK DIGITAL WEEK' và 'HAPPY " +
-      "WOMEN'S DAY 20/10', logo và hiệu ứng glitch số vui nhộn. Ánh sáng thể tích mềm mại, nhiều màu sắc " +
-      'chiếu rọi khung cảnh, làm nổi bật chất liệu nhựa/resin bóng mượt, dải màu pastel rực rỡ và các chi ' +
-      'tiết ảnh ba chiều vui nhộn trên hộp. Hậu cảnh là một văn phòng doanh nghiệp mờ ngoài tiêu điểm. ' +
-      'Kết xuất 3D CGI/Clay sáng tạo, Octane render, thẩm mỹ pop-toy với độ sâu trường ảnh phong phú.'
-  },
-  {
     id: 'webtoon-weekday',
     label: 'Webtoon Weekday',
     preview: '/img/s6.jpg',
@@ -190,7 +190,7 @@ const STYLES = [
       'A vibrant, high-quality 2D anime/manhwa Webtoon-style illustration of the person in this ' +
       'photo, strictly maintaining 100% identical and recognizable facial features, hairstyle, and ' +
       'friendly expression in an anime/manhwa aesthetic. The subject is depicted in a lively, candid ' +
-      "office scenario for 'Novo Nordisk Digital Week'. Wearing a stylish, relaxed-fit navy blue " +
+      "office scenario for 'Novo Digital Week'. Wearing a stylish, relaxed-fit navy blue " +
       'corporate-casual shirt with a tiny brand emblem on the chest, carrying a modern digital tablet ' +
       'and a keycard lanyard. Naturally looking at the camera with a cheerful, energetic Gen-Z smile. ' +
       "Set in a colorful, hand-drawn anime office lobby filled with digital screens, 'DIGITAL WEEK " +
@@ -202,7 +202,7 @@ const STYLES = [
       'Một minh họa 2D phong cách anime/manhwa Webtoon sống động, chất lượng cao của người trong ảnh, ' +
       'giữ nguyên 100% đường nét khuôn mặt, kiểu tóc và biểu cảm thân thiện dễ nhận ra theo thẩm mỹ ' +
       'anime/manhwa. Nhân vật được khắc họa trong một khung cảnh văn phòng sống động, tự nhiên cho "Novo ' +
-      'Nordisk Digital Week". Mặc áo sơ mi doanh nghiệp xanh navy form rộng thời trang với biểu tượng ' +
+      'Digital Week". Mặc áo sơ mi doanh nghiệp xanh navy form rộng thời trang với biểu tượng ' +
       'thương hiệu nhỏ trên ngực, cầm máy tính bảng hiện đại và dây đeo thẻ. Nhìn vào ống kính với nụ ' +
       'cười Gen-Z vui tươi, năng động. Bối cảnh là sảnh văn phòng anime nhiều màu vẽ tay đầy màn hình số, ' +
       "trang trí banner 'DIGITAL WEEK 20/10' và 'HAPPY WOMEN'S DAY!', các biểu tượng công nghệ vui nhộn, " +
@@ -218,7 +218,7 @@ const STYLES = [
       'A playful retro arcade-style portrait of the person in this photo, strictly preserving their ' +
       'authentic facial identity, bone structure, and expression. Reimagined as a cheerful 80s-90s ' +
       'video-game champion inside a glowing neon arcade. Wearing a navy blue bomber jacket with a tiny ' +
-      'Novo Nordisk emblem. Surrounded by a retro arcade cabinet, pixel-art power-ups, floating coins, ' +
+      'Novo emblem. Surrounded by a retro arcade cabinet, pixel-art power-ups, floating coins, ' +
       "and a glowing scoreboard reading 'DIGITAL WEEK - HIGH SCORE'. Vibrant neon blue, magenta, and " +
       'cyan lighting, subtle CRT scanlines, playful pixel particles, fun energetic mood, crisp ' +
       'high-quality render blending the photoreal face with a stylized arcade background.',
@@ -226,7 +226,7 @@ const STYLES = [
       'Chân dung phong cách arcade cổ điển vui nhộn của người trong ảnh, giữ nguyên tuyệt đối bản sắc ' +
       'khuôn mặt, cấu trúc xương và biểu cảm. Được tái hiện thành nhà vô địch game những năm 80-90 vui ' +
       'tươi bên trong một phòng arcade đèn neon rực sáng. Mặc áo bomber xanh navy với biểu tượng Novo ' +
-      'Nordisk nhỏ. Xung quanh là máy arcade cổ điển, các vật phẩm pixel-art, đồng xu lơ lửng và bảng ' +
+      'nhỏ. Xung quanh là máy arcade cổ điển, các vật phẩm pixel-art, đồng xu lơ lửng và bảng ' +
       "điểm phát sáng ghi 'DIGITAL WEEK - HIGH SCORE'. Ánh đèn neon xanh dương, hồng magenta và xanh " +
       'cyan rực rỡ, các đường scanline CRT nhẹ, hạt pixel vui nhộn, không khí vui tươi tràn năng lượng, ' +
       'kết xuất chất lượng cao sắc nét hòa quyện khuôn mặt chân thực với hậu cảnh arcade cách điệu.'
@@ -261,14 +261,14 @@ const STYLES = [
       'authentic face, skin tone, and happy expression. Laughing cheerfully at a festive corporate ' +
       'celebration, wearing a smart-casual navy outfit with a fun paper party hat and playful ' +
       'oversized props. Colorful confetti, balloons, and streamers fill the air; a bright backdrop ' +
-      "reads 'NOVO NORDISK DIGITAL WEEK' with sparkling bokeh lights. Warm, lively party lighting, " +
+      "reads 'NOVO DIGITAL WEEK' with sparkling bokeh lights. Warm, lively party lighting, " +
       'candid spontaneous mood, shallow depth of field, vibrant friendly colors, crisp photorealistic ' +
       '35mm look.',
     promptVi:
       'Chân dung photo-booth tiệc tùng vui nhộn của người trong ảnh, giữ nguyên tuyệt đối khuôn mặt, ' +
       'tông da và biểu cảm hạnh phúc. Đang cười sảng khoái trong một buổi tiệc công ty rộn ràng, mặc ' +
       'trang phục navy smart-casual với mũ giấy tiệc vui nhộn và các đạo cụ quá khổ ngộ nghĩnh. Confetti ' +
-      "nhiều màu, bóng bay và dải kim tuyến bay đầy không gian; phông nền sáng ghi 'NOVO NORDISK DIGITAL " +
+      "nhiều màu, bóng bay và dải kim tuyến bay đầy không gian; phông nền sáng ghi 'NOVO DIGITAL " +
       "WEEK' với ánh bokeh lấp lánh. Ánh sáng tiệc ấm áp, sống động, không khí tự nhiên ngẫu hứng, độ sâu " +
       'trường ảnh nông, màu sắc thân thiện rực rỡ, phong cách 35mm chân thực sắc nét.'
   },
@@ -280,14 +280,14 @@ const STYLES = [
       'A cute hand-drawn chibi character version of the person in this photo, strictly keeping ' +
       'their recognizable facial features, hairstyle, and friendly expression in an adorable chibi ' +
       'art style with a big head, small rounded body, and large sparkling eyes. Wearing a cozy deep ' +
-      'navy blue Novo Nordisk hoodie with a tiny logo on the chest, giving a cheerful peace sign. Set ' +
+      'navy blue Novo hoodie with a tiny logo on the chest, giving a cheerful peace sign. Set ' +
       'against a soft pastel background decorated with playful "DIGITAL WEEK" and "20/10" stickers, ' +
       'tiny hearts, stars, and confetti. Clean kawaii illustration, smooth cel-shading, bright pastel ' +
       'colors, crisp outlines, high-quality 2D cartoon render. Keep the same face.',
     promptVi:
       'Phiên bản nhân vật chibi vẽ tay dễ thương của người trong ảnh, giữ nguyên đường nét khuôn mặt, ' +
       'kiểu tóc và biểu cảm thân thiện dễ nhận ra theo phong cách chibi đáng yêu với đầu to, thân nhỏ ' +
-      'tròn trịa và đôi mắt to long lanh. Mặc áo hoodie xanh navy đậm Novo Nordisk ấm áp với logo nhỏ ' +
+      'tròn trịa và đôi mắt to long lanh. Mặc áo hoodie xanh navy đậm Novo ấm áp với logo nhỏ ' +
       'trên ngực, tạo dáng giơ tay chữ V vui tươi. Bối cảnh nền pastel nhẹ nhàng trang trí sticker ' +
       '"DIGITAL WEEK" và "20/10" vui nhộn, trái tim nhỏ, ngôi sao và confetti. Minh họa kawaii sạch sẽ, ' +
       'cel-shading mượt, màu pastel tươi sáng, nét vẽ sắc gọn, kết xuất hoạt hình 2D chất lượng cao. ' +
@@ -300,7 +300,7 @@ const STYLES = [
     prompt:
       'An elegant studio portrait of the person in this photo, strictly preserving their exact facial ' +
       'features, skin tone, and genuine expression. Gracefully wearing a refined traditional Vietnamese ' +
-      'áo dài in deep navy blue with subtle white-and-silver floral embroidery echoing the Novo Nordisk ' +
+      'áo dài in deep navy blue with subtle white-and-silver floral embroidery echoing the Novo ' +
       'palette, standing with poise and a warm gentle smile. Set in a tasteful scene with soft blossoms ' +
       '(white lotus or peach/apricot flowers), warm creamy bokeh, and a discreet "DIGITAL WEEK 20/10" ' +
       'accent in the background. Soft natural window light, shallow depth of field, premium editorial ' +
@@ -308,7 +308,7 @@ const STYLES = [
     promptVi:
       'Chân dung studio thanh lịch của người trong ảnh, giữ nguyên tuyệt đối đường nét khuôn mặt, tông ' +
       'da và biểu cảm chân thật. Duyên dáng trong tà áo dài truyền thống Việt Nam màu xanh navy đậm với ' +
-      'họa tiết hoa thêu trắng-bạc tinh tế hòa cùng tông màu Novo Nordisk, dáng đứng thanh thoát và nụ ' +
+      'họa tiết hoa thêu trắng-bạc tinh tế hòa cùng tông màu Novo, dáng đứng thanh thoát và nụ ' +
       'cười ấm áp dịu dàng. Bối cảnh trang nhã với hoa nhẹ nhàng (sen trắng hoặc hoa đào/mai), ánh bokeh ' +
       'ấm mịn và điểm nhấn "DIGITAL WEEK 20/10" kín đáo phía sau. Ánh sáng cửa sổ tự nhiên dịu, độ sâu ' +
       'trường ảnh nông, nhiếp ảnh thời trang tạp chí cao cấp, độ phân giải 8k chân thực, phong cách 35mm. ' +
