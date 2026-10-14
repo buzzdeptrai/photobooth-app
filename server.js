@@ -7,6 +7,11 @@ const QRCode = require('qrcode');
 const { GoogleGenAI } = require('@google/genai');
 const storage = require('./lib/storage');
 const discord = require('./lib/discord');
+const stats = require('./lib/stats');
+const userLimit = require('./lib/userLimit');
+
+stats.load();
+userLimit.load();
 
 // ---------------------------------------------------------------------------
 // Config
@@ -21,6 +26,7 @@ const RATE_LIMIT_MAX = 10;
 // Access control & token budget
 const EVENT_CODE = (process.env.EVENT_CODE || '').trim();
 const DAILY_LIMIT = parseInt(process.env.DAILY_LIMIT || '0', 10); // 0 = unlimited
+const PER_USER_LIMIT = parseInt(process.env.PER_USER_LIMIT || '0', 10); // per-INITIAL cap, 0 = unlimited
 const ADMIN_TOKEN = (process.env.ADMIN_TOKEN || '').trim();
 // Temporarily hide the whole site (serve a maintenance page, block all APIs).
 // Toggle via env: MAINTENANCE_MODE=1 (admins can still enter with ADMIN_TOKEN).
@@ -433,6 +439,23 @@ function reserveDailyQuota() {
   return true;
 }
 
+// Milestone alert thresholds for the (persisted) generated-image counter.
+const GEN_ALERT_THRESHOLD = parseInt(process.env.GEN_ALERT_THRESHOLD || '400', 10);
+const GEN_ALERT_STEP = parseInt(process.env.GEN_ALERT_STEP || '50', 10);
+
+// Fires a Discord alert when the generated-image count reaches the threshold
+// and every GEN_ALERT_STEP images after that. A unique key per milestone lets
+// each one fire exactly once, bypassing the per-key cooldown throttle.
+function checkGenMilestone(generated, requests) {
+  if (generated < GEN_ALERT_THRESHOLD) return;
+  if ((generated - GEN_ALERT_THRESHOLD) % GEN_ALERT_STEP !== 0) return;
+  discord.notify(
+    'gen-milestone-' + generated,
+    '\ud83d\udcca M\u1ed0C T\u1ea0O \u1ea2NH: \u0111\u00e3 t\u1ea1o th\u00e0nh c\u00f4ng ' + generated +
+      ' \u1ea3nh / ' + requests + ' l\u01b0\u1ee3t g\u1ecdi (t\u1ed5ng t\u00edch l\u0169y).'
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -560,10 +583,21 @@ app.post('/api/generate', async (req, res) => {
       return res.status(429).json({ error: 'Qu\u00e1 nhi\u1ec1u y\u00eau c\u1ea7u. Vui l\u00f2ng th\u1eed l\u1ea1i sau 1 ph\u00fat.' });
     }
 
-    const { image, styleId, prompt: customPrompt, code } = req.body;
+    const { image, styleId, prompt: customPrompt, code, initial } = req.body;
 
     if (!isValidCode(code)) {
       return res.status(401).json({ error: 'M\u00e3 s\u1ef1 ki\u1ec7n kh\u00f4ng \u0111\u00fang ho\u1eb7c \u0111\u00e3 h\u1ebft hi\u1ec7u l\u1ef1c.' });
+    }
+
+    // Per-user cap: block before taking a concurrency slot / burning quota.
+    // code + limit let the client show a localized (VI/EN) message; error is
+    // the VI fallback for any client that ignores the code.
+    if (userLimit.isAtLimit(initial, PER_USER_LIMIT)) {
+      return res.status(429).json({
+        code: 'USER_LIMIT',
+        limit: PER_USER_LIMIT,
+        error: 'B\u1ea1n \u0111\u00e3 d\u00f9ng h\u1ebft ' + PER_USER_LIMIT + ' l\u01b0\u1ee3t t\u1ea1o \u1ea3nh cho s\u1ef1 ki\u1ec7n n\u00e0y. C\u1ea3m \u01a1n b\u1ea1n \u0111\u00e3 tham gia!'
+      });
     }
 
     if (!image) {
@@ -603,6 +637,8 @@ app.post('/api/generate', async (req, res) => {
         return res.status(429).json({ error: '\u0110\u00e3 \u0111\u1ea1t gi\u1edbi h\u1ea1n t\u1ea1o \u1ea3nh trong ng\u00e0y. Vui l\u00f2ng quay l\u1ea1i sau.' });
       }
 
+      stats.recordRequest();
+
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: [
@@ -623,11 +659,19 @@ app.post('/api/generate', async (req, res) => {
       const imagePart = parts.find((p) => p.inlineData);
 
       if (!imagePart) {
+        discord.notify(
+          'generate-error',
+          '\u274c L\u1ed6I T\u1ea0O \u1ea2NH: Gemini kh\u00f4ng tr\u1ea3 v\u1ec1 \u1ea3nh (style: ' + styleId + '). HTTP 502.'
+        );
         return res.status(502).json({ error: 'Kh\u00f4ng th\u1ec3 t\u1ea1o \u1ea3nh. Vui l\u00f2ng th\u1eed l\u1ea1i.' });
       }
 
       const resultBase64 = imagePart.inlineData.data;
       const resultMime = imagePart.inlineData.mimeType;
+
+      const generated = stats.recordGenerated();
+      checkGenMilestone(generated, stats.get().totalGenerateRequests);
+      userLimit.increment(initial);
 
       return res.json({ image: `data:${resultMime};base64,${resultBase64}` });
     } finally {
@@ -635,6 +679,10 @@ app.post('/api/generate', async (req, res) => {
     }
   } catch (err) {
     console.error('[generate] Error:', err.message || err);
+    discord.notify(
+      'generate-error',
+      '\u274c L\u1ed6I T\u1ea0O \u1ea2NH: ' + (err.message || String(err)) + '. HTTP 502.'
+    );
     return res.status(502).json({ error: 'L\u1ed7i khi t\u1ea1o \u1ea3nh. Vui l\u00f2ng th\u1eed l\u1ea1i sau.' });
   }
 });

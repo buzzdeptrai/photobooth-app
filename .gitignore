@@ -1,6 +1,7 @@
 node_modules/
 .env
 storage/
+data/
 .DS_Store
 .claude/
 server.log

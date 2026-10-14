@@ -942,6 +942,7 @@
           'err.unknown': 'Lỗi không xác định',
           'err.noImage': 'Không nhận được ảnh từ server.',
           'err.genGeneric': 'Lỗi khi tạo ảnh. Vui lòng thử lại sau.',
+          'err.userLimit': 'Bạn đã dùng hết {n} lượt tạo ảnh cho sự kiện này. Cảm ơn bạn đã tham gia!',
           'toast.downloaded': 'Đã tải ảnh về máy',
           proc: [
             'Đang phân tích khuôn mặt của bạn...',
@@ -1029,6 +1030,7 @@
           'err.unknown': 'Unknown error',
           'err.noImage': 'No image received from the server.',
           'err.genGeneric': 'Error creating photo. Please try again later.',
+          'err.userLimit': "You've used all {n} photo generations for this event. Thank you for joining!",
           'toast.downloaded': 'Image saved to your device',
           proc: [
             'Analyzing your face...',
@@ -1575,7 +1577,7 @@
             res = await fetch('/api/generate', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ image: capturedImageBase64, styleId: selectedStyleId, prompt: promptEditor.value, code: eventCode }),
+              body: JSON.stringify({ image: capturedImageBase64, styleId: selectedStyleId, prompt: promptEditor.value, code: eventCode, initial: userInitial }),
             });
             if (res.status === 503 && attempt < MAX_BUSY_RETRIES) {
               await new Promise(function (r) { setTimeout(r, BUSY_RETRY_DELAY_MS); });
@@ -1584,7 +1586,12 @@
             break;
           }
           var data = await res.json();
-          if (!res.ok) { throw new Error(data.error || t('err.unknown')); }
+          if (!res.ok) {
+            if (data.code === 'USER_LIMIT') {
+              throw new Error(t('err.userLimit').replace('{n}', data.limit));
+            }
+            throw new Error(data.error || t('err.unknown'));
+          }
           if (!data.image) { throw new Error(t('err.noImage')); }
 
           var branded = await addWatermark(data.image);
