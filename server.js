@@ -191,6 +191,7 @@ const STYLES = [
   {
     id: 'webtoon-weekday',
     label: 'Webtoon Weekday',
+    hidden: true,
     preview: '/img/s6.jpg',
     prompt:
       'A vibrant, high-quality 2D anime/manhwa Webtoon-style illustration of the person in this ' +
@@ -240,6 +241,7 @@ const STYLES = [
   {
     id: 'super-digital',
     label: 'Digital Superhero',
+    hidden: true,
     preview: '/img/s8.jpg',
     prompt:
       'A fun, uplifting comic-book superhero portrait of the person in this photo, strictly keeping ' +
@@ -261,6 +263,7 @@ const STYLES = [
   {
     id: 'party-photobooth',
     label: 'Party Photobooth',
+    hidden: true,
     preview: '/img/s9.jpg',
     prompt:
       'A joyful party photo-booth portrait of the person in this photo, strictly preserving their ' +
@@ -562,7 +565,7 @@ app.use(storage.LOCAL_PUBLIC_PATH, express.static(storage.LOCAL_DIR));
 // ---------------------------------------------------------------------------
 
 app.get('/api/styles', (_req, res) => {
-  res.json(STYLES.map(sanitiseStyleForClient));
+  res.json(STYLES.filter((s) => !s.hidden).map(sanitiseStyleForClient));
 });
 
 app.get('/api/config', (_req, res) => {
