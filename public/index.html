@@ -785,6 +785,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           <span data-i18n="styles.change">Chọn phong cách khác</span>
         </button>
+        <div class="prompt-editor" id="teamNameWrap" style="display:none;">
+          <label for="teamNameInput" data-i18n="team.label">Tên team (hiển thị trên ảnh)</label>
+          <input type="text" id="teamNameInput" autocomplete="off" maxlength="24" data-i18n-ph="team.placeholder" placeholder="VD: HR TEAM, NOVO DEV">
+        </div>
         <div class="prompt-editor" id="promptEditorWrap" style="display:none;">
           <label for="promptEditor" data-i18n="styles.promptLabel">Mô tả phong cách (có thể sửa hoặc thêm chi tiết)</label>
           <textarea id="promptEditor" rows="4" maxlength="2000" data-i18n-ph="styles.promptPlaceholder" placeholder="Nhập mô tả bạn muốn AI tạo ảnh..."></textarea>
@@ -905,6 +909,8 @@
           'name.label': 'INITIAL',
           'name.placeholder': 'VD: AN, MINHNN, HR TEAM',
           'name.errEmpty': 'Vui lòng nhập INITIAL của bạn.',
+          'team.label': 'Tên team (hiển thị trên ảnh)',
+          'team.placeholder': 'VD: HR TEAM, NOVO DEV',
           'code.label': 'Mã sự kiện',
           'code.placeholder': 'Nhập mã được cung cấp tại sự kiện',
           'consent': 'Tôi đồng ý cho ứng dụng sử dụng camera để tạo ảnh vui Digital Week. Ảnh chỉ dùng cho mục đích tạo ảnh của sự kiện.',
@@ -993,6 +999,8 @@
           'name.label': 'INITIAL',
           'name.placeholder': 'e.g. AN, MINHNN, HR TEAM',
           'name.errEmpty': 'Please enter your INITIAL.',
+          'team.label': 'Team name (shown on the card)',
+          'team.placeholder': 'e.g. HR TEAM, NOVO DEV',
           'code.label': 'Event code',
           'code.placeholder': 'Enter the code provided at the event',
           'consent': 'I agree to let this app use the camera to create fun Digital Week photos. Photos are used only for the event\'s photo creation purpose.',
@@ -1174,6 +1182,8 @@
       const myGalleryGrid   = document.getElementById('myGalleryGrid');
       const promptEditorWrap = document.getElementById('promptEditorWrap');
       const promptEditor    = document.getElementById('promptEditor');
+      const teamNameWrap     = document.getElementById('teamNameWrap');
+      const teamNameInput    = document.getElementById('teamNameInput');
       const btnGenerate     = document.getElementById('btnGenerate');
       const progressFill    = document.getElementById('progressFill');
       const processingMessage = document.getElementById('processingMessage');
@@ -1494,7 +1504,9 @@
       // Enable "Generate" only when a style is chosen and the prompt is non-empty.
       // This also gates the manual style, whose prompt starts blank.
       function updateGenerateState() {
-        btnGenerate.disabled = !selectedStyleId || !promptEditor.value.trim();
+        var needTeamName = selectedStyleId && TEAM_STYLE_IDS.indexOf(selectedStyleId) !== -1;
+        var teamOk = !needTeamName || !!teamNameInput.value.trim();
+        btnGenerate.disabled = !selectedStyleId || !promptEditor.value.trim() || !teamOk;
       }
 
       function selectStyle(styleId) {
@@ -1507,6 +1519,9 @@
         promptAutoValue = stylePrompt(style);
         promptEditor.value = promptAutoValue;
         promptEditorWrap.style.display = '';
+        // Team styles ask for a team name to print on the card instead of the
+        // personal INITIAL; non-team styles hide the field.
+        teamNameWrap.style.display = TEAM_STYLE_IDS.indexOf(styleId) !== -1 ? '' : 'none';
         updateGenerateState();
 
         // Collapse the grid to just the chosen style so the prompt + button
@@ -1516,6 +1531,7 @@
       }
 
       promptEditor.addEventListener('input', updateGenerateState);
+      teamNameInput.addEventListener('input', updateGenerateState);
 
       function expandStyles() {
         stylesGrid.classList.remove('collapsed');
@@ -1617,9 +1633,10 @@
           // The Digital Toy already carries its own Novo branding inside the render,
           // so it ships clean with no extra watermark bar.
           var noWatermark = selectedStyleId === 'digital-toy';
+          var displayName = isTeam ? (teamNameInput.value || '').trim() : userInitial;
           var branded = isCard
             ? await renderNovoCard(data.image, {
-                name: userInitial,
+                name: displayName,
                 label: isTeam ? 'TEAM:' : 'Initial:',
                 orientation: isTeam ? 'landscape' : 'portrait',
                 title: persona ? persona.title : null,
@@ -1895,10 +1912,14 @@
       async function storeResult(dataUri) {
         qrCard.style.display = 'none';
         try {
+          // Team photos are indexed under the team name so the gallery groups /
+          // searches them by team instead of the uploader's personal INITIAL.
+          var isTeam = TEAM_STYLE_IDS.indexOf(selectedStyleId) !== -1;
+          var storeInitial = isTeam ? ((teamNameInput.value || '').trim() || userInitial) : userInitial;
           var res = await fetch('/api/store', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: dataUri, initial: userInitial, styleId: selectedStyleId }),
+            body: JSON.stringify({ image: dataUri, initial: storeInitial, styleId: selectedStyleId }),
           });
           if (!res.ok) return;
           var data = await res.json();
@@ -1930,6 +1951,8 @@
         btnGenerate.disabled = true;
         promptEditorWrap.style.display = 'none';
         promptEditor.value = '';
+        teamNameWrap.style.display = 'none';
+        teamNameInput.value = '';
         expandStyles();
         var cards = stylesGrid.querySelectorAll('.style-card');
         cards.forEach(function (c) { c.classList.remove('selected'); });
@@ -1971,6 +1994,8 @@
         btnGenerate.disabled = true;
         promptEditorWrap.style.display = 'none';
         promptEditor.value = '';
+        teamNameWrap.style.display = 'none';
+        teamNameInput.value = '';
         fileInput.value = '';
         qrCard.style.display = 'none';
         qrImage.src = '';
