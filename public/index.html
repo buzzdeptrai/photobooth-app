@@ -438,6 +438,19 @@
       width: 100%; height: 100%; object-fit: cover; display: block;
       position: relative; z-index: 1;
     }
+    /* Collectible-card samples are full cards (header + window + footer): match the
+       thumb to the card's portrait ratio so the card fills it with no letterbox. */
+    .style-card--card .style-card-thumb {
+      aspect-ratio: 1280 / 2040; background: #FFFFFF;
+    }
+    .style-card--card .style-card-thumb img { object-fit: cover; }
+    /* Team samples are wide landscape cards: give them a full-width landscape thumb
+       so the whole team row is visible. */
+    .style-card--team { grid-column: 1 / -1; }
+    .style-card--team .style-card-thumb {
+      aspect-ratio: 2040 / 1280; background: #FFFFFF;
+    }
+    .style-card--team .style-card-thumb img { object-fit: contain; }
     /* Gradient placeholder shown only if the sample image fails to load */
     .style-card-fallback {
       position: absolute; inset: 0; z-index: 0;
@@ -1452,8 +1465,11 @@
         stylesGrid.innerHTML = '';
         styles.forEach(function (style, index) {
           var iconData = STYLE_ICON_MAP[style.id] || FALLBACK_ICONS[index % FALLBACK_ICONS.length];
+          var isTeamStyle = TEAM_STYLE_IDS.indexOf(style.id) !== -1;
+          var isCardStyle = CARD_STYLE_IDS.indexOf(style.id) !== -1;
           var card = document.createElement('div');
-          card.className = 'style-card';
+          card.className = 'style-card' +
+            (isTeamStyle ? ' style-card--team' : (isCardStyle ? ' style-card--card' : ''));
           card.dataset.styleId = style.id;
           var thumb = style.preview
             ? '<div class="style-card-thumb"><img src="' + escapeHtml(style.preview) + '" alt="" loading="lazy">' +
@@ -1594,7 +1610,21 @@
           }
           if (!data.image) { throw new Error(t('err.noImage')); }
 
-          var branded = await addWatermark(data.image);
+          var isCard = CARD_STYLE_IDS.indexOf(selectedStyleId) !== -1;
+          var isTeam = TEAM_STYLE_IDS.indexOf(selectedStyleId) !== -1;
+          var persona = PERSONA_META[selectedStyleId];
+          // The Digital Toy already carries its own Novo branding inside the render,
+          // so it ships clean with no extra watermark bar.
+          var noWatermark = selectedStyleId === 'digital-toy';
+          var branded = isCard
+            ? await renderNovoCard(data.image, {
+                name: userInitial,
+                label: isTeam ? 'TEAM:' : 'Initial:',
+                orientation: isTeam ? 'landscape' : 'portrait',
+                title: persona ? persona.title : null,
+                tagline: persona ? persona.tagline : null
+              })
+            : noWatermark ? data.image : await addWatermark(data.image);
           resultImage.src = branded;
 
           stopProcessingAnimation(true);
@@ -1611,6 +1641,221 @@
           if (err.message && err.message.indexOf('Failed to fetch') !== -1) { msg = t('code.errConn'); }
           showError(t('err.genTitle'), msg, generateImage);
         }
+      }
+
+      // Styles whose output is composited into the Novo collectible-card frame
+      // on the client instead of the generic watermark. The /api/generate call
+      // returns only a waist-up portrait; renderNovoCard builds the final card.
+      var CARD_STYLE_IDS = ['novo-card-anime', 'novo-card-real', 'novo-team-chibi', 'novo-team-real', 'novo-persona-leader', 'novo-persona-worker', 'novo-persona-explorer'];
+      var TEAM_STYLE_IDS = ['novo-team-chibi', 'novo-team-real'];
+      // Persona cards show a fixed title + tagline in the footer above the Initial.
+      var PERSONA_META = {
+        'novo-persona-leader': { title: 'AI Leader', tagline: ['Lead with vision.', 'Empower with AI.'] },
+        'novo-persona-worker': { title: 'Smart Worker', tagline: ['Think smarter.', 'Work lighter.'] },
+        'novo-persona-explorer': { title: 'Digital Explorer', tagline: ['Stay curious.', 'Discover what\u2019s next.'] }
+      };
+      var CARD_DATE = '20/10/2026';
+
+      var novoLogoImg = null;
+      function loadNovoLogo() {
+        if (novoLogoImg) return Promise.resolve(novoLogoImg);
+        return new Promise(function (resolve) {
+          var img = new Image();
+          img.onload = function () { novoLogoImg = img; resolve(img); };
+          img.onerror = function () { resolve(null); };
+          img.src = '/novo-logo.svg';
+        });
+      }
+
+      function roundRectPath(ctx, x, y, w, h, r) {
+        if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); return; }
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      }
+
+      // Build the "Digital Discovery Series" collectible card from a portrait.
+      // opts: { name, label='Initial:', orientation='portrait'|'landscape' }
+      async function renderNovoCard(portraitUri, opts) {
+        opts = opts || {};
+        var label = opts.label || 'Initial:';
+        var name = ((opts.name || '').toUpperCase()).slice(0, 18) || 'NOVO';
+        var logo = await loadNovoLogo();
+        var portrait = await new Promise(function (resolve) {
+          var im = new Image();
+          im.onload = function () { resolve(im); };
+          im.onerror = function () { resolve(null); };
+          im.src = portraitUri;
+        });
+        if (!portrait) return portraitUri;
+
+        var land = opts.orientation === 'landscape';
+        // Persona cards: portrait frame with a title + tagline footer above Initial.
+        var persona = !!opts.title;
+        var tagline = opts.tagline || [];
+        var P = 44;
+        // CR80 card ratio 86:54 (landscape) / 54:86 (portrait). Portrait 640x1020 and
+        // landscape 1020x640 both match 0.627/1.593 so team cards print on the same stock.
+        var W = land ? 1020 : 640;
+        var H = land ? 640 : 1020;
+        var cardR = land ? 46 : 46, outerR = land ? 34 : 34;
+        var logoW = land ? 140 : 150, logoY = land ? 30 : 44;
+        var titleSize = land ? 36 : 46;
+        // Header: logo left, "Digital Discovery Series" + date right-aligned, lifted so
+        // the first title line sits level with the logo center (per samples).
+        var digY = land ? 88 : 82, discY = land ? 128 : 132;
+        var pillY = land ? 106 : 102, pillH = land ? 26 : 30;
+        var dateY = land ? 156 : 162;
+        var pillFont = land ? 16 : 18, dateFont = land ? 16 : 18;
+        // Landscape window is a wide team row; persona window is tall with a compact
+        // footer so the generated figure renders as large as possible.
+        var wy = land ? 174 : 214, wh = land ? 368 : 598, wr = land ? 24 : 28;
+        if (persona) { wy = 196; wh = 600; }
+        // Footer tuned so the team / initial name never overflows the frame.
+        var labelY = land ? 572 : 872, nameY = land ? 610 : 940, nameStart = land ? 44 : 62;
+        var dcy = land ? 588 : 914;
+        if (persona) { labelY = 924; nameY = 964; nameStart = 44; dcy = 946; }
+        var NAVY = '#0A1E73', BLUE = '#2F6BEA', INK = '#5B6480';
+        // Render at 2x so the stored card is ~600 DPI at 5.4x8.6cm (print-ready).
+        // All drawing below uses logical W/H units; the context is scaled once.
+        var S = 2;
+        var canvas = document.createElement('canvas');
+        canvas.width = W * S; canvas.height = H * S;
+        var ctx = canvas.getContext('2d');
+        ctx.scale(S, S);
+
+        // Card background (white, rounded, transparent corners).
+        roundRectPath(ctx, 0, 0, W, H, cardR);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+
+        // Outer blue frame border (matches the sample card edge).
+        roundRectPath(ctx, 14, 14, W - 28, H - 28, outerR);
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = BLUE;
+        ctx.stroke();
+
+        // Logo (left-aligned, top).
+        if (logo) {
+          var lh = logoW * (logo.height / logo.width || 0.29);
+          ctx.drawImage(logo, P, logoY, logoW, lh);
+        }
+
+        // Title block (logo left; "Digital Discovery Series" + date right-aligned).
+        var rightX = W - P;
+        ctx.textBaseline = 'alphabetic';
+        ctx.textAlign = 'right';
+        ctx.fillStyle = NAVY;
+        ctx.font = '800 ' + titleSize + 'px "Noto Sans", sans-serif';
+        ctx.fillText('Digital', rightX, digY);
+
+        // Second line: "Discovery" + "Series" pill, right-aligned ending at rightX.
+        var pillPad = 14, pillGap = 12;
+        ctx.font = '700 ' + pillFont + 'px "Noto Sans", sans-serif';
+        var pillW = ctx.measureText('Series').width + pillPad * 2;
+        var pillX = rightX - pillW;
+        roundRectPath(ctx, pillX, pillY, pillW, pillH, pillH / 2);
+        ctx.fillStyle = BLUE;
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Series', pillX + pillPad, pillY + pillH / 2 + 1);
+
+        ctx.fillStyle = NAVY;
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'alphabetic';
+        ctx.font = '800 ' + titleSize + 'px "Noto Sans", sans-serif';
+        ctx.fillText('Discovery', pillX - pillGap, discY);
+
+        // Date on its own line below the title, right-aligned.
+        ctx.fillStyle = INK;
+        ctx.font = '600 ' + dateFont + 'px "Noto Sans", sans-serif';
+        ctx.fillText(CARD_DATE, rightX, dateY);
+
+        // Portrait/group window.
+        var wx = P, ww = W - 2 * P;
+        ctx.save();
+        roundRectPath(ctx, wx, wy, ww, wh, wr);
+        ctx.fillStyle = '#EDE9FB';
+        ctx.fill();
+        ctx.clip();
+        var scale = Math.max(ww / portrait.width, wh / portrait.height);
+        var pw = portrait.width * scale, ph = portrait.height * scale;
+        // Landscape/team: anchor the crop to the TOP so heads are never cut off
+        // (standing full bodies in a short wide window); portrait stays centered.
+        var dy = land ? wy : wy + (wh - ph) / 2;
+        ctx.drawImage(portrait, wx + (ww - pw) / 2, dy, pw, ph);
+        ctx.restore();
+        // Window border (blue, matches the sample photo frame).
+        roundRectPath(ctx, wx, wy, ww, wh, wr);
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = BLUE;
+        ctx.stroke();
+
+        // Persona footer: title + accent divider + tagline, as a distinct block.
+        if (persona) {
+          var fy = wy + wh;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'alphabetic';
+          // Title (compact).
+          ctx.fillStyle = NAVY;
+          ctx.font = '800 28px "Noto Sans", sans-serif';
+          ctx.fillText(opts.title, W / 2, fy + 40);
+          // Accent divider: short rounded gradient bar flanked by two dots.
+          var barW = 60, barH = 4, barY = fy + 54;
+          var grd = ctx.createLinearGradient(W / 2 - barW / 2, 0, W / 2 + barW / 2, 0);
+          grd.addColorStop(0, '#2F6BEA'); grd.addColorStop(1, '#8FB0F0');
+          roundRectPath(ctx, W / 2 - barW / 2, barY, barW, barH, barH / 2);
+          ctx.fillStyle = grd; ctx.fill();
+          ctx.fillStyle = BLUE;
+          ctx.beginPath(); ctx.arc(W / 2 - barW / 2 - 11, barY + barH / 2, 2.5, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(W / 2 + barW / 2 + 11, barY + barH / 2, 2.5, 0, Math.PI * 2); ctx.fill();
+          // Tagline (smaller).
+          ctx.fillStyle = INK;
+          ctx.font = '500 15px "Noto Sans", sans-serif';
+          for (var ti = 0; ti < tagline.length; ti++) {
+            ctx.fillText(tagline[ti], W / 2, fy + 78 + ti * 20);
+          }
+        }
+
+        // Label (Initial:/TEAM:) + name.
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle = INK;
+        ctx.font = '600 20px "Noto Sans", sans-serif';
+        ctx.fillText(label, P, labelY);
+
+        var maxNameW = W - 2 * P - 110;
+        var nameSize = nameStart;
+        ctx.font = '800 ' + nameSize + 'px "Noto Sans", sans-serif';
+        while (ctx.measureText(name).width > maxNameW && nameSize > 28) {
+          nameSize -= 2;
+          ctx.font = '800 ' + nameSize + 'px "Noto Sans", sans-serif';
+        }
+        ctx.fillStyle = NAVY;
+        ctx.fillText(name, P, nameY);
+
+        // Bottom-right decorations: a filled blue 4-point sparkle + a ring outline.
+        var sx = W - 112, sr = 17, si = sr * 0.36;
+        var sp = [[0, -sr], [si, -si], [sr, 0], [si, si], [0, sr], [-si, si], [-sr, 0], [-si, -si]];
+        ctx.beginPath();
+        ctx.moveTo(sx + sp[0][0], dcy + sp[0][1]);
+        for (var k = 1; k < sp.length; k++) ctx.lineTo(sx + sp[k][0], dcy + sp[k][1]);
+        ctx.closePath();
+        ctx.fillStyle = BLUE;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(W - 64, dcy, 13, 0, Math.PI * 2);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#8FB0F0';
+        ctx.stroke();
+
+        return canvas.toDataURL('image/png');
       }
 
       function addWatermark(dataUri) {
