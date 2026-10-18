@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const QRCode = require('qrcode');
 const { GoogleGenAI } = require('@google/genai');
 const storage = require('./lib/storage');
@@ -47,36 +48,278 @@ const STYLES = [
     promptVi: ''
   },
   {
+    // Card style (photoreal): the AI generates a realistic waist-up portrait on
+    // the soft swirl background; renderNovoCard composites it into the same
+    // "Digital Discovery Series" collectible-card frame with the user's initial.
+    id: 'novo-card-real',
+    label: 'Discovery Card · Photo',
+    preview: '/img/card-real.jpg',
+    prompt:
+      'A clean, high-quality realistic studio portrait of the person in this photo, strictly ' +
+      'preserving their EXACT facial features, bone structure, skin tone, hairstyle and genuine ' +
+      'expression with no distortion, and keeping the SAME clothing and outfit colors as the ' +
+      'original photo. Waist-up framing, centered, facing the camera with a warm friendly smile, ' +
+      'hands and arms naturally visible. The full background MUST be a soft, airy, dreamy halo of ' +
+      'smooth concentric light rings radiating gently outward from a luminous soft white bloom right ' +
+      "behind the subject's head, in delicate pastel lilac, lavender and baby sky-blue that stay " +
+      'light and desaturated. Keep it clean, minimal and elegant — NOT a busy spiral vortex, NOT ' +
+      'dark or oversaturated — like a premium collectible trading-card backdrop with a gentle radial ' +
+      'glow, fine soft light rays and a few delicate sparkles. Fill the entire frame edge-to-edge ' +
+      'with this soft background (no plain white, no dark background), with the subject clearly ' +
+      'separated from it by soft front lighting. Photorealistic, sharp focus on the face, premium ' +
+      'editorial look, authentic 35mm photography. Absolutely no text, no logos, no borders, and no ' +
+      'frame in the image.',
+    promptVi:
+      'Chân dung studio tả thực, sạch, chất lượng cao của người trong ảnh, giữ CHÍNH XÁC đường nét ' +
+      'khuôn mặt, cấu trúc xương, tông da, kiểu tóc và biểu cảm chân thật không biến dạng, GIỮ NGUYÊN ' +
+      'trang phục cùng màu sắc như ảnh gốc. Khung hình nửa người (tới eo), căn giữa, nhìn thẳng ống ' +
+      'kính với nụ cười ấm áp thân thiện, thấy tự nhiên bàn tay và cánh tay. Toàn bộ nền BẮT BUỘC là ' +
+      'vầng hào quang mềm mại, airy gồm các vòng sáng đồng tâm lan tỏa nhẹ từ một điểm sáng trắng dịu ' +
+      'ngay sau đầu nhân vật, tông pastel tím lilac, lavender và xanh da trời nhạt, giữ nhạt và ít ' +
+      'bão hòa. Phải sạch, tối giản, thanh lịch — KHÔNG phải xoáy ốc rối mắt, KHÔNG tối hay quá bão ' +
+      'hòa — như phông thẻ sưu tập cao cấp với ánh glow lan tỏa, vài tia sáng mềm và chút lấp lánh ' +
+      'tinh tế. Phủ kín toàn khung bằng nền mềm này (không nền trắng trơn, không nền tối), nhân vật ' +
+      'tách biệt rõ nhờ ánh sáng trước dịu. Ảnh chân thực, lấy nét sắc vào khuôn mặt, phong cách tạp ' +
+      'chí cao cấp, nhiếp ảnh 35mm chân thực. Tuyệt đối không có chữ, logo, viền hay khung trong ảnh.'
+  },
+  {
+    // Persona card "AI Leader": a photoreal full-body standing portrait inside a
+    // futuristic blue/violet scene with cute robots and floating UI. renderNovoCard
+    // composites it into a portrait card with the persona title + tagline footer.
+    id: 'novo-persona-leader',
+    label: 'Persona Card · AI Leader',
+    preview: '/img/persona-leader.jpg',
+    prompt:
+      'A clean, high-quality realistic FULL-BODY portrait of the person in this photo, strictly ' +
+      'preserving their EXACT facial features, bone structure, skin tone, hairstyle and genuine ' +
+      'expression with no distortion, and keeping the SAME clothing and outfit colors as the ' +
+      'original photo. The person STANDS confidently facing the camera with a warm friendly smile, ' +
+      'the ENTIRE body visible from head to feet with clear headroom above the head and the floor ' +
+      'visible below the feet, sized to comfortably fit inside a square 1:1 frame. They hold a sleek ' +
+      'modern laptop and raise one hand in a friendly welcoming gesture, posing as an inspiring AI ' +
+      'Leader. Around them float a few cute friendly white-and-blue 3D robot assistants and glowing ' +
+      'holographic UI panels, charts and tech icons. The subject stands on a softly glowing circular ' +
+      'podium with concentric light rings. The full background MUST be a vibrant yet soft ' +
+      'blue-to-violet gradient tech scene filled with floating pastel bubbles, holographic data ' +
+      'panels and gentle glow, filling the entire frame edge-to-edge (no plain white, no dark ' +
+      'background). Photorealistic subject, sharp focus on the face, premium collectible-card look. ' +
+      'Absolutely no text, no logos, no borders, and no frame in the image.',
+    promptVi:
+      'Chân dung TOÀN THÂN tả thực, sạch, chất lượng cao của người trong ảnh, giữ CHÍNH XÁC đường nét ' +
+      'khuôn mặt, cấu trúc xương, tông da, kiểu tóc và biểu cảm chân thật không biến dạng, GIỮ NGUYÊN ' +
+      'trang phục cùng màu sắc như ảnh gốc. Người ĐỨNG tự tin nhìn thẳng ống kính với nụ cười ấm áp ' +
+      'thân thiện, thấy TOÀN BỘ cơ thể từ đầu tới chân, chừa khoảng trống phía trên đầu và thấy sàn ' +
+      'phía dưới chân, kích thước vừa vặn trong khung vuông 1:1. Tay cầm một chiếc laptop hiện đại ' +
+      'mỏng nhẹ và giơ một tay chào thân thiện, tạo dáng như một AI Leader truyền cảm hứng. Xung quanh ' +
+      'có vài chú robot AI 3D trắng-xanh dễ thương bay lơ lửng cùng các bảng UI ba chiều, biểu đồ và ' +
+      'icon công nghệ phát sáng. Nhân vật đứng trên bục tròn phát sáng với các vòng sáng đồng tâm. ' +
+      'Toàn bộ nền BẮT BUỘC là cảnh công nghệ gradient xanh dương sang tím rực rỡ mà dịu, đầy bong ' +
+      'bóng pastel bay lơ lửng, bảng dữ liệu ba chiều và ánh glow nhẹ, phủ kín toàn khung (không nền ' +
+      'trắng trơn, không nền tối). Nhân vật tả thực, lấy nét sắc vào khuôn mặt, phong cách thẻ sưu tập ' +
+      'cao cấp. Tuyệt đối không có chữ, logo, viền hay khung trong ảnh.'
+  },
+  {
+    // Persona card "Smart Worker": photoreal full-body standing portrait in a bright
+    // productivity scene with floating UI, a blue cube and a helper robot.
+    id: 'novo-persona-worker',
+    label: 'Persona Card · Smart Worker',
+    preview: '/img/persona-worker.jpg',
+    prompt:
+      'A clean, high-quality realistic FULL-BODY portrait of the person in this photo, strictly ' +
+      'preserving their EXACT facial features, bone structure, skin tone, hairstyle and genuine ' +
+      'expression with no distortion, and keeping the SAME clothing and outfit colors as the ' +
+      'original photo. The person STANDS relaxed and confident facing the camera with a warm smile, ' +
+      'the ENTIRE body visible from head to feet with clear headroom above the head and the floor ' +
+      'visible below the feet, sized to comfortably fit inside a square 1:1 frame. They casually hold ' +
+      'a slim laptop or tablet and give a light thumbs-up, posing as a relaxed, productive Smart ' +
+      'Worker. Around them float a cute friendly white-and-blue 3D robot assistant, a glowing blue 3D ' +
+      'cube, holographic UI panels, charts and task checklists. The full background MUST be a vibrant ' +
+      'yet soft blue-to-violet gradient tech scene filled with floating pastel bubbles, holographic ' +
+      'data panels, neon arcs and gentle glow, filling the entire frame edge-to-edge (no plain white, ' +
+      'no dark background). Photorealistic subject, sharp focus on the face, premium collectible-card ' +
+      'look. Absolutely no text, no logos, no borders, and no frame in the image.',
+    promptVi:
+      'Chân dung TOÀN THÂN tả thực, sạch, chất lượng cao của người trong ảnh, giữ CHÍNH XÁC đường nét ' +
+      'khuôn mặt, cấu trúc xương, tông da, kiểu tóc và biểu cảm chân thật không biến dạng, GIỮ NGUYÊN ' +
+      'trang phục cùng màu sắc như ảnh gốc. Người ĐỨNG thoải mái tự tin nhìn thẳng ống kính với nụ ' +
+      'cười ấm áp, thấy TOÀN BỘ cơ thể từ đầu tới chân, chừa khoảng trống phía trên đầu và thấy sàn ' +
+      'phía dưới chân, kích thước vừa vặn trong khung vuông 1:1. Tay cầm nhẹ một chiếc laptop hoặc ' +
+      'tablet mỏng và giơ ngón tay cái, tạo dáng như một Smart Worker làm việc hiệu quả và thư thái. ' +
+      'Xung quanh có một chú robot AI 3D trắng-xanh dễ thương bay lơ lửng, một khối lập phương 3D xanh ' +
+      'phát sáng, các bảng UI ba chiều, biểu đồ và danh sách công việc. Toàn bộ nền BẮT BUỘC là cảnh ' +
+      'công nghệ gradient xanh dương sang tím rực rỡ mà dịu, đầy bong bóng pastel bay lơ lửng, bảng dữ ' +
+      'liệu ba chiều, các cung neon và ánh glow nhẹ, phủ kín toàn khung (không nền trắng trơn, không ' +
+      'nền tối). Nhân vật tả thực, lấy nét sắc vào khuôn mặt, phong cách thẻ sưu tập cao cấp. Tuyệt ' +
+      'đối không có chữ, logo, viền hay khung trong ảnh.'
+  },
+  {
+    // Persona card "Digital Explorer": photoreal full-body standing portrait in a
+    // dreamy pastel sky scene with a rocket, clouds and floating data panels.
+    id: 'novo-persona-explorer',
+    label: 'Persona Card · Digital Explorer',
+    preview: '/img/persona-explorer.jpg',
+    prompt:
+      'A clean, high-quality realistic FULL-BODY portrait of the person in this photo, strictly ' +
+      'preserving their EXACT facial features, bone structure, skin tone, hairstyle and genuine ' +
+      'expression with no distortion, and keeping the SAME clothing and outfit colors as the ' +
+      'original photo. The person STANDS adventurously facing the camera with a bright curious smile, ' +
+      'the ENTIRE body visible from head to feet with clear headroom above the head and the floor ' +
+      'visible below the feet, sized to comfortably fit inside a square 1:1 frame. They point forward ' +
+      'or hold a small glowing device, posing as a curious Digital Explorer ready to discover. Beside ' +
+      'them float a cute friendly white-and-blue 3D robot assistant, a small cartoon rocket, soft ' +
+      'clouds, holographic UI panels, a pie chart and tech icons. The full background MUST be a dreamy ' +
+      'soft blue-violet-to-lavender gradient sky scene filled with floating pastel bubbles, gentle ' +
+      'clouds, neon swirl arcs and a soft glow, filling the entire frame edge-to-edge (no plain ' +
+      'white, no dark background). Photorealistic subject, sharp focus on the face, premium ' +
+      'collectible-card look. Absolutely no text, no logos, no borders, and no frame in the image.',
+    promptVi:
+      'Chân dung TOÀN THÂN tả thực, sạch, chất lượng cao của người trong ảnh, giữ CHÍNH XÁC đường nét ' +
+      'khuôn mặt, cấu trúc xương, tông da, kiểu tóc và biểu cảm chân thật không biến dạng, GIỮ NGUYÊN ' +
+      'trang phục cùng màu sắc như ảnh gốc. Người ĐỨNG đầy phiêu lưu nhìn thẳng ống kính với nụ cười ' +
+      'tươi tò mò, thấy TOÀN BỘ cơ thể từ đầu tới chân, chừa khoảng trống phía trên đầu và thấy sàn ' +
+      'phía dưới chân, kích thước vừa vặn trong khung vuông 1:1. Tay chỉ về phía trước hoặc cầm một ' +
+      'thiết bị nhỏ phát sáng, tạo dáng như một Digital Explorer tò mò sẵn sàng khám phá. Bên cạnh có ' +
+      'một chú robot AI 3D trắng-xanh dễ thương bay lơ lửng, một tên lửa hoạt hình nhỏ, mây mềm, các ' +
+      'bảng UI ba chiều, biểu đồ tròn và icon công nghệ. Toàn bộ nền BẮT BUỘC là cảnh bầu trời gradient ' +
+      'xanh dương - tím - lavender mơ màng dịu, đầy bong bóng pastel bay lơ lửng, mây nhẹ, các cung ' +
+      'neon xoáy và ánh glow nhẹ, phủ kín toàn khung (không nền trắng trơn, không nền tối). Nhân vật ' +
+      'tả thực, lấy nét sắc vào khuôn mặt, phong cách thẻ sưu tập cao cấp. Tuyệt đối không có chữ, ' +
+      'logo, viền hay khung trong ảnh.'
+  },
+  {
+    // Team card (chibi): preserves EVERY face in a group photo, stylised as cute
+    // figures on a purple confetti stage. Composited into the landscape team card.
+    id: 'novo-team-chibi',
+    label: 'Team Discovery Card (Chibi)',
+    preview: '/img/team-chibi.jpg',
+    prompt:
+      'Turn this group photo into a cute, high-quality 3D chibi cartoon. Transform EVERY person into ' +
+      'an adorable chibi character with a BIG head, small body, big sparkly expressive eyes and ' +
+      'smooth glossy toy skin, while keeping each person\u2019s recognizable face, hairstyle, skin ' +
+      'tone and the SAME clothing and outfit colors as in the photo. Keep the EXACT same number of ' +
+      'people and their left-to-right order — do NOT add, remove, merge, duplicate or swap anyone. ' +
+      'Arrange them standing together as a cheerful team in ONE horizontal row as a WIDE landscape ' +
+      'composition, every person\u2019s full body visible from head to feet with clear headroom ' +
+      'above and the stage floor below. The full background MUST be a vibrant purple-to-violet ' +
+      'gradient stage with a soft glowing light beam, a subtle perspective floor, and scattered ' +
+      'pastel geometric confetti (outlined triangles, circles, squares and plus signs) in pink, blue ' +
+      'and cyan. Pop Mart / Pixar style 3D render, clean crisp cartoon look, smooth shading, bright ' +
+      'playful lighting. Absolutely no text, no logos, no borders, and no frame in the image.',
+    promptVi:
+      'Biến ảnh nhóm này thành 3D chibi cartoon dễ thương chất lượng cao. Chuyển MỌI người thành nhân ' +
+      'vật chibi đáng yêu với ĐẦU TO, mình nhỏ, mắt to long lanh và da nhựa bóng mượt, đồng thời giữ ' +
+      'khuôn mặt nhận ra được, kiểu tóc, tông da và GIỮ NGUYÊN trang phục cùng màu sắc của từng người ' +
+      'như trong ảnh. Giữ ĐÚNG số lượng người và thứ tự trái-phải — KHÔNG thêm, bớt, gộp, nhân bản hay ' +
+      'hoán đổi ai. Xếp mọi người đứng chung thành một team vui tươi thành MỘT hàng ngang theo bố cục ' +
+      'NGANG, thấy nguyên người từ đầu tới chân với khoảng trống phía trên đầu và sàn phía dưới. Toàn ' +
+      'bộ nền BẮT BUỘC là sân khấu gradient tím-tím violet với dải sáng dịu, sàn phối cảnh nhẹ và các ' +
+      'hình học confetti pastel (tam giác, tròn, vuông, dấu cộng viền) màu hồng, xanh dương, xanh ' +
+      'cyan. Phong cách 3D Pop Mart / Pixar, nét cartoon sạch sắc, đổ bóng mượt, ánh sáng tươi vui. ' +
+      'Tuyệt đối không có chữ, logo, viền hay khung trong ảnh.'
+  },
+  {
+    // Team card (photoreal): keeps every real face in a group photo on the same
+    // purple confetti stage. Composited into the landscape team card.
+    id: 'novo-team-real',
+    label: 'Team Discovery Card (Photo)',
+    preview: '/img/team-real.jpg',
+    prompt:
+      'A clean, high-quality realistic group portrait of ALL the people in this photo, strictly ' +
+      'preserving EACH person\u2019s EXACT facial features, bone structure, skin tone, hairstyle and ' +
+      'the SAME clothing and outfit colors as the original photo — do not add, remove, merge or swap ' +
+      'any person, keep the same number of people and their left-to-right order, no distortion. The ' +
+      'team stands together in a natural group pose, arranged in ONE horizontal row as a WIDE ' +
+      'landscape composition, every person\u2019s FULL body visible from head to feet with clear ' +
+      'headroom above and the stage floor below, sized to comfortably fit a wide 2.4:1 frame. The ' +
+      'full background MUST be a vibrant purple-to-violet gradient stage with a soft glowing light ' +
+      'beam, a subtle perspective floor, and scattered pastel geometric confetti (outlined triangles, ' +
+      'circles, squares and plus signs) in pink, blue and cyan. Photorealistic, sharp focus on the ' +
+      'faces, premium editorial look, authentic 35mm photography. Absolutely no text, no logos, no ' +
+      'borders, and no frame in the image.',
+    promptVi:
+      'Chân dung nhóm tả thực, sạch, chất lượng cao của TẤT CẢ mọi người trong ảnh, giữ CHÍNH XÁC ' +
+      'đường nét khuôn mặt, cấu trúc xương, tông da, kiểu tóc và GIỮ NGUYÊN trang phục cùng màu sắc của ' +
+      'từng người như ảnh gốc — không thêm, bớt, gộp hay hoán đổi người, giữ đúng số lượng và thứ tự ' +
+      'trái-phải, không biến dạng. Cả team đứng chung dáng tự nhiên, xếp thành MỘT hàng ngang theo bố ' +
+      'cục NGANG, thấy NGUYÊN người từ đầu tới chân với khoảng trống phía trên đầu và sàn phía dưới, ' +
+      'cỡ vừa khít khung ngang 2.4:1. ' +
+      'Toàn bộ nền BẮT BUỘC là sân khấu gradient tím-tím violet với dải sáng dịu, sàn phối cảnh nhẹ và ' +
+      'các hình học confetti pastel (tam giác, tròn, vuông, dấu cộng viền) màu hồng, xanh dương, xanh ' +
+      'cyan. Ảnh chân thực, lấy nét sắc vào khuôn mặt, phong cách tạp chí cao cấp, nhiếp ảnh 35mm chân ' +
+      'thực. Tuyệt đối không có chữ, logo, viền hay khung trong ảnh.'
+  },
+  {
+    // Card style: the AI only generates a waist-up stylized portrait on a swirl
+    // gradient background. The client (renderNovoCard) composites it into a fixed
+    // "Digital Discovery Series" collectible-card frame with the user's initial.
+    id: 'novo-card-anime',
+    label: 'Discovery Card · Anime',
+    preview: '/img/card-anime.jpg',
+    prompt:
+      'A vibrant, high-quality 2D anime / semi-realistic stylized portrait of the person in this ' +
+      'photo, strictly maintaining 100% identical and recognizable facial features, hairstyle, skin ' +
+      'tone, and the SAME clothing and outfit colors as the original photo. Waist-up framing, ' +
+      'centered, facing the camera with a warm friendly smile, hands and arms naturally visible. ' +
+      'The full background MUST be a soft, airy, dreamy halo of smooth concentric light rings ' +
+      "radiating gently outward from a luminous soft white bloom right behind the subject's head, in " +
+      'delicate pastel lilac, lavender and baby sky-blue that stay light and desaturated. Keep it ' +
+      'clean, minimal and elegant — NOT a busy spiral vortex, NOT dark or oversaturated — like a ' +
+      'premium collectible trading-card backdrop with a gentle radial glow, fine soft light rays and ' +
+      'a few delicate sparkles. Fill the entire frame edge-to-edge with this soft background (no ' +
+      'plain white, no dark background), with the subject clearly separated from it by soft front ' +
+      'lighting. Clean crisp anime cel-shading, smooth gradients, polished digital illustration, ' +
+      'bright airy lighting. Absolutely no text, no logos, no borders, and no frame in the image.',
+    promptVi:
+      'Chân dung stylize 2D anime / bán tả thực chất lượng cao của người trong ảnh, giữ nguyên 100% ' +
+      'đường nét khuôn mặt, kiểu tóc, tông da và GIỮ NGUYÊN trang phục cùng màu sắc như ảnh gốc. Khung ' +
+      'hình nửa người (tới eo), căn giữa, nhìn thẳng ống kính với nụ cười ấm áp thân thiện, thấy tự ' +
+      'nhiên bàn tay và cánh tay. Toàn bộ nền BẮT BUỘC là vầng hào quang mềm mại, airy gồm các vòng ' +
+      'sáng đồng tâm lan tỏa nhẹ từ một điểm sáng trắng dịu ngay sau đầu nhân vật, tông pastel tím ' +
+      'lilac, lavender và xanh da trời nhạt, giữ nhạt và ít bão hòa. Phải sạch, tối giản, thanh lịch ' +
+      '— KHÔNG phải xoáy ốc rối mắt, KHÔNG tối hay quá bão hòa — như phông thẻ sưu tập cao cấp với ' +
+      'ánh glow lan tỏa, vài tia sáng mềm và chút lấp lánh tinh tế. Phủ kín toàn khung bằng nền mềm ' +
+      'này (không nền trắng trơn, không nền tối), nhân vật tách biệt rõ nhờ ánh sáng trước dịu. ' +
+      'Cel-shading anime sắc nét, chuyển màu mượt, minh họa số tinh tế, ánh sáng tươi sáng. Tuyệt ' +
+      'đối không có chữ, logo, viền hay khung trong ảnh.'
+  },
+  {
     id: 'digital-toy',
     label: 'The Digital Toy',
-    preview: '/img/s5.jpg',
+    preview: '/img/card-digitaltoy.jpg',
     prompt:
-      'A high-quality, professional 3D toy figure based on the person in this photo, strictly ' +
-      'maintaining 100% identical facial features, original skin tone, eyes, and friendly ' +
-      'expression, reimagined as an adorable chibi-style collectible art toy (blind box figure ' +
-      "style, similar to Pop Mart). The character is an 'AI & DIGITAL WEEK' champion, wearing a " +
-      'cute oversized deep navy blue hoodie with a tiny Novo logo and futuristic ' +
-      'data/network motifs on the chest, paired with tiny stylish blue and white sneakers. The ' +
-      "figure is standing on a mini glossy plastic pedestal with 'SPECIAL EDITION 20/10' written " +
-      'on it, positioned inside or next to a transparent open-front toy packaging box (blind box ' +
-      "style) decorated with vibrant 'NOVO DIGITAL WEEK' and 'HAPPY WOMEN'S DAY 20/10' " +
-      'branding, logos, and playful digital glitches. Soft, colorful volumetric lighting illuminates ' +
-      'the scene, highlighting shiny, smooth plastic/resin toy materials, vibrant pastel gradients, ' +
-      'and playful holographic micro-details on the box packaging. In the background, there is a ' +
-      'blurry, out-of-focus corporate office. Creative CGI/Clay 3D render, Octane render, pop-toy ' +
-      'art aesthetic with rich depth of field.',
+      'A high-quality, professional 3D chibi collectible art-toy figure based on the person in this ' +
+      'photo, strictly maintaining 100% identical and recognizable facial features, original skin ' +
+      'tone, eyes, hairstyle and friendly expression, reimagined as an adorable big-head small-body ' +
+      "chibi (blind box figure style, similar to Pop Mart). The character is an 'AI & DIGITAL WEEK' " +
+      'champion, wearing a cute oversized deep navy blue hoodie with a tiny Novo logo and subtle ' +
+      'futuristic data/network motifs on the chest, paired with tiny stylish blue and white ' +
+      'sneakers. The full-body figure stands centered on a small glossy dark round pedestal disc ' +
+      "that reads 'SPECIAL EDITION 20/10'. The entire background MUST be a dreamy holographic " +
+      'iridescent pastel backdrop in lilac, lavender, sky-blue and soft pink, scattered with faint ' +
+      'outlined geometric shapes (triangles, circles, squares and plus signs) and a gentle glowing ' +
+      'light, filling the frame edge-to-edge. In the bottom-left corner a soft cloud-shaped badge ' +
+      "reads 'novo DIGITAL WEEK'; in the bottom-right corner a pink cloud-shaped badge reads 'HAPPY " +
+      "WOMEN'S DAY 20/10'; a small 'novo' wordmark sits in the top-right corner. Do NOT draw any toy " +
+      'packaging box, no blind-box case, no transparent container and no office background — just ' +
+      'the single figure on its pedestal over the holographic backdrop. Soft colorful volumetric ' +
+      'lighting, shiny smooth plastic/resin toy materials, vibrant pastel gradients. Creative ' +
+      'CGI/clay 3D render, Octane render, pop-toy art aesthetic with gentle depth of field.',
     promptVi:
-      'Một mô hình đồ chơi 3D chuyên nghiệp chất lượng cao dựa trên người trong ảnh, giữ nguyên 100% ' +
-      'đường nét khuôn mặt, tông da gốc, ánh mắt và biểu cảm thân thiện, được tái hiện thành nhân vật ' +
-      'chibi đáng yêu sưu tầm (phong cách blind box, tương tự Pop Mart). Nhân vật là nhà vô địch "AI & ' +
-      'DIGITAL WEEK", mặc áo hoodie xanh navy đậm quá khổ dễ thương với logo Novo nhỏ và họa tiết ' +
-      'dữ liệu/mạng lưới tương lai trên ngực, đi giày sneaker xanh-trắng nhỏ xinh. Mô hình đứng trên bệ ' +
-      "nhựa bóng mini ghi 'SPECIAL EDITION 20/10', đặt bên trong hoặc cạnh hộp đồ chơi trong suốt mở mặt " +
-      "trước (kiểu blind box) trang trí rực rỡ bằng thương hiệu 'NOVO DIGITAL WEEK' và 'HAPPY " +
-      "WOMEN'S DAY 20/10', logo và hiệu ứng glitch số vui nhộn. Ánh sáng thể tích mềm mại, nhiều màu sắc " +
-      'chiếu rọi khung cảnh, làm nổi bật chất liệu nhựa/resin bóng mượt, dải màu pastel rực rỡ và các chi ' +
-      'tiết ảnh ba chiều vui nhộn trên hộp. Hậu cảnh là một văn phòng doanh nghiệp mờ ngoài tiêu điểm. ' +
-      'Kết xuất 3D CGI/Clay sáng tạo, Octane render, thẩm mỹ pop-toy với độ sâu trường ảnh phong phú.'
+      'Một mô hình chibi 3D sưu tầm chuyên nghiệp chất lượng cao dựa trên người trong ảnh, giữ nguyên ' +
+      '100% đường nét khuôn mặt, tông da gốc, ánh mắt, kiểu tóc và biểu cảm thân thiện, được tái hiện ' +
+      'thành nhân vật chibi đầu to mình nhỏ đáng yêu (phong cách blind box, tương tự Pop Mart). Nhân ' +
+      'vật là nhà vô địch "AI & DIGITAL WEEK", mặc áo hoodie xanh navy đậm quá khổ dễ thương với logo ' +
+      'Novo nhỏ và họa tiết dữ liệu/mạng lưới tương lai tinh tế trên ngực, đi giày sneaker xanh-trắng ' +
+      "nhỏ xinh. Toàn thân nhân vật đứng căn giữa trên một bệ tròn tối bóng nhỏ ghi 'SPECIAL EDITION " +
+      "20/10'. Toàn bộ hậu cảnh BẮT BUỘC là phông holographic óng ánh pastel mơ màng tông lilac, " +
+      'lavender, xanh da trời và hồng nhạt, rải rác các hình khối viền mảnh (tam giác, tròn, vuông và ' +
+      'dấu cộng) cùng ánh sáng phát quang dịu, phủ kín toàn khung. Góc dưới-trái có một badge hình mây ' +
+      "mềm ghi 'novo DIGITAL WEEK'; góc dưới-phải có một badge hình mây màu hồng ghi 'HAPPY WOMEN'S " +
+      "DAY 20/10'; góc trên-phải có chữ 'novo' nhỏ. TUYỆT ĐỐI không vẽ hộp bao bì đồ chơi, không hộp " +
+      'blind box, không hộp trong suốt và không hậu cảnh văn phòng — chỉ có một nhân vật đứng trên bệ ' +
+      'trên nền holographic. Ánh sáng thể tích mềm mại nhiều màu, chất liệu nhựa/resin bóng mượt, dải ' +
+      'màu pastel rực rỡ. Kết xuất 3D CGI/clay sáng tạo, Octane render, thẩm mỹ pop-toy với độ sâu ' +
+      'trường ảnh dịu.'
   },
   {
     id: 'digital-leader',
@@ -325,11 +568,119 @@ const STYLES = [
   }
 ];
 
+// Card styles composite the portrait/group into a fixed frame on the client. For
+// these we attach a cropped background patch (from the sample cards) as a second
+// reference image so Gemini reproduces the exact backdrop look consistently.
+// Single cards use a lavender swirl; team cards use a purple stage with confetti.
+const CARD_STYLE_IDS = new Set([
+  'novo-card-anime', 'novo-card-real', 'novo-team-chibi', 'novo-team-real',
+  'novo-persona-leader', 'novo-persona-worker', 'novo-persona-explorer'
+]);
+const CARD_REF_KEY = {
+  'novo-card-anime': 'single',
+  'novo-card-real': 'single',
+  'novo-team-chibi': 'team',
+  'novo-team-real': 'team',
+  'novo-persona-leader': 'leader',
+  'novo-persona-worker': 'worker',
+  'novo-persona-explorer': 'explorer'
+};
+// Force Gemini's output aspect to match each card's window so nothing is cropped:
+// single cards use a ~square window (1:1), team cards use a wide window (16:9).
+const CARD_ASPECT = {
+  'novo-card-anime': '1:1',
+  'novo-card-real': '1:1',
+  'novo-team-chibi': '16:9',
+  'novo-team-real': '16:9',
+  'novo-persona-leader': '1:1',
+  'novo-persona-worker': '1:1',
+  'novo-persona-explorer': '1:1',
+  // The Digital Toy card is a tall holographic collectible (Picture0.png): portrait 3:4.
+  'digital-toy': '3:4'
+};
+const CARD_BG_INSTRUCTION =
+  ' IMPORTANT: a SECOND reference image is provided — use it strictly as the exact ' +
+  'style, color and texture reference for the background only. Recreate that same ' +
+  'background filling the whole frame. Do NOT copy any person, clothing, border, ' +
+  'frame or text from it.';
+
+function loadCardRef(file) {
+  try {
+    const bytes = fs.readFileSync(path.join(__dirname, 'assets', file));
+    return { mimeType: 'image/jpeg', data: bytes.toString('base64') };
+  } catch (err) {
+    console.warn('[card-bg] reference not loaded (' + file + '):', err.message);
+    return null;
+  }
+}
+const CARD_BG_REFS = {
+  single: loadCardRef('card-bg-ref.jpg'),
+  team: loadCardRef('card-bg-team.jpg'),
+  leader: loadCardRef('card-bg-leader.jpg'),
+  worker: loadCardRef('card-bg-worker.jpg'),
+  explorer: loadCardRef('card-bg-explorer.jpg')
+};
+function cardRefFor(styleId) {
+  const key = CARD_REF_KEY[styleId];
+  return key ? CARD_BG_REFS[key] : null;
+}
+
 // ---------------------------------------------------------------------------
 // Gemini client
 // ---------------------------------------------------------------------------
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+// Team styles turn a whole group into one chibi/photo row. The image model tends
+// to hallucinate or drop a person, so we first ask a cheap text model to COUNT
+// the people, then ground the generation prompt on that exact number.
+const TEAM_STYLE_IDS = new Set(['novo-team-chibi', 'novo-team-real']);
+
+async function countPeopleInPhoto(parsed) {
+  try {
+    const resp = await ai.models.generateContent({
+      model: 'gemini-3.8-flash',
+      contents: [{
+        role: 'user',
+        parts: [
+          { inlineData: { mimeType: parsed.mimeType, data: parsed.data } },
+          { text: 'Count how many distinct real people appear in this photo. Reply with ONLY a single integer, nothing else.' }
+        ]
+      }]
+    });
+    const text = (resp.text || '').trim();
+    const m = text.match(/\d+/);
+    const n = m ? parseInt(m[0], 10) : 0;
+    return n > 0 && n <= 30 ? n : 0;
+  } catch (err) {
+    console.error('[count] Error:', err.message || err);
+    return 0;
+  }
+}
+
+function peopleCountClause(n) {
+  return ' CRITICAL COUNT: there are EXACTLY ' + n + ' people in the original photo. ' +
+    'Render EXACTLY ' + n + ' figures — the same ' + n + ' people, one per person, in the ' +
+    'same left-to-right order. Do NOT add, invent, duplicate, merge or drop anyone; the output ' +
+    'must contain exactly ' + n + ' figures, no more and no fewer.';
+}
+
+// Run one Gemini image generation and return the first inline image ({mimeType,data})
+// or null. gemini-3.1-flash-lite-image restyles strongly (real chibi) while keeping
+// the subject count — unlike the older 2.5-flash-image which pass-through'd restyles.
+// Lite is ~half the price of 3.1-flash-image with near-identical chibi quality.
+async function runImageGen(parts, aspect) {
+  const genConfig = { responseModalities: ['Text', 'Image'] };
+  if (aspect) genConfig.imageConfig = { aspectRatio: aspect };
+  const response = await ai.models.generateContent({
+    model: 'gemini-3.1-flash-lite-image',
+    contents: [{ role: 'user', parts }],
+    config: genConfig
+  });
+  const rparts = response.candidates[0].content.parts;
+  const imagePart = rparts.find((p) => p.inlineData);
+  return imagePart ? imagePart.inlineData : null;
+}
 
 // ---------------------------------------------------------------------------
 // Simple in-memory rate limiter
@@ -642,24 +993,28 @@ app.post('/api/generate', async (req, res) => {
 
       stats.recordRequest();
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              { inlineData: { mimeType: parsed.mimeType, data: parsed.data } },
-              { text: finalPrompt }
-            ]
-          }
-        ],
-        config: {
-          responseModalities: ['Text', 'Image']
-        }
-      });
+      // Card styles: attach the swirl background reference so Gemini matches the
+      // sample backdrop closely. The reference is a tiny (~5KB) image, so the
+      // extra input token cost is negligible.
+      const cardRef = CARD_STYLE_IDS.has(styleId) ? cardRefFor(styleId) : null;
+      const useCardRef = !!cardRef;
 
-      const parts = response.candidates[0].content.parts;
-      const imagePart = parts.find((p) => p.inlineData);
+      // Team styles: auto-detect the head count and ground the prompt on it so the
+      // model keeps exactly that many people (prevents the 7->8 / 7->6 drift).
+      let groundedPrompt = finalPrompt;
+      let countClause = '';
+      if (TEAM_STYLE_IDS.has(styleId)) {
+        const n = await countPeopleInPhoto(parsed);
+        if (n > 0) { countClause = peopleCountClause(n); groundedPrompt = finalPrompt + countClause; }
+      }
+
+      const aspect = CARD_ASPECT[styleId];
+      const reqParts = [{ inlineData: { mimeType: parsed.mimeType, data: parsed.data } }];
+      if (useCardRef) {
+        reqParts.push({ inlineData: cardRef });
+      }
+      reqParts.push({ text: useCardRef ? groundedPrompt + CARD_BG_INSTRUCTION : groundedPrompt });
+      const imagePart = await runImageGen(reqParts, aspect);
 
       if (!imagePart) {
         discord.notify(
@@ -669,8 +1024,8 @@ app.post('/api/generate', async (req, res) => {
         return res.status(502).json({ error: 'Kh\u00f4ng th\u1ec3 t\u1ea1o \u1ea3nh. Vui l\u00f2ng th\u1eed l\u1ea1i.' });
       }
 
-      const resultBase64 = imagePart.inlineData.data;
-      const resultMime = imagePart.inlineData.mimeType;
+      const resultBase64 = imagePart.data;
+      const resultMime = imagePart.mimeType;
 
       const generated = stats.recordGenerated();
       checkGenMilestone(generated, stats.get().totalGenerateRequests);
