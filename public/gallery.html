@@ -197,24 +197,43 @@
         });
       }
 
-      // Open a clean, branded print sheet (one image per page) and trigger print.
+      // Print at true PVC card size. Preload first to detect each card's
+      // orientation (portrait 54x86mm, landscape 86x54mm = CR80).
       function printImages(items) {
         if (!items.length) return;
+        var loaded = 0;
+        var metas = new Array(items.length);
+        items.forEach(function (it, i) {
+          var im = new Image();
+          im.onload = im.onerror = function () {
+            metas[i] = (im.naturalWidth && im.naturalHeight && im.naturalWidth > im.naturalHeight) ? 'land' : 'port';
+            if (++loaded === items.length) openPrint(items, metas);
+          };
+          im.src = it.url;
+        });
+      }
+
+      function openPrint(items, metas) {
         var win = window.open('', '_blank');
         if (!win) { alert('Trình duyệt chặn cửa sổ in. Vui lòng cho phép pop-up.'); return; }
-        var pages = items.map(function (it) {
-          return '<section class="page">' +
-            '<img src="' + it.url + '" alt="">' +
-            '</section>';
+        // One card per print job → page size follows that card's orientation.
+        var pageSize = metas[0] === 'land' ? '86mm 54mm' : '54mm 86mm';
+        var pages = items.map(function (it, i) {
+          var cls = metas[i] === 'land' ? 'page land' : 'page port';
+          return '<section class="' + cls + '"><img src="' + it.url + '" alt=""></section>';
         }).join('');
         var html =
           '<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8">' +
-          '<title>In ảnh - Photo Booth</title><style>' +
+          '<title>In thẻ - Photo Booth</title><style>' +
           '*{box-sizing:border-box;margin:0;padding:0}' +
           'body{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:#f4f6fb;color:#001965}' +
-          '.page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;page-break-after:always}' +
-          '.page img{max-width:100%;max-height:96vh;object-fit:contain;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.18)}' +
-          '@media print{body{background:#fff}.page{padding:0}.page img{box-shadow:none;max-height:100vh}}' +
+          '.page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;page-break-after:always}' +
+          '.page img{object-fit:contain;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.18)}' +
+          '.port img{width:auto;height:90vh}.land img{width:90vw;height:auto}' +
+          '@media print{body{background:#fff}.page{padding:0;min-height:auto}' +
+          '.page img{box-shadow:none;border-radius:0}' +
+          '.port img{width:54mm;height:86mm}.land img{width:86mm;height:54mm}' +
+          '@page{size:' + pageSize + ';margin:0}}' +
           '</style></head><body>' + pages +
           '<script>(function(){var imgs=document.images,n=imgs.length,c=0;' +
           'function go(){window.focus();window.print();}' +
