@@ -1353,17 +1353,18 @@
 
       btnCapture.addEventListener('click', function () { captureFromVideo(); });
 
-      // Normalise every input photo to a fixed 3:4 portrait (cover-crop,
-      // centred). The AI output aspect ratio follows the INPUT image, so this
-      // guarantees all results come back in the same orientation/size.
-      function toPortraitDataUrl(source, sw, sh) {
-        var targetW = 768, targetH = 1024; // 3:4 portrait
+      // Downscale the input photo while KEEPING its full aspect ratio (no crop),
+      // so wide group photos reach the model with everyone still in frame. The
+      // output aspect ratio is fixed server-side per style (CARD_ASPECT), so we
+      // no longer need to force the input into a portrait box.
+      function toUploadDataUrl(source, sw, sh) {
+        var MAX = 1280; // cap the longest side to keep upload/token cost low
+        var scale = Math.min(1, MAX / Math.max(sw, sh));
+        var w = Math.round(sw * scale), h = Math.round(sh * scale);
         var canvas = document.createElement('canvas');
-        canvas.width = targetW; canvas.height = targetH;
+        canvas.width = w; canvas.height = h;
         var ctx = canvas.getContext('2d');
-        var scale = Math.max(targetW / sw, targetH / sh);
-        var dw = sw * scale, dh = sh * scale;
-        ctx.drawImage(source, (targetW - dw) / 2, (targetH - dh) / 2, dw, dh);
+        ctx.drawImage(source, 0, 0, w, h);
         return canvas.toDataURL('image/jpeg', 0.85);
       }
 
@@ -1371,7 +1372,7 @@
         var w = videoElement.videoWidth;
         var h = videoElement.videoHeight;
         if (!w || !h) return;
-        capturedImageBase64 = toPortraitDataUrl(videoElement, w, h);
+        capturedImageBase64 = toUploadDataUrl(videoElement, w, h);
         stopCamera();
         previewImage.src = capturedImageBase64;
         showScreen('preview');
@@ -1395,7 +1396,7 @@
         reader.onload = function (ev) {
           var img = new Image();
           img.onload = function () {
-            capturedImageBase64 = toPortraitDataUrl(img, img.width, img.height);
+            capturedImageBase64 = toUploadDataUrl(img, img.width, img.height);
             previewImage.src = capturedImageBase64;
             showScreen('preview');
           };
