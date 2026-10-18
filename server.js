@@ -48,6 +48,45 @@ const STYLES = [
     promptVi: ''
   },
   {
+    id: 'digital-toy',
+    label: 'The Digital Toy',
+    preview: '/img/card-digitaltoy.jpg',
+    prompt:
+      'A high-quality, professional 3D chibi collectible art-toy figure based on the person in this ' +
+      'photo, strictly maintaining 100% identical and recognizable facial features, original skin ' +
+      'tone, eyes, hairstyle and friendly expression, reimagined as an adorable big-head small-body ' +
+      "chibi (blind box figure style, similar to Pop Mart). The character is an 'AI & DIGITAL WEEK' " +
+      'champion, wearing a cute oversized deep navy blue hoodie with a tiny Novo logo and subtle ' +
+      'futuristic data/network motifs on the chest, paired with tiny stylish blue and white ' +
+      'sneakers. The full-body figure stands centered on a small glossy dark round pedestal disc ' +
+      "that reads 'SPECIAL EDITION 20/10'. The entire background MUST be a dreamy holographic " +
+      'iridescent pastel backdrop in lilac, lavender, sky-blue and soft pink, scattered with faint ' +
+      'outlined geometric shapes (triangles, circles, squares and plus signs) and a gentle glowing ' +
+      'light, filling the frame edge-to-edge. In the bottom-left corner a soft cloud-shaped badge ' +
+      "reads 'novo DIGITAL WEEK'; in the bottom-right corner a pink cloud-shaped badge reads 'HAPPY " +
+      "WOMEN'S DAY 20/10'; a small 'novo' wordmark sits in the top-right corner. Do NOT draw any toy " +
+      'packaging box, no blind-box case, no transparent container and no office background — just ' +
+      'the single figure on its pedestal over the holographic backdrop. Soft colorful volumetric ' +
+      'lighting, shiny smooth plastic/resin toy materials, vibrant pastel gradients. Creative ' +
+      'CGI/clay 3D render, Octane render, pop-toy art aesthetic with gentle depth of field.',
+    promptVi:
+      'Một mô hình chibi 3D sưu tầm chuyên nghiệp chất lượng cao dựa trên người trong ảnh, giữ nguyên ' +
+      '100% đường nét khuôn mặt, tông da gốc, ánh mắt, kiểu tóc và biểu cảm thân thiện, được tái hiện ' +
+      'thành nhân vật chibi đầu to mình nhỏ đáng yêu (phong cách blind box, tương tự Pop Mart). Nhân ' +
+      'vật là nhà vô địch "AI & DIGITAL WEEK", mặc áo hoodie xanh navy đậm quá khổ dễ thương với logo ' +
+      'Novo nhỏ và họa tiết dữ liệu/mạng lưới tương lai tinh tế trên ngực, đi giày sneaker xanh-trắng ' +
+      "nhỏ xinh. Toàn thân nhân vật đứng căn giữa trên một bệ tròn tối bóng nhỏ ghi 'SPECIAL EDITION " +
+      "20/10'. Toàn bộ hậu cảnh BẮT BUỘC là phông holographic óng ánh pastel mơ màng tông lilac, " +
+      'lavender, xanh da trời và hồng nhạt, rải rác các hình khối viền mảnh (tam giác, tròn, vuông và ' +
+      'dấu cộng) cùng ánh sáng phát quang dịu, phủ kín toàn khung. Góc dưới-trái có một badge hình mây ' +
+      "mềm ghi 'novo DIGITAL WEEK'; góc dưới-phải có một badge hình mây màu hồng ghi 'HAPPY WOMEN'S " +
+      "DAY 20/10'; góc trên-phải có chữ 'novo' nhỏ. TUYỆT ĐỐI không vẽ hộp bao bì đồ chơi, không hộp " +
+      'blind box, không hộp trong suốt và không hậu cảnh văn phòng — chỉ có một nhân vật đứng trên bệ ' +
+      'trên nền holographic. Ánh sáng thể tích mềm mại nhiều màu, chất liệu nhựa/resin bóng mượt, dải ' +
+      'màu pastel rực rỡ. Kết xuất 3D CGI/clay sáng tạo, Octane render, thẩm mỹ pop-toy với độ sâu ' +
+      'trường ảnh dịu.'
+  },
+  {
     // Card style (photoreal): the AI generates a realistic waist-up portrait on
     // the soft swirl background; renderNovoCard composites it into the same
     // "Digital Discovery Series" collectible-card frame with the user's initial.
@@ -281,45 +320,6 @@ const STYLES = [
       'này (không nền trắng trơn, không nền tối), nhân vật tách biệt rõ nhờ ánh sáng trước dịu. ' +
       'Cel-shading anime sắc nét, chuyển màu mượt, minh họa số tinh tế, ánh sáng tươi sáng. Tuyệt ' +
       'đối không có chữ, logo, viền hay khung trong ảnh.'
-  },
-  {
-    id: 'digital-toy',
-    label: 'The Digital Toy',
-    preview: '/img/card-digitaltoy.jpg',
-    prompt:
-      'A high-quality, professional 3D chibi collectible art-toy figure based on the person in this ' +
-      'photo, strictly maintaining 100% identical and recognizable facial features, original skin ' +
-      'tone, eyes, hairstyle and friendly expression, reimagined as an adorable big-head small-body ' +
-      "chibi (blind box figure style, similar to Pop Mart). The character is an 'AI & DIGITAL WEEK' " +
-      'champion, wearing a cute oversized deep navy blue hoodie with a tiny Novo logo and subtle ' +
-      'futuristic data/network motifs on the chest, paired with tiny stylish blue and white ' +
-      'sneakers. The full-body figure stands centered on a small glossy dark round pedestal disc ' +
-      "that reads 'SPECIAL EDITION 20/10'. The entire background MUST be a dreamy holographic " +
-      'iridescent pastel backdrop in lilac, lavender, sky-blue and soft pink, scattered with faint ' +
-      'outlined geometric shapes (triangles, circles, squares and plus signs) and a gentle glowing ' +
-      'light, filling the frame edge-to-edge. In the bottom-left corner a soft cloud-shaped badge ' +
-      "reads 'novo DIGITAL WEEK'; in the bottom-right corner a pink cloud-shaped badge reads 'HAPPY " +
-      "WOMEN'S DAY 20/10'; a small 'novo' wordmark sits in the top-right corner. Do NOT draw any toy " +
-      'packaging box, no blind-box case, no transparent container and no office background — just ' +
-      'the single figure on its pedestal over the holographic backdrop. Soft colorful volumetric ' +
-      'lighting, shiny smooth plastic/resin toy materials, vibrant pastel gradients. Creative ' +
-      'CGI/clay 3D render, Octane render, pop-toy art aesthetic with gentle depth of field.',
-    promptVi:
-      'Một mô hình chibi 3D sưu tầm chuyên nghiệp chất lượng cao dựa trên người trong ảnh, giữ nguyên ' +
-      '100% đường nét khuôn mặt, tông da gốc, ánh mắt, kiểu tóc và biểu cảm thân thiện, được tái hiện ' +
-      'thành nhân vật chibi đầu to mình nhỏ đáng yêu (phong cách blind box, tương tự Pop Mart). Nhân ' +
-      'vật là nhà vô địch "AI & DIGITAL WEEK", mặc áo hoodie xanh navy đậm quá khổ dễ thương với logo ' +
-      'Novo nhỏ và họa tiết dữ liệu/mạng lưới tương lai tinh tế trên ngực, đi giày sneaker xanh-trắng ' +
-      "nhỏ xinh. Toàn thân nhân vật đứng căn giữa trên một bệ tròn tối bóng nhỏ ghi 'SPECIAL EDITION " +
-      "20/10'. Toàn bộ hậu cảnh BẮT BUỘC là phông holographic óng ánh pastel mơ màng tông lilac, " +
-      'lavender, xanh da trời và hồng nhạt, rải rác các hình khối viền mảnh (tam giác, tròn, vuông và ' +
-      'dấu cộng) cùng ánh sáng phát quang dịu, phủ kín toàn khung. Góc dưới-trái có một badge hình mây ' +
-      "mềm ghi 'novo DIGITAL WEEK'; góc dưới-phải có một badge hình mây màu hồng ghi 'HAPPY WOMEN'S " +
-      "DAY 20/10'; góc trên-phải có chữ 'novo' nhỏ. TUYỆT ĐỐI không vẽ hộp bao bì đồ chơi, không hộp " +
-      'blind box, không hộp trong suốt và không hậu cảnh văn phòng — chỉ có một nhân vật đứng trên bệ ' +
-      'trên nền holographic. Ánh sáng thể tích mềm mại nhiều màu, chất liệu nhựa/resin bóng mượt, dải ' +
-      'màu pastel rực rỡ. Kết xuất 3D CGI/clay sáng tạo, Octane render, thẩm mỹ pop-toy với độ sâu ' +
-      'trường ảnh dịu.'
   },
   {
     id: 'digital-leader',
@@ -665,15 +665,19 @@ function peopleCountClause(n) {
     'must contain exactly ' + n + ' figures, no more and no fewer.';
 }
 
+// Image models by style group. Team styles need 3.1-flash-lite-image: it restyles
+// strongly (real chibi) while keeping the exact subject count. The other styles use
+// the older 2.5-flash-image, which gives the look we prefer and is cheaper.
+const TEAM_MODEL = 'gemini-3.1-flash-lite-image';
+const DEFAULT_MODEL = 'gemini-2.5-flash-image';
+
 // Run one Gemini image generation and return the first inline image ({mimeType,data})
-// or null. gemini-3.1-flash-lite-image restyles strongly (real chibi) while keeping
-// the subject count — unlike the older 2.5-flash-image which pass-through'd restyles.
-// Lite is ~half the price of 3.1-flash-image with near-identical chibi quality.
-async function runImageGen(parts, aspect) {
+// or null.
+async function runImageGen(parts, aspect, model) {
   const genConfig = { responseModalities: ['Text', 'Image'] };
   if (aspect) genConfig.imageConfig = { aspectRatio: aspect };
   const response = await ai.models.generateContent({
-    model: 'gemini-3.1-flash-lite-image',
+    model: model || DEFAULT_MODEL,
     contents: [{ role: 'user', parts }],
     config: genConfig
   });
@@ -1014,7 +1018,8 @@ app.post('/api/generate', async (req, res) => {
         reqParts.push({ inlineData: cardRef });
       }
       reqParts.push({ text: useCardRef ? groundedPrompt + CARD_BG_INSTRUCTION : groundedPrompt });
-      const imagePart = await runImageGen(reqParts, aspect);
+      const model = TEAM_STYLE_IDS.has(styleId) ? TEAM_MODEL : DEFAULT_MODEL;
+      const imagePart = await runImageGen(reqParts, aspect, model);
 
       if (!imagePart) {
         discord.notify(
