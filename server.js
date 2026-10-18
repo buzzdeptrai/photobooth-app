@@ -648,6 +648,7 @@ async function countPeopleInPhoto(parsed) {
         ]
       }]
     });
+    logGenCost('count', 'gemini-3.8-flash', resp.usageMetadata);
     const text = (resp.text || '').trim();
     const m = text.match(/\d+/);
     const n = m ? parseInt(m[0], 10) : 0;
@@ -665,22 +666,55 @@ function peopleCountClause(n) {
     'must contain exactly ' + n + ' figures, no more and no fewer.';
 }
 
-// Image models by style group. Team styles need 3.1-flash-lite-image: it restyles
-// strongly (real chibi) while keeping the exact subject count. The other styles use
-// the older 2.5-flash-image, which gives the look we prefer and is cheaper.
+// All styles use 3.1-flash-lite-image: it restyles strongly (real chibi), keeps the
+// exact subject count for team photos, and is the cheapest tier ($0.0336 per 1K image).
 const TEAM_MODEL = 'gemini-3.1-flash-lite-image';
-const DEFAULT_MODEL = 'gemini-2.5-flash-image';
+const DEFAULT_MODEL = 'gemini-3.1-flash-lite-image';
+
+// --- Cost logging -----------------------------------------------------------
+// Rough USD/VND rate and per-model prices so each request logs its real cost.
+// Image models charge a flat price per generated image at 1K resolution; the
+// text counter model charges per token. Input is tiny (one ~768x1024 photo).
+const USD_TO_VND = 26000;
+const PRICING = {
+  'gemini-2.5-flash-image':      { inPerM: 0.30, imageFlat: 0.039 },
+  'gemini-3.1-flash-lite-image': { inPerM: 0.30, imageFlat: 0.0336 },
+  'gemini-3.1-flash-image':      { inPerM: 0.30, imageFlat: 0.067 },
+  'gemini-3.8-flash':            { inPerM: 0.30, outPerM: 2.50 }
+};
+
+function logGenCost(label, model, usage) {
+  if (!usage) { console.log(`[cost] ${label} model=${model} (no usageMetadata)`); return; }
+  const promptTok = usage.promptTokenCount || 0;
+  const candTok = usage.candidatesTokenCount || 0;
+  const totalTok = usage.totalTokenCount || 0;
+  let imgTok = 0;
+  for (const d of usage.candidatesTokensDetails || []) {
+    if (d.modality === 'IMAGE') imgTok += d.tokenCount || 0;
+  }
+  const p = PRICING[model] || {};
+  const inCost = (promptTok / 1e6) * (p.inPerM || 0);
+  const outCost = p.imageFlat != null ? p.imageFlat : (candTok / 1e6) * (p.outPerM || 0);
+  const usd = inCost + outCost;
+  const vnd = Math.round(usd * USD_TO_VND);
+  console.log(
+    `[cost] ${label} model=${model} prompt=${promptTok} cand=${candTok} ` +
+    `img=${imgTok} total=${totalTok} usd=$${usd.toFixed(4)} vnd=${vnd}`
+  );
+}
 
 // Run one Gemini image generation and return the first inline image ({mimeType,data})
-// or null.
+// or null. Output is forced to 1K resolution — the cheapest tier for these models.
 async function runImageGen(parts, aspect, model) {
-  const genConfig = { responseModalities: ['Text', 'Image'] };
-  if (aspect) genConfig.imageConfig = { aspectRatio: aspect };
+  const usedModel = model || DEFAULT_MODEL;
+  const imageConfig = { imageSize: '1K' };
+  if (aspect) imageConfig.aspectRatio = aspect;
   const response = await ai.models.generateContent({
-    model: model || DEFAULT_MODEL,
+    model: usedModel,
     contents: [{ role: 'user', parts }],
-    config: genConfig
+    config: { responseModalities: ['Text', 'Image'], imageConfig }
   });
+  logGenCost('generate', usedModel, response.usageMetadata);
   const rparts = response.candidates[0].content.parts;
   const imagePart = rparts.find((p) => p.inlineData);
   return imagePart ? imagePart.inlineData : null;
