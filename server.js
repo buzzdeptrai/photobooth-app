@@ -1111,7 +1111,11 @@ app.post('/api/store', async (req, res) => {
       return res.status(400).json({ error: '\u0110\u1ecbnh d\u1ea1ng \u1ea3nh kh\u00f4ng h\u1ee3p l\u1ec7.' });
     }
 
+    // Temporary instrumentation: time each step to find the 40-60s bottleneck.
+    const t0 = Date.now();
+    const kb = Math.round(Buffer.byteLength(parsed.data, 'base64') / 1024);
     const saved = await storage.saveImage(parsed.data, parsed.mimeType, getBaseUrl(req));
+    const tUpload = Date.now();
 
     // Record the initial + metadata in the index so the gallery can search /
     // filter by it. Index failure must not break the user's download/QR flow.
@@ -1127,8 +1131,15 @@ app.post('/api/store', async (req, res) => {
     } catch (idxErr) {
       console.error('[store] Index write failed:', idxErr.message || idxErr);
     }
+    const tIndex = Date.now();
 
     const qr = await QRCode.toDataURL(saved.url, { margin: 1, width: 240 });
+    const tQr = Date.now();
+
+    console.log(
+      `[store] size=${kb}KB upload=${tUpload - t0}ms index=${tIndex - tUpload}ms ` +
+      `qr=${tQr - tIndex}ms total=${tQr - t0}ms`
+    );
 
     return res.json({ url: saved.url, id: saved.id, qr });
   } catch (err) {
