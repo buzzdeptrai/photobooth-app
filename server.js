@@ -1099,6 +1099,32 @@ app.get('/api/gallery', async (req, res) => {
   }
 });
 
+// Admin monitor: per-INITIAL image counts, totals and limit status.
+app.get('/api/monitor', (req, res) => {
+  if (!ADMIN_TOKEN || (req.query.token || '').trim() !== ADMIN_TOKEN) {
+    return res.status(401).json({ error: 'Unauthorized.' });
+  }
+  const counts = userLimit.getAll();
+  const users = Object.keys(counts)
+    .map((initial) => ({
+      initial,
+      count: counts[initial],
+      atLimit: PER_USER_LIMIT > 0 && counts[initial] >= PER_USER_LIMIT
+    }))
+    .sort((a, b) => b.count - a.count);
+  const totalImages = users.reduce((sum, u) => sum + u.count, 0);
+  const dailyCount = dailyUsage.date === todayStr() ? dailyUsage.count : 0;
+  return res.json({
+    users,
+    totalImages,
+    uniqueUsers: users.length,
+    perUserLimit: PER_USER_LIMIT,
+    dailyLimit: DAILY_LIMIT,
+    dailyCount,
+    stats: stats.get()
+  });
+});
+
 app.post('/api/store', async (req, res) => {
   try {
     const { image, initial, styleId } = req.body;

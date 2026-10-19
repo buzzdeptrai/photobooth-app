@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>Monitor - Photo Booth AI</title>
+  <style>
+    :root { --navy: #001965; --gray: #6b7280; --red: #dc2626; --green: #16a34a; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: #f4f6fb; color: #111; }
+    header { position: sticky; top: 0; background: var(--navy); color: #fff; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; z-index: 5; }
+    header h1 { font-size: 16px; margin: 0; font-weight: 700; letter-spacing: -0.2px; }
+    header .upd { font-size: 12px; opacity: 0.8; }
+    .wrap { padding: 16px; max-width: 760px; margin: 0 auto; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .stat { background: #fff; border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    .stat .label { font-size: 12px; color: var(--gray); margin-bottom: 4px; }
+    .stat .value { font-size: 24px; font-weight: 800; color: var(--navy); letter-spacing: -0.5px; }
+    .stat .sub { font-size: 12px; color: var(--gray); margin-top: 2px; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .toolbar input { flex: 1; min-width: 160px; padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 14px; background: #fff; }
+    .toolbar button { padding: 9px 16px; background: var(--navy); color: #fff; border: 0; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    th, td { text-align: left; padding: 11px 14px; font-size: 14px; border-bottom: 1px solid #eef0f5; }
+    th { background: #f9fafc; color: var(--gray); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; cursor: pointer; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr:last-child td { border-bottom: 0; }
+    .initial { font-weight: 700; color: var(--navy); }
+    .bar { height: 6px; border-radius: 3px; background: #e5e7eb; overflow: hidden; margin-top: 5px; }
+    .bar > span { display: block; height: 100%; background: var(--navy); }
+    .badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; }
+    .badge.ok { background: #dcfce7; color: var(--green); }
+    .badge.full { background: #fee2e2; color: var(--red); }
+    tr.full td { background: #fef2f2; }
+    .auth { max-width: 360px; margin: 60px auto; background: #fff; padding: 24px; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+    .auth h2 { margin: 0 0 14px; font-size: 16px; color: var(--navy); }
+    .auth input { width: 100%; padding: 11px 13px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 14px; margin-bottom: 12px; }
+    .auth button { width: 100%; padding: 11px; background: var(--navy); color: #fff; border: 0; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .auth .err { color: var(--red); font-size: 13px; margin-bottom: 10px; display: none; }
+    .empty { text-align: center; color: var(--gray); padding: 40px 20px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="authScreen" class="auth">
+    <h2>Nhập token quản trị</h2>
+    <div class="err" id="authErr">Token không đúng.</div>
+    <input type="password" id="tokenInput" placeholder="ADMIN_TOKEN" autocomplete="off" />
+    <button id="btnEnter">Xem monitor</button>
+  </div>
+
+  <header class="hidden" id="topBar">
+    <h1>Photo Booth Monitor</h1>
+    <span class="upd" id="updated"></span>
+  </header>
+
+  <div class="wrap hidden" id="mainWrap">
+    <div class="cards">
+      <div class="stat"><div class="label">Tổng ảnh</div><div class="value" id="sTotal">0</div><div class="sub" id="sStats"></div></div>
+      <div class="stat"><div class="label">Số người (INITIAL)</div><div class="value" id="sUsers">0</div></div>
+      <div class="stat"><div class="label">Hôm nay</div><div class="value" id="sDaily">0</div><div class="sub" id="sDailyLimit"></div></div>
+      <div class="stat"><div class="label">Giới hạn / người</div><div class="value" id="sPerUser">0</div><div class="sub" id="sFull"></div></div>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="Tìm theo INITIAL..." autocomplete="off" />
+      <button id="btnRefresh">Làm mới</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th id="thName">INITIAL</th>
+          <th class="num" id="thCount">Số ảnh &#9660;</th>
+          <th>Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty hidden" id="empty">Chưa có dữ liệu.</div>
+  </div>
+
+  <script>
+    (function () {
+      var authScreen = document.getElementById('authScreen');
+      var authErr = document.getElementById('authErr');
+      var tokenInput = document.getElementById('tokenInput');
+      var btnEnter = document.getElementById('btnEnter');
+      var topBar = document.getElementById('topBar');
+      var mainWrap = document.getElementById('mainWrap');
+      var updated = document.getElementById('updated');
+      var rows = document.getElementById('rows');
+      var empty = document.getElementById('empty');
+      var searchInput = document.getElementById('searchInput');
+      var btnRefresh = document.getElementById('btnRefresh');
+      var sTotal = document.getElementById('sTotal');
+      var sStats = document.getElementById('sStats');
+      var sUsers = document.getElementById('sUsers');
+      var sDaily = document.getElementById('sDaily');
+      var sDailyLimit = document.getElementById('sDailyLimit');
+      var sPerUser = document.getElementById('sPerUser');
+      var sFull = document.getElementById('sFull');
+      var thName = document.getElementById('thName');
+      var thCount = document.getElementById('thCount');
+
+      var data = null;
+      var activeToken = null;
+      var refreshTimer = null;
+      var REFRESH_MS = 15000;
+      var sortBy = 'count'; // 'count' | 'name'
+
+      function escHtml(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+      function slug(s) {
+        return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase();
+      }
+
+      async function login(token) {
+        var res = await fetch('/api/monitor?token=' + encodeURIComponent(token));
+        if (res.status === 401) { authErr.style.display = 'block'; return; }
+        if (!res.ok) { authErr.textContent = 'Lỗi tải dữ liệu.'; authErr.style.display = 'block'; return; }
+        data = await res.json();
+        try { localStorage.setItem('galleryToken', token); } catch (e) {}
+        activeToken = token;
+        authScreen.classList.add('hidden');
+        topBar.classList.remove('hidden');
+        mainWrap.classList.remove('hidden');
+        render();
+        startAutoRefresh();
+      }
+
+      async function refreshData() {
+        if (!activeToken) return;
+        try {
+          var res = await fetch('/api/monitor?token=' + encodeURIComponent(activeToken));
+          if (!res.ok) return;
+          data = await res.json();
+          render();
+        } catch (e) { /* keep existing on failure */ }
+      }
+
+      function startAutoRefresh() {
+        if (refreshTimer) return;
+        refreshTimer = setInterval(function () {
+          if (!document.hidden) refreshData();
+        }, REFRESH_MS);
+      }
+
+      function render() {
+        if (!data) return;
+        var perUser = data.perUserLimit || 0;
+        var fullCount = (data.users || []).filter(function (u) { return u.atLimit; }).length;
+
+        sTotal.textContent = data.totalImages || 0;
+        sStats.textContent = 'Gemini: ' + ((data.stats && data.stats.totalGeneratedImages) || 0) + ' ảnh / '
+          + ((data.stats && data.stats.totalGenerateRequests) || 0) + ' lượt';
+        sUsers.textContent = data.uniqueUsers || 0;
+        var dUsed = data.dailyCount || 0;
+        if (data.dailyLimit > 0) {
+          sDaily.textContent = dUsed + ' / ' + data.dailyLimit;
+          sDailyLimit.textContent = 'còn ' + Math.max(0, data.dailyLimit - dUsed) + ' lượt hôm nay';
+        } else {
+          sDaily.textContent = dUsed;
+          sDailyLimit.textContent = 'không giới hạn ngày';
+        }
+        sPerUser.textContent = perUser > 0 ? perUser : '∞';
+        sFull.textContent = perUser > 0 ? (fullCount + ' người đầy limit') : 'không giới hạn';
+
+        var q = slug(searchInput.value);
+        var list = (data.users || []).slice();
+        if (q) list = list.filter(function (u) { return slug(u.initial).indexOf(q) !== -1; });
+        if (sortBy === 'name') list.sort(function (a, b) { return a.initial.localeCompare(b.initial, 'vi'); });
+        else list.sort(function (a, b) { return b.count - a.count; });
+
+        updated.textContent = 'Cập nhật: ' + new Date().toLocaleTimeString('vi-VN');
+
+        rows.innerHTML = '';
+        if (!list.length) { empty.classList.remove('hidden'); return; }
+        empty.classList.add('hidden');
+
+        list.forEach(function (u, i) {
+          var pct = perUser > 0 ? Math.min(100, Math.round(u.count / perUser * 100)) : 0;
+          var badge = perUser <= 0
+            ? ''
+            : (u.atLimit ? '<span class="badge full">ĐẦY ' + u.count + '/' + perUser + '</span>'
+                         : '<span class="badge ok">' + u.count + '/' + perUser + '</span>');
+          var barHtml = perUser > 0
+            ? '<div class="bar"><span style="width:' + pct + '%;' + (u.atLimit ? 'background:var(--red);' : '') + '"></span></div>'
+            : '';
+          var tr = document.createElement('tr');
+          if (u.atLimit) tr.className = 'full';
+          tr.innerHTML =
+            '<td class="num">' + (i + 1) + '</td>' +
+            '<td class="initial">' + escHtml(u.initial) + barHtml + '</td>' +
+            '<td class="num">' + u.count + '</td>' +
+            '<td>' + badge + '</td>';
+          rows.appendChild(tr);
+        });
+      }
+
+      btnEnter.addEventListener('click', function () {
+        var t = (tokenInput.value || '').trim();
+        if (t) login(t);
+      });
+      tokenInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') btnEnter.click();
+      });
+      searchInput.addEventListener('input', render);
+      btnRefresh.addEventListener('click', refreshData);
+      thName.addEventListener('click', function () { sortBy = 'name'; thCount.innerHTML = 'Số ảnh'; thName.innerHTML = 'INITIAL &#9660;'; render(); });
+      thCount.addEventListener('click', function () { sortBy = 'count'; thName.innerHTML = 'INITIAL'; thCount.innerHTML = 'Số ảnh &#9660;'; render(); });
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) refreshData();
+      });
+
+      var urlToken = new URLSearchParams(location.search).get('token');
+      var saved = null;
+      try { saved = localStorage.getItem('galleryToken'); } catch (e) {}
+      if (urlToken) login(urlToken.trim());
+      else if (saved) login(saved);
+    })();
+  </script>
+</body>
+</html>
