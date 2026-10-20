@@ -28,6 +28,16 @@ const RATE_LIMIT_MAX = 10;
 const EVENT_CODE = (process.env.EVENT_CODE || '').trim();
 const DAILY_LIMIT = parseInt(process.env.DAILY_LIMIT || '0', 10); // 0 = unlimited
 const PER_USER_LIMIT = parseInt(process.env.PER_USER_LIMIT || '0', 10); // per-INITIAL cap, 0 = unlimited
+// These INITIALs get double the per-user quota.
+const DOUBLE_LIMIT_INITIALS = new Set(['TXNT', 'GNLT', 'HGDM']);
+const DOUBLE_LIMIT_FACTOR = 2;
+
+function limitFor(initial) {
+  if (!(PER_USER_LIMIT > 0)) return PER_USER_LIMIT;
+  return DOUBLE_LIMIT_INITIALS.has(userLimit.normalizeKey(initial))
+    ? PER_USER_LIMIT * DOUBLE_LIMIT_FACTOR
+    : PER_USER_LIMIT;
+}
 const ADMIN_TOKEN = (process.env.ADMIN_TOKEN || '').trim();
 // Temporarily hide the whole site (serve a maintenance page, block all APIs).
 // Toggle via env: MAINTENANCE_MODE=1 (admins can still enter with ADMIN_TOKEN).
@@ -984,11 +994,12 @@ app.post('/api/generate', async (req, res) => {
     // Per-user cap: block before taking a concurrency slot / burning quota.
     // code + limit let the client show a localized (VI/EN) message; error is
     // the VI fallback for any client that ignores the code.
-    if (userLimit.isAtLimit(initial, PER_USER_LIMIT)) {
+    const userCap = limitFor(initial);
+    if (userLimit.isAtLimit(initial, userCap)) {
       return res.status(429).json({
         code: 'USER_LIMIT',
-        limit: PER_USER_LIMIT,
-        error: 'B\u1ea1n \u0111\u00e3 d\u00f9ng h\u1ebft ' + PER_USER_LIMIT + ' l\u01b0\u1ee3t t\u1ea1o \u1ea3nh cho s\u1ef1 ki\u1ec7n n\u00e0y. C\u1ea3m \u01a1n b\u1ea1n \u0111\u00e3 tham gia!'
+        limit: userCap,
+        error: 'B\u1ea1n \u0111\u00e3 d\u00f9ng h\u1ebft ' + userCap + ' l\u01b0\u1ee3t t\u1ea1o \u1ea3nh cho s\u1ef1 ki\u1ec7n n\u00e0y. C\u1ea3m \u01a1n b\u1ea1n \u0111\u00e3 tham gia!'
       });
     }
 
@@ -1109,7 +1120,8 @@ app.get('/api/monitor', (req, res) => {
     .map((initial) => ({
       initial,
       count: counts[initial],
-      atLimit: PER_USER_LIMIT > 0 && counts[initial] >= PER_USER_LIMIT
+      limit: limitFor(initial),
+      atLimit: PER_USER_LIMIT > 0 && counts[initial] >= limitFor(initial)
     }))
     .sort((a, b) => b.count - a.count);
   const totalImages = users.reduce((sum, u) => sum + u.count, 0);

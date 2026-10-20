@@ -186,11 +186,12 @@
         empty.classList.add('hidden');
 
         list.forEach(function (u, i) {
-          var pct = perUser > 0 ? Math.min(100, Math.round(u.count / perUser * 100)) : 0;
+          var cap = u.limit || perUser;
+          var pct = perUser > 0 ? Math.min(100, Math.round(u.count / cap * 100)) : 0;
           var badge = perUser <= 0
             ? ''
-            : (u.atLimit ? '<span class="badge full">ĐẦY ' + u.count + '/' + perUser + '</span>'
-                         : '<span class="badge ok">' + u.count + '/' + perUser + '</span>');
+            : (u.atLimit ? '<span class="badge full">ĐẦY ' + u.count + '/' + cap + '</span>'
+                         : '<span class="badge ok">' + u.count + '/' + cap + '</span>');
           var barHtml = perUser > 0
             ? '<div class="bar"><span style="width:' + pct + '%;' + (u.atLimit ? 'background:var(--red);' : '') + '"></span></div>'
             : '';
