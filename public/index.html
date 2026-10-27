@@ -306,6 +306,8 @@
     #nameError:empty { display: none; }
 
     .welcome-actions { margin-top: auto; }
+    .gen-closed-note { display: none; margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #FEF3F2; color: #B42318; font-size: 13px; line-height: 1.5; text-align: center; }
+    .gen-closed-note.visible { display: block; }
 
     .my-gallery { margin-top: 22px; }
     .my-gallery h3 {
@@ -728,6 +730,7 @@
 
         <div class="welcome-actions">
           <button id="btnStart" class="btn btn-primary btn-block" data-i18n="btn.start" disabled>Bắt đầu ngay</button>
+          <p class="gen-closed-note" id="genClosedNote" data-i18n="gen.closed">Tính năng tạo ảnh đã tạm đóng. Bạn vẫn có thể xem và tải lại các ảnh gần đây.</p>
         </div>
 
         <div class="my-gallery" id="myGallery" style="display:none;">
@@ -973,6 +976,7 @@
           'err.unknown': 'Lỗi không xác định',
           'err.noImage': 'Không nhận được ảnh từ server.',
           'err.genGeneric': 'Lỗi khi tạo ảnh. Vui lòng thử lại sau.',
+          'gen.closed': 'Tính năng tạo ảnh đã tạm đóng. Bạn vẫn có thể xem và tải lại các ảnh gần đây.',
           'err.userLimit': 'Bạn đã dùng hết {n} lượt tạo ảnh cho sự kiện này. Cảm ơn bạn đã tham gia!',
           'toast.downloaded': 'Đã tải ảnh về máy',
           proc: [
@@ -1063,6 +1067,7 @@
           'err.unknown': 'Unknown error',
           'err.noImage': 'No image received from the server.',
           'err.genGeneric': 'Error creating photo. Please try again later.',
+          'gen.closed': 'Photo creation is temporarily closed. You can still view and download your recent photos.',
           'err.userLimit': "You've used all {n} photo generations for this event. Thank you for joining!",
           'toast.downloaded': 'Image saved to your device',
           proc: [
@@ -1248,8 +1253,17 @@
       var consentBox = document.querySelector('.consent-box');
 
       function updateStartState() {
-        btnStart.disabled = !(consentCheckbox.checked && (userInitialInput.value || '').trim());
+        btnStart.disabled = generateClosed || !(consentCheckbox.checked && (userInitialInput.value || '').trim());
       }
+
+      // Server flag (GENERATE_DISABLED): lock the Start button and show a notice.
+      var generateClosed = false;
+      var genClosedNote = document.getElementById('genClosedNote');
+      fetch('/api/config').then(function (r) { return r.json(); }).then(function (cfg) {
+        generateClosed = Boolean(cfg && cfg.generateDisabled);
+        genClosedNote.classList.toggle('visible', generateClosed);
+        updateStartState();
+      }).catch(function () {});
 
       // Hide the name + consent inputs once a returning visitor has both saved,
       // so the welcome screen looks the same whether reached via page refresh
@@ -1329,7 +1343,7 @@
       });
 
       btnStart.addEventListener('click', async function () {
-        if (!consentCheckbox.checked) return;
+        if (generateClosed || !consentCheckbox.checked) return;
         nameError.textContent = '';
 
         userInitial = (userInitialInput.value || '').trim();

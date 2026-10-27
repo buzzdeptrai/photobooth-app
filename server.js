@@ -42,6 +42,9 @@ const ADMIN_TOKEN = (process.env.ADMIN_TOKEN || '').trim();
 // Temporarily hide the whole site (serve a maintenance page, block all APIs).
 // Toggle via env: MAINTENANCE_MODE=1 (admins can still enter with ADMIN_TOKEN).
 const MAINTENANCE_MODE = /^(1|true|on|yes)$/i.test((process.env.MAINTENANCE_MODE || '').trim());
+// Stop image generation only; pages, gallery and cached recent images keep working.
+// Toggle via env: GENERATE_DISABLED=1
+const GENERATE_DISABLED = /^(1|true|on|yes)$/i.test((process.env.GENERATE_DISABLED || '').trim());
 
 // ---------------------------------------------------------------------------
 // Styles
@@ -968,7 +971,7 @@ app.get('/api/styles', (_req, res) => {
 });
 
 app.get('/api/config', (_req, res) => {
-  res.json({ requireCode: Boolean(EVENT_CODE) });
+  res.json({ requireCode: Boolean(EVENT_CODE), generateDisabled: GENERATE_DISABLED });
 });
 
 app.post('/api/verify-code', (req, res) => {
@@ -979,6 +982,9 @@ app.post('/api/verify-code', (req, res) => {
 });
 
 app.post('/api/generate', async (req, res) => {
+  if (GENERATE_DISABLED) {
+    return res.status(403).json({ error: 'Tính năng tạo ảnh đã tạm đóng. Bạn vẫn có thể xem và tải lại các ảnh gần đây.' });
+  }
   try {
     const clientIp = req.ip || req.connection.remoteAddress;
     if (isRateLimited(clientIp)) {
